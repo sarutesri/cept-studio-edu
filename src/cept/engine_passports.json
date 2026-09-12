@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "status_vocabulary": [
+    "VALIDATED",
+    "QUALIFIED",
+    "EXPERIMENTAL",
+    "DEMONSTRATOR"
+  ],
+  "status_policy": {
+    "VALIDATED": "Release-bound evidence exists for the declared runtime, platform, benchmark, and tolerance profile.",
+    "QUALIFIED": "A bounded benchmark or comparison supports the capability, but release-bound evidence is not yet published for every supported environment.",
+    "EXPERIMENTAL": "The capability is implemented for research exploration but is not qualified for research claims.",
+    "DEMONSTRATOR": "The execution path is useful for smoke tests or bounded demonstrations only; it must not inherit a general research-validation claim."
+  },
+  "engines": {
+    "opendss": {
+      "priority": 10,
+      "runtime": "OpenDSSDirect",
+      "license": "BSD-compatible runtime; verify installed package version",
+      "supported_studies": [
+        "load_flow",
+        "unbalanced_load_flow",
+        "fault",
+        "hosting_capacity",
+        "dynamics",
+        "dynamics_rms",
+        "qsts",
+        "harmonics",
+        "protection",
+        "gic"
+      ],
+      "research_support": {
+        "load_flow": {
+          "status": "QUALIFIED",
+          "benchmark": "IEEE 13-node unbalanced load flow",
+          "validated_runtime_version": null,
+          "platforms": [],
+          "last_verified_release": null
+        },
+        "unbalanced_load_flow": {
+          "status": "QUALIFIED",
+          "benchmark": "IEEE 13-node unbalanced load flow",
+          "validated_runtime_version": null,
+          "platforms": [],
+          "last_verified_release": null
+        },
+        "fault": {"status": "DEMONSTRATOR"},
+        "hosting_capacity": {"status": "DEMONSTRATOR"},
+        "dynamics": {"status": "DEMONSTRATOR"},
+        "dynamics_rms": {"status": "DEMONSTRATOR"},
+        "qsts": {"status": "DEMONSTRATOR"},
+        "harmonics": {"status": "DEMONSTRATOR"},
+        "protection": {"status": "DEMONSTRATOR"},
+        "gic": {"status": "DEMONSTRATOR"}
+      },
+      "experimental_features": [
+        "DynamicExp-based inverter controls",
+        "grid-forming inverter dynamics"
+      ],
+      "supported_model_families": [
+        "typed Case steady-state network models",
+        "classical synchronous-machine RMS models with explicit parameters"
+      ],
+      "qualified_benchmarks": [
+        "IEEE 13-node unbalanced load flow"
+      ],
+      "prohibited_claims": [
+        "switching-level EMT",
+        "sub-cycle converter interaction",
+        "unqualified vendor controller validation",
+        "total-parameter branch representation without an explicit physical length"
+      ],
+      "claim_caps": {
+        "load_flow": "project-validated",
+        "unbalanced_load_flow": "project-validated",
+        "dynamics": "demonstrator",
+        "dynamics_rms": "demonstrator",
+        "emt": "blocked"
+      }
+    },
+    "powerfactory": {
+      "priority": 20,
+      "runtime": "DIgSILENT PowerFactory Python API",
+      "license": "Local PowerFactory installation and available license seat required",
+      "supported_studies": [
+        "load_flow",
+        "fault",
+        "dynamics",
+        "dynamics_rms",
+        "emt"
+      ],
+      "research_support": {
+        "load_flow": {
+          "status": "QUALIFIED",
+          "benchmark": "Kundur Example 13.1 balanced load flow",
+          "validated_runtime_version": null,
+          "platforms": [],
+          "last_verified_release": null
+        },
+        "fault": {"status": "DEMONSTRATOR"},
+        "dynamics": {"status": "DEMONSTRATOR"},
+        "dynamics_rms": {"status": "DEMONSTRATOR"},
+        "emt": {"status": "DEMONSTRATOR"}
+      },
+      "experimental_features": [
+        "site/vendor-specific composite controls without reviewed model mapping"
+      ],
+      "supported_model_families": [
+        "typed Case inline balanced network models",
+        "typed Case inline total-parameter branches with source-bound R/X/B",
+        "PowerFactory RMS composite models with reviewed asset mappings"
+      ],
+      "qualified_benchmarks": [
+        "Kundur Example 13.1 balanced load flow"
+      ],
+      "prohibited_claims": [
+        "project validation without site/vendor evidence",
+        "EMT model validation from the native runtime smoke alone"
+      ],
+      "claim_caps": {
+        "load_flow": "project-validated",
+        "fault": "demonstrator",
+        "dynamics": "demonstrator",
+        "dynamics_rms": "demonstrator",
+        "emt": "demonstrator"
+      }
+    }
+  }
+}

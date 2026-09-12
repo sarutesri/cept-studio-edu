@@ -1,0 +1,49 @@
+{
+  "schema": "cept-public-agent-observe-replay-v1",
+  "label": "SANITIZED_OBSERVE_REPLAY",
+  "evidence_role": "agent interaction example only; not a solver receipt or product-acceptance result",
+  "executor": {
+    "tool": "OpenCode",
+    "mode": "headless local run from the source checkout",
+    "model": "opencode/muse-spark-1.3-contributor-free",
+    "variant": "xhigh",
+    "credential_values_recorded": false
+  },
+  "request": "Run the bounded IEEE 13-node load-flow demonstration and explain only verified artifacts.",
+  "observed_actions": [
+    {
+      "kind": "command",
+      "command": "python -m cept.public_cli study demo load-flow --network ieee13 --out runs/agent-ieee13 --force",
+      "exit_status": 0
+    },
+    {
+      "kind": "command",
+      "command": "python -m cept.public_cli study verify runs/agent-ieee13",
+      "exit_status": 0
+    },
+    {
+      "kind": "read",
+      "path": "runs/agent-ieee13/manifest.json"
+    },
+    {
+      "kind": "read",
+      "path": "runs/agent-ieee13/public-verification.json"
+    }
+  ],
+  "observed_verdict": {
+    "study_type": "load_flow",
+    "engine": "opendss",
+    "passed": true,
+    "status": "PASS",
+    "claim": "WORKFLOW_VALIDATED",
+    "case_fingerprint": "748c8026c9d6",
+    "artifact_set_digest": "cept-artifacts-e480ce888067d1be0bddab4e9ad3006ecd6ca25ceffc71ac01ec077a08940e8d"
+  },
+  "sanitization": {
+    "absolute_paths_replaced": true,
+    "credentials_removed": true,
+    "raw_model_events_not_published": true,
+    "solver_values_recalculated": false
+  },
+  "claim_boundary": "The replay proves that this observed agent invoked the commands and read their artifacts. Only the original solver artifacts support engineering claims. WORKFLOW_VALIDATED is not project or field validation."
+}

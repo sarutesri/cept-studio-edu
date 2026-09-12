@@ -15,7 +15,7 @@ The bounded claim is `WORKFLOW_VALIDATED`; it does not validate a physical
 project. Open the notebooks in Google Colab; anonymous access follows the public mirror.
 
 <div class="cept-actions" markdown>
-<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span><span>Start with Lesson 00</span></a>
+<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span><span>Start with Lesson 00</span></a>
 [See the course map](public-course.md){ .md-button }
 </div>
 
@@ -52,8 +52,8 @@ flowchart LR
 Check the runtime, package boundary, and claim scope.
 
 <div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/master/public/notebooks/00_environment.ipynb){ .cept-source-link target="_blank" rel="noopener" }
+<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
+[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb){ .cept-source-link target="_blank" rel="noopener" }
 </div>
 </div>
 
@@ -64,8 +64,8 @@ Check the runtime, package boundary, and claim scope.
 Build a tiny two-bus load flow and inspect the returned voltage.
 
 <div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/01_first_circuit_load_flow.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 01 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/master/public/notebooks/01_first_circuit_load_flow.ipynb){ .cept-source-link target="_blank" rel="noopener" }
+<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_first_circuit_load_flow.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 01 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
+[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_first_circuit_load_flow.ipynb){ .cept-source-link target="_blank" rel="noopener" }
 </div>
 </div>
 
@@ -76,8 +76,8 @@ Build a tiny two-bus load flow and inspect the returned voltage.
 Explore an unbalanced three-phase feeder.
 
 <div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/02_ieee13_unbalanced.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 02 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/master/public/notebooks/02_ieee13_unbalanced.ipynb){ .cept-source-link target="_blank" rel="noopener" }
+<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 02 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
+[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb){ .cept-source-link target="_blank" rel="noopener" }
 </div>
 </div>
 
@@ -88,8 +88,8 @@ Explore an unbalanced three-phase feeder.
 Increase PV while keeping the voltage criterion visible.
 
 <div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/03_hosting_capacity.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 03 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/master/public/notebooks/03_hosting_capacity.ipynb){ .cept-source-link target="_blank" rel="noopener" }
+<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_hosting_capacity.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 03 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
+[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_hosting_capacity.ipynb){ .cept-source-link target="_blank" rel="noopener" }
 </div>
 </div>
 
@@ -100,8 +100,8 @@ Increase PV while keeping the voltage criterion visible.
 Run a declared ground fault and inspect solver-returned current.
 
 <div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/04_fault_study.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 04 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/master/public/notebooks/04_fault_study.ipynb){ .cept-source-link target="_blank" rel="noopener" }
+<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 04 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
+[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb){ .cept-source-link target="_blank" rel="noopener" }
 </div>
 </div>
 
@@ -112,8 +112,8 @@ Run a declared ground fault and inspect solver-returned current.
 Follow fingerprints, saved artifacts, and checks.
 
 <div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/05_validation_reproducibility.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 05 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/master/public/notebooks/05_validation_reproducibility.ipynb){ .cept-source-link target="_blank" rel="noopener" }
+<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 05 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
+[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb){ .cept-source-link target="_blank" rel="noopener" }
 </div>
 </div>
 
@@ -121,7 +121,7 @@ Follow fingerprints, saved artifacts, and checks.
 
 
 <div class="cept-actions" markdown>
-<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/02_ieee13_unbalanced.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Try IEEE13 in Colab</span></a>
+<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Try IEEE13 in Colab</span></a>
 [Open the full lesson map](public-course.md){ .md-button }
 </div>
 
@@ -135,4 +135,4 @@ For the full Windows workflow with interactive SLD and report output, continue
 to [Getting started](getting-started.md).
 
 Found a confusing lesson or unexpected result?
-[Report it](https://github.com/sarutesri/cept-studio-edu/issues/new).
+[Report it](https://github.com/sarutesri/cept-studio/issues/new).

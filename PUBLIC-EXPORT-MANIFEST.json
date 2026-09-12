@@ -1,13 +1,15 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "c6aa72a04f9bf2efd6f120316e035ea971fb37c8",
+  "canonical_source_commit": "43de3847fd816376b6b1fa3a866ac5bbe1aec441",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
     "packaging/public/pyproject.toml",
     "packaging/public/README.md",
     "packaging/public/LICENSE",
+    "packaging/public/THIRD_PARTY_NOTICES.md",
+    "packaging/public/public-pages.yml",
     "src/cept/__init__.py",
     "src/cept/public.py",
     "src/cept/public_cli.py",
@@ -17,6 +19,7 @@
     "src/cept/studies/planning.py",
     "src/cept/capability/**",
     "src/cept/engine_passports.py",
+    "src/cept/engine_passports.json",
     "src/cept/fidelity/__init__.py",
     "src/cept/fidelity/perunit.py",
     "src/cept/util.py",
@@ -25,6 +28,7 @@
     "src/cept/intent/__init__.py",
     "src/cept/intent/schema.py",
     "src/cept/adapters/__init__.py",
+    "src/cept/adapters/probe.py",
     "src/cept/adapters/opendss/**",
     "src/cept/geometry.py",
     "src/cept/semantics/**",
@@ -35,11 +39,21 @@
     "src/cept/testsystems/ieee13/**",
     "public/notebooks/**",
     "public/examples/**",
+    "public/agent/README.md",
+    "public/agent/.opencode/commands/cept-edu.md",
+    "public/agent/observe-replay.json",
+    "public/site/**",
     "tools/run_public_notebooks.py",
+    "tools/build_edu_site.py",
     "docs/site/public-course.md",
     "docs/site/colab.md"
   ],
   "files": [
+    {
+      "path": ".github/workflows/public-pages.yml",
+      "source": "packaging/public/public-pages.yml",
+      "sha256": "923da90f90c1dc8b1cdf05d4e889e2c5a363216abc3c39737868fdfcaca2de5e"
+    },
     {
       "path": "LICENSE",
       "source": "packaging/public/LICENSE",
@@ -48,12 +62,17 @@
     {
       "path": "README.md",
       "source": "packaging/public/README.md",
-      "sha256": "1020fc23e26df1dc2188e5bc45225e3c86cf5f388aeddbbedfe0455f2913d29a"
+      "sha256": "8c77b98c702dae2cd61ca3c1f24cfce1bdbac645c6c8186058edc7d6ddd23e87"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "source": "packaging/public/THIRD_PARTY_NOTICES.md",
+      "sha256": "5604320044d8ef139ae86153b6ed9ac5b5158c2386bc004bc05b68f559ac695c"
     },
     {
       "path": "docs/site/colab.md",
       "source": "docs/site/colab.md",
-      "sha256": "a83982d364b0035afb57b3bf173a8ec520df72657a63a38bdafe14ae0ee9935e"
+      "sha256": "3630739be6de3d060b995e318de574841ec7e8111e63a9178fb9a10ae5768e00"
     },
     {
       "path": "docs/site/public-course.md",
@@ -63,7 +82,22 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "782a1318d6b1736c09353a40aa2631eaa2c392f61dfbf18cdd7b08b9b7a1e4d0"
+      "sha256": "db3f8a86c3acaf7834003dd18a4dd0d51168389cd3902a6436e4228c428792d2"
+    },
+    {
+      "path": "public/agent/.opencode/commands/cept-edu.md",
+      "source": "public/agent/.opencode/commands/cept-edu.md",
+      "sha256": "17565ae8bb1bdf3ad78fd5261fd1d1a57b39105b3cac94948f2306731b62a241"
+    },
+    {
+      "path": "public/agent/README.md",
+      "source": "public/agent/README.md",
+      "sha256": "8b0cc92398aaec848f9c094859265c9a5afa460bb5ec84cac4b64c65805ce626"
+    },
+    {
+      "path": "public/agent/observe-replay.json",
+      "source": "public/agent/observe-replay.json",
+      "sha256": "de1be82a6325f7087f204912908e7749ee2917db71c42d98d61ddb9572932ef6"
     },
     {
       "path": "public/examples/README.md",
@@ -78,42 +112,47 @@
     {
       "path": "public/notebooks/00_environment.ipynb",
       "source": "public/notebooks/00_environment.ipynb",
-      "sha256": "a270da554e760659a6dd27d3ab2549fdb059ed37a720844bcee41504f3117234"
+      "sha256": "60f1406769ee0658a6494a969246beb54e862a2e08d8611ed5f7dc5cadc67bfc"
     },
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "e2af3f3a0099f9059c3906894ab0b74454494b9df934d6d2e3396691f8f6b438"
+      "sha256": "e08b5bbbd4a6b9eedfce0dddc0b57410498b5cdcd58099748d84bc6833220aff"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "f8221475a92cd9d3f500f21e71756557e905a90c1965c54010442bb31d9f65ea"
+      "sha256": "98becbaa52662d79cfe8d01766e06d1971deebe220b77d7c0a64a6e441888f84"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "fa2ccebb05de101519c418210c0b710eb32fa473bc7b240b507a0382e226f8e0"
+      "sha256": "797fe5aba89f74dccdabb8e1759b30bca3a3225089999cc11ee3391668a7ed28"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "a3cd60740a16ad05628f6df8ab0f3724218013514e5e9662b313d365206f5d8c"
+      "sha256": "720a6a714e469c105deeb1c62aaf1032db9ed31e2cca8a1f4fc7e36a0cbc9417"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
       "source": "public/notebooks/05_validation_reproducibility.ipynb",
-      "sha256": "a0b683fa4c2719de51511e95a8e68fc34473b13af1da4bc605d83881abc6ab5f"
+      "sha256": "6e89c88be901fd5e20286ee850878b7f385c8f870365d8ec906a27fdc017ac73"
     },
     {
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
-      "sha256": "46aeb3384f602a2b6261c0d6df9eb5470820b4f2a001f08db4a2e94e59a45c8c"
+      "sha256": "8280bb27388e098409c9ccc187fc3a75a12e71f529ab79c58c7012e582e265e6"
+    },
+    {
+      "path": "public/site/education.css",
+      "source": "public/site/education.css",
+      "sha256": "a6c7de48d17013bc0f34dc0d7976a558bf4b8b4833c035361b135445b4e84a28"
     },
     {
       "path": "pyproject.toml",
       "source": "packaging/public/pyproject.toml",
-      "sha256": "025185d299244f2eaf146be29911098a1220febbbe826d711c84d92fade07443"
+      "sha256": "29e062f7a5b26fbe0290e9370b552c52cc8afffc35399fa2edfe5c6c656c1b81"
     },
     {
       "path": "src/cept/__init__.py",
@@ -231,6 +270,11 @@
       "sha256": "78216fd16ff7f4e263e212da61cc28d7400c6bbbb23ea28d8fcce69050bf780e"
     },
     {
+      "path": "src/cept/adapters/probe.py",
+      "source": "src/cept/adapters/probe.py",
+      "sha256": "558a95f3ac3b9d0878ac59516e912c55bf42783c558986ad1e6b80d655e87a14"
+    },
+    {
       "path": "src/cept/application/__init__.py",
       "source": "src/cept/application/__init__.py",
       "sha256": "07f8a3a1f006f6c4aedf1f28e361f102f99595ead25e6a41bda34becb437469a"
@@ -274,6 +318,11 @@
       "path": "src/cept/dynamics_lib.py",
       "source": "src/cept/dynamics_lib.py",
       "sha256": "fa5f4b7d00dafb36ba558a58c5f19fe7bb25bf103772fb5b6c6fcd08af4ce179"
+    },
+    {
+      "path": "src/cept/engine_passports.json",
+      "source": "src/cept/engine_passports.json",
+      "sha256": "5d7be9a1c0f4b47ea087ecdf698837ef48a0932cc69ad5d6a18e37d988a639ea"
     },
     {
       "path": "src/cept/engine_passports.py",
@@ -459,6 +508,11 @@
       "path": "src/cept/util.py",
       "source": "src/cept/util.py",
       "sha256": "3a3d0ef20789b8667d7db3d262406b3ae6b96c4882b7c8fc58018a833d3d62eb"
+    },
+    {
+      "path": "tools/build_edu_site.py",
+      "source": "tools/build_edu_site.py",
+      "sha256": "bc6133f90ada7168b564c2b6c94c31b18150841febf3a704d6918a6f1f81b270"
     },
     {
       "path": "tools/run_public_notebooks.py",

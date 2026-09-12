@@ -37,4 +37,10 @@ where = ["src"]
 include = ["cept*"]
 
 [tool.setuptools.package-data]
-cept = ["testsystems/ieee13/*.csv", "testsystems/ieee13/*.dss"]
+cept = [
+    "engine_passports.json",
+    "testsystems/ieee13/*.csv",
+    "testsystems/ieee13/*.dss",
+    "capability/*.json",
+    "semantics/data/*.json",
+]

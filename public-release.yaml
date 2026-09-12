@@ -78,6 +78,8 @@ export:
     - packaging/public/pyproject.toml
     - packaging/public/README.md
     - packaging/public/LICENSE
+    - packaging/public/THIRD_PARTY_NOTICES.md
+    - packaging/public/public-pages.yml
     - src/cept/__init__.py
     - src/cept/public.py
     - src/cept/public_cli.py
@@ -87,6 +89,7 @@ export:
     - src/cept/studies/planning.py
     - src/cept/capability/**
     - src/cept/engine_passports.py
+    - src/cept/engine_passports.json
     - src/cept/fidelity/__init__.py
     - src/cept/fidelity/perunit.py
     - src/cept/util.py
@@ -95,6 +98,7 @@ export:
     - src/cept/intent/__init__.py
     - src/cept/intent/schema.py
     - src/cept/adapters/__init__.py
+    - src/cept/adapters/probe.py
     - src/cept/adapters/opendss/**
     - src/cept/geometry.py
     - src/cept/semantics/**
@@ -105,7 +109,12 @@ export:
     - src/cept/testsystems/ieee13/**
     - public/notebooks/**
     - public/examples/**
+    - public/agent/README.md
+    - public/agent/.opencode/commands/cept-edu.md
+    - public/agent/observe-replay.json
+    - public/site/**
     - tools/run_public_notebooks.py
+    - tools/build_edu_site.py
     - docs/site/public-course.md
     - docs/site/colab.md
   copy:
@@ -113,6 +122,8 @@ export:
     packaging/public/pyproject.toml: pyproject.toml
     packaging/public/README.md: README.md
     packaging/public/LICENSE: LICENSE
+    packaging/public/THIRD_PARTY_NOTICES.md: THIRD_PARTY_NOTICES.md
+    packaging/public/public-pages.yml: .github/workflows/public-pages.yml
 
 license:
   status: approved

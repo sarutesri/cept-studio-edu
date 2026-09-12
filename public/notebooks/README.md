@@ -7,12 +7,12 @@ The comparison is a workflow demonstration, not project validation.
 
 | Notebook | Topic |
 | --- | --- |
-| [`00_environment.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/00_environment.ipynb) | Runtime, package boundary, and claim scope |
-| [`01_first_circuit_load_flow.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/01_first_circuit_load_flow.ipynb) | A two-bus circuit and load-flow comparison |
-| [`02_ieee13_unbalanced.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/02_ieee13_unbalanced.ipynb) | IEEE 13-node unbalanced feeder |
-| [`03_hosting_capacity.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/03_hosting_capacity.ipynb) | PV hosting-capacity search |
-| [`04_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/04_fault_study.ipynb) | Single-line-to-ground fault |
-| [`05_validation_reproducibility.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/05_validation_reproducibility.ipynb) | Fingerprints, artifacts, and verification |
+| [`00_environment.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb) | Runtime, package boundary, and claim scope |
+| [`01_first_circuit_load_flow.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_first_circuit_load_flow.ipynb) | A two-bus circuit and load-flow comparison |
+| [`02_ieee13_unbalanced.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb) | IEEE 13-node unbalanced feeder |
+| [`03_hosting_capacity.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_hosting_capacity.ipynb) | PV hosting-capacity search |
+| [`04_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb) | Single-line-to-ground fault |
+| [`05_validation_reproducibility.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb) | Fingerprints, artifacts, and verification |
 
 The notebooks are candidate public teaching assets until the package passes
 the staged wheel gate and an owner approves the release license. They should

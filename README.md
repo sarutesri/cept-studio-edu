@@ -17,19 +17,19 @@ Open each lesson directly in Google Colab:
 
 | Notebook | Link |
 | --- | --- |
-| `00_environment.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/00_environment.ipynb) |
-| `01_first_circuit_load_flow.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/01_first_circuit_load_flow.ipynb) |
-| `02_ieee13_unbalanced.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/02_ieee13_unbalanced.ipynb) |
-| `03_hosting_capacity.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/03_hosting_capacity.ipynb) |
-| `04_fault_study.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/04_fault_study.ipynb) |
-| `05_validation_reproducibility.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/05_validation_reproducibility.ipynb) |
+| `00_environment.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb) |
+| `01_first_circuit_load_flow.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_first_circuit_load_flow.ipynb) |
+| `02_ieee13_unbalanced.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb) |
+| `03_hosting_capacity.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_hosting_capacity.ipynb) |
+| `04_fault_study.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb) |
+| `05_validation_reproducibility.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb) |
 
-The current support matrix is intentionally narrow: the desktop/CLI preview
-is supported on Windows with Python 3.10, while the teaching notebooks target
-Google Colab. Colab's hosted runtime is Linux; the real Colab cold-start is a
-separate notebook acceptance gate. Standalone Linux CLI support is not part of
-this candidate. The direct Colab links require the canonical repository to be
-public or the viewer to have authenticated access to it.
+The desktop/CLI teaching path is qualified on Windows, and the notebooks are
+also exercised headlessly in a clean installed-product environment. Google
+Colab is the hosted Linux target; its real cold-start status is reported
+separately from local qualification. Standalone Linux CLI support is not part
+of this candidate. The direct Colab links resolve through the public
+`sarutesri/cept-studio-edu` repository.
 
 The solver is the actual OpenDSS runtime. CEPT translates the typed Case,
 captures the solver-returned result, and records the solver identity. The
@@ -46,10 +46,11 @@ cept study verify runs/ieee13
 ```
 
 The wheel intentionally contains no PowerFactory adapter, private project
-paths, internal evidence, or private research assets. The license is approved
-(Apache-2.0); public release remains blocked until the real Google Colab
-notebook gate is completed and the external public-repository gate is reviewed.
+paths, internal evidence, or private research assets. The release is licensed
+under Apache-2.0; dependency and test-feeder attribution is recorded in
+`THIRD_PARTY_NOTICES.md`.
 
-The canonical private repository remains the source of truth. Do not publish
-the staging tree until `tools/run_public_gate.py` reports a release-ready
-result and an approved public license is recorded in `public-release.yaml`.
+This public repository is a reviewed positive-allowlist export. The canonical
+`sarutesri/cept-studio` repository remains the development source of truth.
+Every export records its canonical source revision and hashes the final
+published bytes in `.cept-public-source.json`.
