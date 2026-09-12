@@ -1,0 +1,120 @@
+schema_version: 1
+
+product:
+  distribution: cept-power-studio
+  import_name: cept
+  edition: public
+
+candidate_version: 0.2.0.dev0
+
+education:
+  status: candidate
+  notebooks:
+    - public/notebooks/00_environment.ipynb
+    - public/notebooks/01_first_circuit_load_flow.ipynb
+    - public/notebooks/02_ieee13_unbalanced.ipynb
+    - public/notebooks/03_hosting_capacity.ipynb
+    - public/notebooks/04_fault_study.ipynb
+    - public/notebooks/05_validation_reproducibility.ipynb
+  runner: tools/run_public_notebooks.py
+
+source:
+  canonical_repo: sarutesri/cept-studio
+
+# Current support matrix: the desktop/CLI preview is Windows-first, while the
+# notebook teaching target is Google Colab.  Colab's hosted runtime is Linux;
+# a real Colab cold-start is the acceptance test for that notebook target.
+support:
+  desktop:
+    platform: windows
+    python: "3.10"
+  notebook:
+    runtime: google_colab
+    platform: linux
+    status: candidate
+  standalone_linux:
+    status: not_supported_initially
+
+# These are readiness candidates, not a public Stable release claim.  A
+# capability is promoted only by the public gate after the staged package and
+# its matching educational evidence pass.
+capabilities:
+  load_flow:
+    engine: opendss
+    status: candidate
+  unbalanced_load_flow:
+    engine: opendss
+    status: candidate
+  hosting_capacity:
+    engine: opendss
+    status: candidate
+  fault:
+    engine: opendss
+    status: candidate
+  dynamics:
+    engine: opendss
+    status: excluded_initially
+
+features:
+  verification: candidate
+  report: pending_gate
+  sld: pending_gate
+  time_series: pending_gate
+  pv_der: pending_gate
+
+exclude:
+  - powerfactory
+  - pfd_private_paths
+  - internal_corpus
+  - internal_workspace
+  - licensed_assets
+  - private_research_evidence
+
+export:
+  # Positive allowlist.  New files in the private repository are not copied
+  # unless they are explicitly admitted here.
+  allowlist:
+    - public-release.yaml
+    - packaging/public/pyproject.toml
+    - packaging/public/README.md
+    - packaging/public/LICENSE
+    - src/cept/__init__.py
+    - src/cept/public.py
+    - src/cept/public_cli.py
+    - src/cept/application/__init__.py
+    - src/cept/application/readiness.py
+    - src/cept/application/run_identity.py
+    - src/cept/studies/planning.py
+    - src/cept/capability/**
+    - src/cept/engine_passports.py
+    - src/cept/fidelity/__init__.py
+    - src/cept/fidelity/perunit.py
+    - src/cept/util.py
+    - src/cept/model_package_identity.py
+    - src/cept/schema/**
+    - src/cept/intent/__init__.py
+    - src/cept/intent/schema.py
+    - src/cept/adapters/__init__.py
+    - src/cept/adapters/opendss/**
+    - src/cept/geometry.py
+    - src/cept/semantics/**
+    - src/cept/ports/**
+    - src/cept/dynamics_contract.py
+    - src/cept/dynamics_lib.py
+    - src/cept/adapters/opender.py
+    - src/cept/testsystems/ieee13/**
+    - public/notebooks/**
+    - public/examples/**
+    - tools/run_public_notebooks.py
+    - docs/site/public-course.md
+    - docs/site/colab.md
+  copy:
+    public-release.yaml: public-release.yaml
+    packaging/public/pyproject.toml: pyproject.toml
+    packaging/public/README.md: README.md
+    packaging/public/LICENSE: LICENSE
+
+license:
+  status: pending_approval
+  approved_spdx: null
+  release_blocker: true

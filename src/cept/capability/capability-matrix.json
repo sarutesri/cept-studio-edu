@@ -1,0 +1,626 @@
+{
+  "schema_version": 1,
+  "representations": ["inline", "dss_file", "builtin"],
+  "header": {
+    "note": "Single machine-readable source of truth for CEPT study capability. A (study_type, engine, representation_family) cell is SUPPORTED/BOUNDED/DEMONSTRATOR/BLOCKED; a BLOCKED cell MUST carry a named 'reason'. The '*', representation family is a wildcard meaning 'all representations'. Reserved study types (economic_dispatch, unit_commitment) are BLOCKED for every engine with a named reason; they are NEVER silently converted to load_flow.",
+    "status_meaning": {
+      "supported": "Reviewed adapter + audit + benchmark exist; solver-returned quantities are trustworthy.",
+      "bounded": "Supported for a narrow, declared subset; anything outside the subset fails closed.",
+      "demonstrator": "Runs and is solver-valid, but is demonstrator-capped (no project validation claim).",
+      "blocked": "Not supported for this (study_type, engine, representation); reason is mandatory."
+    }
+  },
+  "reserved_study_types": {
+    "economic_dispatch": {
+      "status": "blocked",
+      "reason": "Economic dispatch is reserved in CEPT: no adapter, physics-audit section, or benchmark exists for it. It is never silently converted to load_flow. External dispatch/optimization workflows must invoke `cept study run` as a sub-solver from workspace/<slug>/local/; CEPT never becomes the optimizer.",
+      "gate": "Gate blocking a Case whose study.type is 'economic_dispatch' before any solver connection."
+    },
+    "unit_commitment": {
+      "status": "blocked",
+      "reason": "Unit commitment is reserved in CEPT: no adapter, physics-audit section, or benchmark exists for it. It is never silently converted to load_flow. External optimization workflows must invoke `cept study run` as a sub-solver from workspace/<slug>/local/; CEPT never becomes the optimizer.",
+      "gate": "Gate blocking a Case whose study.type is 'unit_commitment' before any solver connection."
+    }
+  },
+  "study_types": {
+    "load_flow": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "steady_state",
+            "quantities": {
+              "supported": [
+                "load_flow.converged",
+                "load_flow.iterations",
+                "bus_voltages[].v_pu",
+                "bus_voltages[].v_angle_deg",
+                "bus_voltages[].v_kv_ln",
+                "branch_flows[].p_kw",
+                "branch_flows[].q_kvar",
+                "branch_flows[].losses_kw",
+                "branch_flows[].loading_pct",
+                "total_load_kw",
+                "total_load_kvar",
+                "total_loss_kw",
+                "total_loss_kvar",
+                "source_p_kw",
+                "source_q_kvar",
+                "der_outputs[].p_kw",
+                "der_outputs[].q_kvar"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "network.kind",
+              "frequency_hz",
+              "buses[].kv",
+              "loads[].kw",
+              "loads[].pf",
+              "loads[].bus",
+              "generators or external_grids (at least one in-service source)",
+              "lines[].r1_ohm_per_km/x1_ohm_per_km/b1_us_per_km/length_km (inline)",
+              "or network.path (dss_file) or network.name (builtin)"
+            ],
+            "gate": "physics-audit load_flow section (finite + converged + fingerprint identity); fidelity read-back gate before Solve()"
+          }
+        },
+        "powerfactory": {
+        "inline": {
+          "status": "supported",
+          "fidelity": "steady_state",
+          "quantities": {
+            "supported": [
+              "load_flow.converged",
+              "load_flow.iterations",
+              "bus_voltages[].v_pu",
+              "bus_voltages[].v_angle_deg",
+              "bus_voltages[].v_kv_ln",
+              "branch_flows[].p_kw",
+              "branch_flows[].q_kvar",
+              "branch_flows[].losses_kw",
+              "branch_flows[].loading_pct",
+              "total_load_kw",
+              "total_load_kvar",
+              "total_loss_kw",
+              "total_loss_kvar",
+              "source_p_kw",
+              "source_q_kvar"
+            ],
+            "unsupported": []
+          },
+          "required_inputs": [
+            "network.kind=inline (PowerFactory requires inline networks)",
+            "frequency_hz",
+            "buses[].kv",
+            "loads[].kw/pf/bus",
+            "generators or external_grids (in-service source)",
+            "lines[].r1_ohm_per_km/x1_ohm_per_km/b1_us_per_km/length_km",
+            "or total_parameters (source-bound R/X/B)"
+          ],
+          "gate": "physics-audit load_flow section; fidelity read-back gate before ComLdf"
+        },
+        "dss_file": {
+          "status": "blocked",
+          "reason": "PowerFactory requires network.kind='inline'; a dss_file feeder is OpenDSS-only.",
+          "gate": "Case._check_engine_compat already blocks engine=powerfactory with network.kind != inline."
+        },
+        "builtin": {
+          "status": "blocked",
+          "reason": "PowerFactory requires network.kind='inline'; a builtin feeder is OpenDSS-only.",
+          "gate": "Case._check_engine_compat already blocks engine=powerfactory with network.kind != inline."
+        }
+      }
+      }
+    },
+    "unbalanced_load_flow": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "steady_state",
+            "quantities": {
+              "supported": [
+                "load_flow.converged",
+                "bus_voltages[].v_pu (per-phase)",
+                "bus_voltages[].v_angle_deg",
+                "branch_flows[].p_kw",
+                "branch_flows[].q_kvar",
+                "total_load_kw",
+                "total_load_kvar",
+                "total_loss_kw",
+                "total_loss_kvar",
+                "der_outputs[].p_kw",
+                "der_outputs[].q_kvar"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "network.kind",
+              "frequency_hz",
+              "buses[].kv with phases (1-3)",
+              "loads[].kw/pf/bus/phases",
+              "generators or external_grids",
+              "r0_ohm_per_km/x0_ohm_per_km for grounded/phase-imbalanced branches",
+              "or network.path (dss_file) / network.name (builtin)"
+            ],
+            "gate": "physics-audit load_flow section; zero-sequence inputs required in research mode (see _required_assumption_paths)"
+          }
+        },
+        "powerfactory": {
+          "*": {
+            "status": "blocked",
+            "reason": "PowerFactory's engine passport does not declare unbalanced_load_flow; no reviewed adapter/benchmark row exists.",
+            "gate": "engine passport supported_studies does not include unbalanced_load_flow for powerfactory"
+          }
+        }
+      }
+    },
+    "fault": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "steady_state",
+            "quantities": {
+              "supported": [
+                "fault.bus",
+                "fault.fault_type",
+                "fault.total_fault_current_a",
+                "fault.currents[].i_amp",
+                "fault.bus_voltages_during[].v_pu",
+                "fault.min_voltage_pu",
+                "fault.study_rows[].i_3ph_a",
+                "fault.study_rows[].i_1ph_a",
+                "fault.study_rows[].i_ll_a",
+                "fault.voltage_factor_applied"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "study.options.bus",
+              "study.options.type (3ph|slg|ll|llg)",
+              "study.options.rf",
+              "xdpp_pu on every machine (research mode; else the 0.20 default is recorded as an assumption)",
+              "r0_ohm_per_km/x0_ohm_per_km + sk1_mva for slg/llg"
+            ],
+            "gate": "physics-audit fault section (positive finite current, fault_type membership, during-fault voltages, IEC 60909 voltage factor); xdpp_pu research gate"
+          }
+        },
+        "powerfactory": {
+          "inline": {
+            "status": "demonstrator",
+            "fidelity": "steady_state",
+            "quantities": {
+              "supported": [
+                "fault.bus",
+                "fault.fault_type",
+                "fault.total_fault_current_a",
+                "fault.currents[].i_amp",
+                "fault.bus_voltages_during[].v_pu",
+                "fault.min_voltage_pu",
+                "fault.voltage_factor_applied"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "network.kind=inline",
+              "study.options.bus/type/rf",
+              "xdpp_pu on machines",
+              "powerfactory_method / powerfactory_voltage_factor (Method C requires the source factor)",
+              "r0_ohm_per_km/x0_ohm_per_km + sk1_mva for slg/llg"
+            ],
+            "gate": "physics-audit fault section; IEC method/voltage-factor fail-closed (see PFD Method C blocking)"
+          },
+          "dss_file": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          },
+          "builtin": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          }
+        }
+      }
+    },
+    "hosting_capacity": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "quasi_static_or_frequency_domain",
+            "quantities": {
+              "supported": [
+                "hosting_capacity.items[].bus",
+                "hosting_capacity.items[].hc_kw",
+                "hosting_capacity.items[].limit",
+                "hosting_capacity.items[].v_at_hc",
+                "hosting_capacity.min_hc"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "study.options.criterion (overvoltage|thermal|both)",
+              "study.options.v_max",
+              "study.options.max_kw",
+              "der placement buses",
+              "normal_amps when criterion is thermal"
+            ],
+            "gate": "physics-audit hosting_capacity section (non-negative, known limits)"
+          }
+        },
+        "powerfactory": {
+          "*": {
+            "status": "blocked",
+            "reason": "PowerFactory's engine passport does not declare hosting_capacity; no reviewed adapter/benchmark row exists.",
+            "gate": "engine passport supported_studies does not include hosting_capacity for powerfactory"
+          }
+        }
+      }
+    },
+    "dynamics": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "bounded",
+            "fidelity": "rms",
+            "quantities": {
+              "supported": [
+                "dynamics.converged",
+                "dynamics.duration",
+                "dynamics.stepsize",
+                "dynamics.generators[]",
+                "dynamics.events[]",
+                "dynamics.monitors[].t",
+                "dynamics.monitors[].channels[].values",
+                "dynamics.freq_nadir_hz",
+                "dynamics.freq_peak_hz",
+                "dynamics.max_rotor_angle_deg",
+                "dynamics.max_angle_separation_deg",
+                "dynamics.stable"
+              ],
+              "unsupported": [
+                "PowerFactory m:/s:/c: controller bindings (OpenDSS adapter does not publish them)",
+                "unreviewed controller angle-reference/slack semantics (backlog by decision)"
+              ]
+            },
+            "required_inputs": [
+              "study.type=dynamics or dynamics_rms",
+              "machine dynamics parameters (MachineDynamics) or classical models with explicit parameters",
+              "events[] with kinds and targets",
+              "monitor_buses/monitor_signals"
+            ],
+            "gate": "physics-audit dynamics section (finite + converged + fingerprint identity); cross-engine dynamics claims only for reviewed common quantities"
+          }
+        },
+        "powerfactory": {
+          "inline": {
+            "status": "demonstrator",
+            "fidelity": "rms",
+            "quantities": {
+              "supported": [
+                "dynamics.converged",
+                "dynamics.generators[]",
+                "dynamics.events[]",
+                "dynamics.monitors[].t",
+                "dynamics.monitors[].channels[].values",
+                "dynamics.freq_nadir_hz",
+                "dynamics.freq_peak_hz",
+                "dynamics.max_rotor_angle_deg",
+                "dynamics.max_angle_separation_deg",
+                "dynamics.stable",
+                "dynamics.initialization"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "network.kind=inline",
+              "machine dynamics parameters (MachineDynamics)",
+              "monitor_signals with explicit m:/s:/c: channel bindings",
+              "events[] with kinds and targets",
+              "active model graph / native TypSym identity for standard RMS"
+            ],
+            "gate": "physics-audit dynamics section; native model package required when the graph is active; Nine-bus standard residual stays a numerical FAIL until reviewed model graph is carried"
+          },
+          "dss_file": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          },
+          "builtin": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          }
+        }
+      }
+    },
+    "dynamics_rms": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "bounded",
+            "fidelity": "rms",
+            "quantities": {
+              "supported": [
+                "dynamics.converged",
+                "dynamics.duration",
+                "dynamics.stepsize",
+                "dynamics.generators[]",
+                "dynamics.events[]",
+                "dynamics.monitors[].t",
+                "dynamics.monitors[].channels[].values",
+                "dynamics.freq_nadir_hz",
+                "dynamics.freq_peak_hz",
+                "dynamics.max_rotor_angle_deg",
+                "dynamics.max_angle_separation_deg",
+                "dynamics.stable"
+              ],
+              "unsupported": [
+                "PowerFactory m:/s:/c: controller bindings",
+                "unreviewed controller angle-reference/slack semantics"
+              ]
+            },
+            "required_inputs": [
+              "study.type=dynamics_rms (alias of dynamics)",
+              "machine dynamics parameters",
+              "events[]",
+              "monitor_buses/monitor_signals"
+            ],
+            "gate": "physics-audit dynamics section (finite + converged + fingerprint identity)"
+          }
+        },
+        "powerfactory": {
+          "inline": {
+            "status": "demonstrator",
+            "fidelity": "rms",
+            "quantities": {
+              "supported": [
+                "dynamics.converged",
+                "dynamics.generators[]",
+                "dynamics.events[]",
+                "dynamics.monitors[].t",
+                "dynamics.monitors[].channels[].values",
+                "dynamics.freq_nadir_hz",
+                "dynamics.freq_peak_hz",
+                "dynamics.max_rotor_angle_deg",
+                "dynamics.max_angle_separation_deg",
+                "dynamics.stable",
+                "dynamics.initialization"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "network.kind=inline",
+              "machine dynamics parameters",
+              "monitor_signals with explicit m:/s:/c: channel bindings",
+              "events[]",
+              "active model graph / native TypSym identity for standard RMS"
+            ],
+            "gate": "physics-audit dynamics section; native model package required when the graph is active"
+          },
+          "dss_file": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          },
+          "builtin": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          }
+        }
+      }
+    },
+    "qsts": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "quasi_static_or_frequency_domain",
+            "quantities": {
+              "supported": [
+                "time_series.converged",
+                "time_series.snapshots[].t_s",
+                "time_series.snapshots[].bus_voltages[].v_pu",
+                "time_series.min_voltage_pu",
+                "time_series.max_voltage_pu",
+                "time_series.violation_count"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "study.type=qsts",
+              "qsts.stepsize_s",
+              "qsts.duration_s (integer number of stepsize_s intervals)",
+              "qsts.profiles[] with one value per step naming existing OpenDSS elements",
+              "monitor_buses"
+            ],
+            "gate": "Case._check_qsts_contract (step count + unique profiles + interval match); physics-audit qsts trace integrity"
+          }
+        },
+        "powerfactory": {
+          "*": {
+            "status": "blocked",
+            "reason": "PowerFactory's engine passport does not declare qsts; no reviewed adapter/benchmark row exists.",
+            "gate": "engine passport supported_studies does not include qsts for powerfactory"
+          }
+        }
+      }
+    },
+    "harmonics": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "quasi_static_or_frequency_domain",
+            "quantities": {
+              "supported": [
+                "harmonics.converged",
+                "harmonics.fundamental_hz",
+                "harmonics.snapshots[].harmonic",
+                "harmonics.snapshots[].frequency_hz",
+                "harmonics.snapshots[].bus_voltages[].v_pu",
+                "harmonics.thd_v_pct_by_bus"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "study.type=harmonics",
+              "harmonics.fundamental_hz",
+              "harmonics.injections[] with magnitudes_pct (incl. harmonic order 1) and angles_deg",
+              "target element names"
+            ],
+            "gate": "physics-audit harmonics section (THD in [0,100]%, snapshot finiteness)"
+          }
+        },
+        "powerfactory": {
+          "*": {
+            "status": "blocked",
+            "reason": "PowerFactory's engine passport does not declare harmonics; no reviewed adapter/benchmark row exists.",
+            "gate": "engine passport supported_studies does not include harmonics for powerfactory"
+          }
+        }
+      }
+    },
+    "protection": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "quasi_static_or_frequency_domain",
+            "quantities": {
+              "supported": [
+                "protection.fault_bus",
+                "protection.fault_type",
+                "protection.fault_current_a",
+                "protection.relays[].name",
+                "protection.relays[].pickup_a",
+                "protection.relays[].current_multiple",
+                "protection.relays[].trip_time_s",
+                "protection.relays[].status"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "study.type=protection",
+              "study.options.bus",
+              "study.options.type",
+              "study.options.relays[] (pickup_a, time_dial, curve)",
+              "xdpp_pu on machines",
+              "r0_ohm_per_km/x0_ohm_per_km + sk1_mva for slg/llg"
+            ],
+            "gate": "physics-audit protection section (pickup/multiple/trip self-consistency, trip time)"
+          }
+        },
+        "powerfactory": {
+          "*": {
+            "status": "blocked",
+            "reason": "PowerFactory's engine passport does not declare protection; no reviewed adapter/benchmark row exists.",
+            "gate": "engine passport supported_studies does not include protection for powerfactory"
+          }
+        }
+      }
+    },
+    "gic": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "supported",
+            "fidelity": "steady_state",
+            "quantities": {
+              "supported": [
+                "gic.elements[].name",
+                "gic.elements[].kind",
+                "gic.elements[].gic_amps",
+                "gic.max_gic_a",
+                "gic.total_gic_a",
+                "gic.e_field_v_per_km"
+              ],
+              "unsupported": []
+            },
+            "required_inputs": [
+              "study.type=gic",
+              "study.options.frequency",
+              "study.options.e_field_v_per_km or ee/en",
+              "transformer/line element targets"
+            ],
+            "gate": "physics-audit gic section"
+          }
+        },
+        "powerfactory": {
+          "*": {
+            "status": "blocked",
+            "reason": "PowerFactory's engine passport does not declare gic; no reviewed adapter/benchmark row exists.",
+            "gate": "engine passport supported_studies does not include gic for powerfactory"
+          }
+        }
+      }
+    },
+    "emt": {
+      "engines": {
+        "opendss": {
+          "*": {
+            "status": "blocked",
+            "reason": "OpenDSS is an averaged/phasor-domain tool and cannot run switching-level EMT; it is not an EMT engine. See docs/cept/EMTARCHITECTURE.md.",
+            "gate": "capability_for_case raises NotImplementedError for emt with engine=opendss"
+          }
+        },
+        "powerfactory": {
+          "inline": {
+            "status": "demonstrator",
+            "fidelity": "emt",
+            "quantities": {
+              "supported": [
+                "emt.converged",
+                "emt.duration_s",
+                "emt.stepsize_s",
+                "emt.samples",
+                "emt.channels[].name",
+                "emt.channels[].t",
+                "emt.channels[].channels[].values"
+              ],
+              "unsupported": [
+                "switching-level EMT computed inside CEPT (CEPT never solves EMT; it only adapts solver channels)"
+              ]
+            },
+            "required_inputs": [
+              "study.type=emt",
+              "emt.engine=powerfactory",
+              "emt.model_path",
+              "emt.stepsize_s",
+              "emt.duration_s",
+              "emt.channels[]",
+              "valuable channel metadata (channel_units/channel_sources validating against channels)"
+            ],
+            "gate": "Case._check_emt_contract (emt spec + engine conflict); physics-audit emt finite channels; EMT is channels-only, never RMS substitution"
+          },
+          "dss_file": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          },
+          "builtin": {
+            "status": "blocked",
+            "reason": "PowerFactory requires network.kind='inline'.",
+            "gate": "Case._check_engine_compat"
+          }
+        }
+      }
+    },
+    "economic_dispatch": {
+      "engines": {
+        "opendss": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks economic_dispatch for every engine." } },
+        "powerfactory": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks economic_dispatch for every engine." } }
+      }
+    },
+    "unit_commitment": {
+      "engines": {
+        "opendss": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks unit_commitment for every engine." } },
+        "powerfactory": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks unit_commitment for every engine." } }
+      }
+    }
+  }
+}

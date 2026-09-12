@@ -1,0 +1,75 @@
+{
+  "schema": "cept-input-registry-v1",
+  "review_note": "'Complete' means complete against this reviewed registry for the study type and target class -- not that every readable attribute was dumped. A field listed here has a defined semantic meaning and a known consumer; adding a field without both is not a review.",
+  "baseline_required": [
+    "source.pfd",
+    "selected Study Case",
+    "solver command inputs"
+  ],
+  "study_types": {
+    "load_flow": {
+      "requires_static_topology": true,
+      "requires_model_graph": false,
+      "command_inputs": []
+    },
+    "fault": {
+      "requires_static_topology": true,
+      "requires_model_graph": false,
+      "command_inputs": [
+        {
+          "field": "ComShc target",
+          "check": "resolved_target",
+          "reason": "source command attribute not captured"
+        },
+        {
+          "field": "ComShc fault type",
+          "check": "attribute_any",
+          "attributes": ["iopt_shc"],
+          "also_satisfied_by": "fault_type",
+          "reason": "source command attribute not captured"
+        },
+        {
+          "field": "ComShc Rf",
+          "check": "attribute_any",
+          "attributes": ["Rf", "rf", "R_f"],
+          "reason": "source command attribute not captured"
+        },
+        {
+          "field": "ComShc voltage factor",
+          "check": "attribute_any",
+          "attributes": ["kappa", "cmin", "voltage_factor"],
+          "required_when": "method_c",
+          "reason": "Method C source factor was not exposed by the reviewed input registry"
+        }
+      ]
+    },
+    "dynamics": {
+      "requires_static_topology": true,
+      "requires_model_graph": true,
+      "requires_events": true,
+      "command_inputs": []
+    },
+    "dynamics_rms": {
+      "requires_static_topology": true,
+      "requires_model_graph": true,
+      "requires_events": true,
+      "command_inputs": []
+    }
+  },
+  "event_target_classes": {
+    "ElmLne": {
+      "required_attributes": [
+        {
+          "name": "ishclne",
+          "meaning": "line short-circuit preparation flag",
+          "reason": "source line-fault preparation/location was not exposed"
+        },
+        {
+          "name": "fshcloc",
+          "meaning": "fault location along the line, percent from the from-end",
+          "reason": "source line-fault preparation/location was not exposed"
+        }
+      ]
+    }
+  }
+}

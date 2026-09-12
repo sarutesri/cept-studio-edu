@@ -1,0 +1,280 @@
+{
+  "schema": "cept-element-coverage-v1",
+  "review_note": "Which PowerFactory classes the typed Case can represent. The class census from the source dump is checked against this file: a class that is present in the source and absent here blocks the conversion by name and count. That is the point -- it makes 'we never taught CEPT about this class' a visible blocker instead of a silently different network. Moving a class into 'represented' is a claim that the typed Case carries its behaviour, not merely its name.",
+  "represented": {
+    "ElmTerm": {
+      "case_field": "buses",
+      "note": "Busbar / terminal."
+    },
+    "ElmLne": {
+      "case_field": "lines",
+      "note": "Line, including total-parameter branches."
+    },
+    "ElmTr2": {
+      "case_field": "transformers",
+      "note": "Two-winding transformer."
+    },
+    "ElmLod": {
+      "case_field": "loads",
+      "note": "General load, ZIP/voltage-dependent where the source discloses it."
+    },
+    "ElmSym": {
+      "case_field": "generators",
+      "note": "Synchronous machine."
+    },
+    "ElmGenstat": {
+      "case_field": "generators",
+      "note": "Static generator."
+    },
+    "ElmXnet": {
+      "case_field": "external_grids",
+      "note": "External grid."
+    },
+    "ElmCoup": {
+      "case_field": "switches",
+      "note": "Breaker/coupler between terminals."
+    },
+    "StaSwitch": {
+      "case_field": "switches",
+      "note": "Terminal switch inside a cubicle."
+    },
+    "StaCubic": {
+      "case_field": "topology",
+      "note": "Connection point; carried as element terminal bindings."
+    },
+    "TypLne": {
+      "case_field": "lines[].type",
+      "note": "Line type; its parameters are read into the line row (r/x/c, rated current) rather than kept as a separate object."
+    },
+    "TypTr2": {
+      "case_field": "transformers[].type",
+      "note": "Two-winding transformer type; parameters are read into the transformer row."
+    },
+    "TypSym": {
+      "case_field": "generators[].type + dynamics",
+      "note": "Synchronous machine type; parameters are read into the generator row. The source-faithful dynamic lane additionally copies the native TypSym object rather than rebuilding it from these scalars."
+    },
+    "TypSwitch": {
+      "case_field": "switches[].type",
+      "note": "Switch type; rating parameters are read into the switch row."
+    },
+    "TypLod": {
+      "case_field": "loads[].load_type",
+      "note": "General load type. Verified against the 39-bus source: the ZIP/exponential coefficients (aP/bP/cP, aQ/bQ/cQ, kpu/kqu, kpf/kqf) are read into the load row, so voltage-dependent behaviour is carried rather than defaulted."
+    },
+    "ElmShnt": {
+      "case_field": "shunts",
+      "note": "Shunt capacitor or reactor. PowerFactory's shtype selects the technology and therefore the sign of the reactive contribution; OpenDSS emits a Capacitor for a positive rating and a Reactor for a negative one. A shunt whose technology or rating the source did not disclose is blocked rather than defaulted."
+    },
+    "ElmTr3": {
+      "case_field": "three_winding_transformers",
+      "note": "Three-winding transformer. The source star-equivalent (TypTr3 uktr3_h/m/l, each on its own winding rating) is carried verbatim; per-pair impedances are derived for engines that need them."
+    },
+    "TypTr3": {
+      "case_field": "three_winding_transformers[].*",
+      "note": "Three-winding transformer type; its per-winding ratings, star-equivalent short-circuit voltages, connections, clocks and tap steps are read into the three-winding row."
+    },
+    "TypTow": {
+      "case_field": "lines[].matrix",
+      "note": "Geometric overhead line type. Its computed conductor matrices R_c/X_c/C_c are read into the line matrix; the tower geometry itself is not reproduced."
+    },
+    "TypCabsys": {
+      "case_field": "lines[].matrix",
+      "note": "Cable system type; carries the conductor matrices for the whole system."
+    },
+    "ElmCabsys": {
+      "case_field": "lines[].matrix",
+      "note": "Cable system: its first circuit becomes the composite branch and the remaining conductors are eliminated into the matrix."
+    },
+    "ElmPvsys": {
+      "note": "PV-system element captured as a static-generator row in the typed Case (load-flow representation); the PV/DER + OpenDER co-sim representation boundary is a separate reviewed layer (T-011 follow-on)."
+    },
+    "ElmVsc": {
+      "case_field": "converters",
+      "note": "Bipolar PWM converter (T-038; following/forming per proven i_acdc map)."
+    },
+    "ElmVscmono": {
+      "case_field": "converters",
+      "note": "Monopolar PWM converter (T-038)."
+    },
+    "ElmDcu": {
+      "case_field": "dc_sources",
+      "note": "Voltage-holding DC (battery) unit with positive uset (T-038)."
+    },
+    "ElmLoddc": {
+      "case_field": "dc_loads",
+      "note": "Constant-power DC load (T-038)."
+    }
+  },
+  "blocking": {
+    "ElmScap": "series capacitor is not represented in the typed Case",
+    "ElmSvs": "static var system is not represented in the typed Case",
+    "ElmRectifier": "rectifier is not represented in the typed Case",
+    "ElmAsm": "induction machine is not represented in the typed Case",
+    "ElmAsmsc": "induction machine with slip control is not represented in the typed Case",
+    "ElmGenstat_Wind": "wind generator variant is not represented in the typed Case",
+    "ElmZpu": "per-unit impedance element is not represented in the typed Case",
+    "ElmSerie": "series RLC element is not represented in the typed Case",
+    "ElmFilter": "harmonic filter is not represented in the typed Case",
+    "ElmBattery": "battery element is not represented in the typed Case",
+    "ElmPhi__pll": "phase measurement element is not represented in the typed Case",
+    "ElmLnesec": "a line assembled from route sections may carry its impedance on the sections rather than on the parent line; CEPT reads the parent only, so a sectioned line cannot be shown to be represented",
+    "ElmLodlv": "low-voltage load model with its own consumption/coincidence behaviour; not represented by the balanced general load",
+    "ElmLvscale": "low-voltage scaling factor changes the operating point a load flow settles on and is not represented",
+    "ChaProfile": "time characteristic assigned to loads or generators; it can scale the operating point and CEPT cannot show it is inert for this study",
+    "ChaTime": "time-series characteristic; see ChaProfile",
+    "ChaVec": "vector characteristic; see ChaProfile",
+    "ChaRef": "characteristic reference; see ChaProfile"
+  },
+  "out_of_scope": {
+    "ElmNet": "grid container, not a network element",
+    "ElmRes": "result object; inputs only are converted",
+    "ElmComp": "composite model frame; handled by the dynamic model package, not the static network",
+    "ElmDsl": "DSL model instance; handled by the dynamic model package",
+    "ElmStactrl": "station controller; handled by the dynamic model package",
+    "ElmMdl": "model block; handled by the dynamic model package",
+    "ElmTrfstat": "transformer station container",
+    "ElmSite": "site container",
+    "ElmArea": "area container",
+    "ElmZone": "zone container",
+    "ElmBoundary": "boundary definition",
+    "ElmFeeder": "feeder definition",
+    "ElmSubstat": "substation container",
+    "ElmBranch": "branch container",
+    "StaCt": "current transformer, measurement only",
+    "StaVt": "voltage transformer, measurement only",
+    "StaPll": "phase-locked loop, measurement only",
+    "StaCtl": "controller; handled by the dynamic model package",
+    "StaImea": "current measurement channel; dynamic/control measurement only",
+    "StaVmea": "voltage measurement channel; dynamic/control measurement only",
+    "StaExtdatmea": "external measurement",
+    "IntGrf": "single-line-diagram graphic",
+    "IntGrfnet": "diagram container",
+    "IntPrjfolder": "project folder",
+    "IntFolder": "folder",
+    "IntCase": "study case",
+    "IntEvt": "event folder; events are converted separately",
+    "IntMon": "monitor/variable-set definition",
+    "IntUser": "user account container",
+    "SetPrj": "project settings",
+    "SetLevelvis": "diagram visibility settings",
+    "SetDesktop": "desktop layout",
+    "SetFilt": "filter definition",
+    "SetSelect": "selection set",
+    "BlkDef": "block definition; part of the dynamic model graph carried by the model package, not the static network",
+    "BlkFrom": "dynamic block graph source; carried only when the dynamic model package is explicitly selected",
+    "BlkSig": "block signal; part of the dynamic model graph",
+    "BlkSlot": "block slot; part of the dynamic model graph",
+    "BlkRef": "block reference; part of the dynamic model graph",
+    "TypDsl": "DSL model type; part of the dynamic model graph",
+    "TypComp": "composite model type; part of the dynamic model graph",
+    "RelFuse": "fuse; electrically transparent in service. Its tripping behaviour and open state are not represented, so this Case does not support a protection study",
+    "RelToc": "time-overcurrent relay; protection behaviour is not represented",
+    "RelIoc": "instantaneous-overcurrent relay; protection behaviour is not represented",
+    "RelDisdir": "directional distance relay; protection behaviour is not represented",
+    "RelDismho": "mho distance relay; protection behaviour is not represented",
+    "RelMeasure": "relay measurement block; protection behaviour is not represented",
+    "ElmRelay": "relay container; protection behaviour is not represented",
+    "TypFuse": "fuse type; see RelFuse",
+    "TypChatoc": "overcurrent characteristic; protection data only",
+    "TypRelay": "relay type; protection data only",
+    "StoTypbar": "busbar reliability failure model; reliability data, not a network element",
+    "StoTyplne": "line reliability failure model; reliability data, not a network element",
+    "StoTyptrf": "transformer reliability failure model; reliability data, not a network element",
+    "StoTypload": "load reliability model; reliability data, not a network element",
+    "StoTypgen": "generator reliability model; reliability data, not a network element",
+    "StoOutage": "planned-outage definition; reliability data, not a network element",
+    "BlkSum": "summation point; part of the dynamic model graph",
+    "BlkMul": "multiplication block; part of the dynamic model graph",
+    "BlkLim": "limiter block; part of the dynamic model graph",
+    "TypCon": "conductor data behind a TypTow; the resulting matrix is read instead",
+    "TypCab": "single-cable data behind a TypCabsys; the resulting matrix is read instead",
+    "TypBar": "busbar type; rating/geometry only, no electrical branch",
+    "IntCoincdef": "Coincidence-characteristic definition object (not a network element).",
+    "IntQlim": "Reactive-capability/limit curve definition (not a network element).",
+    "SetTime": "Calculation-case date/time setting (not a network element).",
+    "TypLodlv": "LV load TYPE definition (equipment type, not an in-network element).",
+    "TypPvpanel": "PV panel TYPE definition (equipment type, not an in-network element)."
+  },
+  "conditional_note": "Some classes only matter when a solver option makes them matter. Those are dispositioned against captured evidence rather than by name: the condition names the exact inventory field it reads, so an 'inert' verdict is checkable and flips automatically when the source says otherwise.",
+  "conditional": {
+    "ElmSecctrl": {
+      "load_flow": {
+        "inert_when": {
+          "load_flow_options.iopt_apdist": 0
+        },
+        "inert_also_requires": "independent_voltage_reference",
+        "inert_reason": "PowerFactory balances active power at the slack machine (ComLdf.iopt_apdist=0) and the source designates that reference independently of the controller, so the secondary controller does not change the dispatch this load flow settles on",
+        "active_reason": "the secondary controller is load-bearing for this source: either ComLdf distributes active power by area control (iopt_apdist != 0), or no external grid and no ip_ctrl=1 machine designates a reference, which means the controller itself supplies it. Measured on RBTS Bus 2: 11 machines, all bustp=PV with ip_ctrl=0, no external grid."
+      },
+      "dynamics": {
+        "inert_when": null,
+        "active_reason": "secondary frequency control acts during an RMS simulation; the typed Case has no representation for it"
+      },
+      "dynamics_rms": {
+        "inert_when": null,
+        "active_reason": "secondary frequency control acts during an RMS simulation; the typed Case has no representation for it"
+      }
+    },
+    "ElmVac": {
+      "load_flow": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      },
+      "unbalanced_load_flow": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      },
+      "fault": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      },
+      "dynamics": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      }
+    },
+    "ElmSind": {
+      "load_flow": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      },
+      "unbalanced_load_flow": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      },
+      "fault": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      },
+      "dynamics": {
+        "inert_when": {
+          "earthing.ideal": true
+        },
+        "inert_reason": "every ElmVac in this source is an ideal ground (usetp=0) and every shield bond is zero impedance, which is exactly the condition the conductor elimination assumes; the earth reference is therefore already represented by folding the neutral/shield into the phase matrix",
+        "active_reason": "an ElmVac holding a non-zero voltage, or a shield bonded through a finite impedance, is a circuit element the phase-domain matrix does not represent"
+      }
+    }
+  }
+}

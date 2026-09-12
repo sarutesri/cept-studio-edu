@@ -1,0 +1,93 @@
+{
+  "schema": "cept-channel-registry-v1",
+  "review_note": "Every entry is a reviewed source-to-canonical binding. A raw channel that is absent from this file has no proven semantics: it must be reported as unreviewed and excluded from any parity denominator. Never add an entry to make two numbers agree.",
+  "canonical_quantities": {
+    "voltage_magnitude": "Terminal/bus voltage magnitude",
+    "voltage_angle": "Bus voltage phase angle",
+    "frequency": "Electrical frequency",
+    "rotor_angle": "Machine rotor angle in the source's own reference",
+    "relative_rotor_angle": "Machine rotor angle relative to a reference machine",
+    "rotor_speed": "Machine rotor speed",
+    "active_power": "Active power flow",
+    "reactive_power": "Reactive power flow",
+    "electrical_power": "Machine electrical power on the machine base",
+    "turbine_power": "Machine mechanical/turbine power on the machine base",
+    "current": "Current magnitude",
+    "rotor_position_d": "Rotor position on the d-axis, referred to the reference bus voltage (s:phi)",
+    "rotor_position_x": "Rotor position reported by the machine state x (s:xphi); equivalence with rotor_position_d is not proven",
+    "excitation_voltage": "Machine field/excitation voltage",
+    "electrical_torque": "Machine electrical torque",
+    "mechanical_torque": "Machine mechanical torque",
+    "external_rotor_angle": "Rotor angle measured outside the machine",
+    "internal_rotor_angle": "Rotor angle measured inside the machine"
+  },
+  "producers": {
+    "source": {
+      "evidence": "PowerFactory ElmRes variable names configured inside the source PFD.",
+      "channels": {
+        "m:u1": {"canonical_quantity": "voltage_magnitude", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "terminal"},
+        "m:phiu": {"canonical_quantity": "voltage_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "source-slack"},
+        "m:fehz": {"canonical_quantity": "frequency", "unit": "Hz", "raw_unit": "Hz", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "terminal"},
+        "m:phi": {"canonical_quantity": "rotor_angle", "unit": "deg", "raw_unit": "rad", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-own", "note": "Distinct from m:firel: this angle is in the machine's own reference, not relative to a reference machine."},
+        "m:firel": {"canonical_quantity": "relative_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "reference-machine"},
+        "m:firot": {"canonical_quantity": "external_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-external", "note": "Network/slack-voltage-referenced external rotor angle used by UserModel initial-state contract v3; distinct from m:firel."},
+        "m:xspeed": {"canonical_quantity": "rotor_speed", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-own"},
+        "m:P": {"canonical_quantity": "active_power", "unit": "MW", "raw_unit": "MW", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "terminal"},
+        "m:Q": {"canonical_quantity": "reactive_power", "unit": "Mvar", "raw_unit": "Mvar", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "terminal"},
+        "m:P:bus1": {"canonical_quantity": "active_power", "unit": "MW", "raw_unit": "MW", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "bus1"},
+        "m:Q:bus1": {"canonical_quantity": "reactive_power", "unit": "Mvar", "raw_unit": "Mvar", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "bus1"},
+        "s:ut": {"canonical_quantity": "voltage_magnitude", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "magnitude", "time_origin_kind": "source-native", "reference_frame": "machine-terminal"},
+        "s:xspeed": {"canonical_quantity": "rotor_speed", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-own"},
+        "s:pt": {"canonical_quantity": "turbine_power", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-base"},
+        "s:pgt": {"canonical_quantity": "electrical_power", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-base"},
+        "s:P1": {"canonical_quantity": "active_power", "unit": "MW", "raw_unit": "MW", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-terminal"},
+        "s:Q1": {"canonical_quantity": "reactive_power", "unit": "Mvar", "raw_unit": "Mvar", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-terminal"},
+        "s:cur1": {"canonical_quantity": "current", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "magnitude", "time_origin_kind": "source-native", "reference_frame": "machine-base"},
+        "s:firel": {"canonical_quantity": "relative_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "reference-machine"},
+        "s:phi": {"canonical_quantity": "rotor_position_d", "unit": "rad", "raw_unit": "rad", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "reference-bus-voltage", "note": "Rotor position on the d-axis referred to the reference bus voltage."},
+        "s:xphi": {"canonical_quantity": "rotor_position_x", "unit": "rad", "raw_unit": "rad", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "reference-bus-voltage"},
+        "s:ve": {"canonical_quantity": "excitation_voltage", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-base"},
+        "s:xme": {"canonical_quantity": "electrical_torque", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-base"},
+        "s:xmt": {"canonical_quantity": "mechanical_torque", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-base"},
+        "c:firel": {"canonical_quantity": "relative_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "reference-machine"},
+        "c:firot": {"canonical_quantity": "external_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-external", "note": "External rotor angle; distinct from the internal angle c:fipol."},
+        "c:fipol": {"canonical_quantity": "internal_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "source-native", "reference_frame": "machine-internal"}
+      }
+    },
+    "cept-pf": {
+      "evidence": "Same PowerFactory variable namespace as the source lane; CEPT-PF reads the same ElmRes variables it configured.",
+      "inherits": "source"
+    },
+    "opendss": {
+      "evidence": "Reviewed channel names assigned by src/cept/adapters/opendss/dynamics.py from the reviewed table in dynamics_mapping.py. Raw OpenDSS monitor headers are intentionally absent: an unconverted header has no proven base and stays unreviewed.",
+      "channels": {
+        "Terminal voltage": {"canonical_quantity": "voltage_magnitude", "unit": "pu", "raw_unit": "V", "phase": "positive-sequence", "sign_convention": "magnitude", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-terminal", "note": "Monitor mode 112, converted with the reviewed generator kV base."},
+        "Speed": {"canonical_quantity": "rotor_speed", "unit": "pu", "raw_unit": "Hz", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-own", "note": "Monitor mode 3, divided by the Case nominal frequency."},
+        "Relative rotor angle": {"canonical_quantity": "relative_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "solver-clock-shifted", "reference_frame": "reference-machine", "note": "Generator Mode 3 Theta (Deg) in the legacy/v2 reference-machine contract."},
+        "Network rotor angle": {"canonical_quantity": "external_rotor_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-external", "note": "Raw Generator Mode 3 Theta (Deg) in UserModel initial-state contract v3, paired with PF m:firot."},
+        "Turbine Power": {"canonical_quantity": "turbine_power", "unit": "pu", "raw_unit": "W", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-base"},
+        "Electrical Power": {"canonical_quantity": "electrical_power", "unit": "pu", "raw_unit": "kW", "phase": "positive-sequence", "sign_convention": "generator-output-positive", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-base"},
+        "Positive-sequence, active power": {"canonical_quantity": "active_power", "unit": "MW", "raw_unit": "kW", "phase": "positive-sequence", "sign_convention": "generator-output-positive", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-terminal"},
+        "Positive-sequence, reactive power": {"canonical_quantity": "reactive_power", "unit": "Mvar", "raw_unit": "kvar", "phase": "positive-sequence", "sign_convention": "generator-output-positive", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-terminal"},
+        "Positive-sequence current, magnitude": {"canonical_quantity": "current", "unit": "pu", "raw_unit": "A", "phase": "positive-sequence", "sign_convention": "magnitude", "time_origin_kind": "solver-clock-shifted", "reference_frame": "machine-base"}
+      }
+    },
+    "canonical": {
+      "evidence": "Quantities CEPT's typed result already emits in canonical form (load-flow snapshot, fault, status scopes).",
+      "channels": {
+        "voltage_magnitude": {"canonical_quantity": "voltage_magnitude", "unit": "pu", "raw_unit": "pu", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "snapshot", "reference_frame": "terminal"},
+        "voltage_angle": {"canonical_quantity": "voltage_angle", "unit": "deg", "raw_unit": "deg", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "snapshot", "reference_frame": "source-slack"},
+        "active_power": {"canonical_quantity": "active_power", "unit": "kW", "raw_unit": "kW", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "snapshot", "reference_frame": "terminal"},
+        "reactive_power": {"canonical_quantity": "reactive_power", "unit": "kvar", "raw_unit": "kvar", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "snapshot", "reference_frame": "terminal"},
+        "loss": {"canonical_quantity": "loss", "unit": "kW", "raw_unit": "kW", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "snapshot", "reference_frame": "branch"},
+        "reactive_loss": {"canonical_quantity": "reactive_loss", "unit": "kvar", "raw_unit": "kvar", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "snapshot", "reference_frame": "branch"},
+        "loading": {"canonical_quantity": "loading", "unit": "%", "raw_unit": "%", "phase": "positive-sequence", "sign_convention": "source-native", "time_origin_kind": "snapshot", "reference_frame": "branch"},
+        "in_service": {"canonical_quantity": "in_service", "unit": "", "raw_unit": "", "phase": "n/a", "sign_convention": "categorical", "time_origin_kind": "snapshot", "reference_frame": "element"},
+        "converged": {"canonical_quantity": "converged", "unit": "", "raw_unit": "", "phase": "n/a", "sign_convention": "categorical", "time_origin_kind": "snapshot", "reference_frame": "study"},
+        "total_fault_current": {"canonical_quantity": "total_fault_current", "unit": "A", "raw_unit": "A", "phase": "positive-sequence", "sign_convention": "magnitude", "time_origin_kind": "snapshot", "reference_frame": "fault-target"},
+        "i_3ph": {"canonical_quantity": "i_3ph", "unit": "A", "raw_unit": "A", "phase": "three-phase", "sign_convention": "magnitude", "time_origin_kind": "snapshot", "reference_frame": "fault-target"},
+        "fault_type": {"canonical_quantity": "fault_type", "unit": "", "raw_unit": "", "phase": "n/a", "sign_convention": "categorical", "time_origin_kind": "snapshot", "reference_frame": "fault-target"}
+      }
+    }
+  }
+}

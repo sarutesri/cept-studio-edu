@@ -1,0 +1,64 @@
+{
+  "schema": "cept-engine-capability-v1",
+  "review_note": "Which canonical result quantities each engine can produce at all. A source quantity outside an engine's set is not a missing counterpart -- the engine has no such state to report -- so it is reported as engine-incapable and kept out of that engine's parity denominator. This is deliberately narrow: a quantity the engine CAN produce but did not is still a blocker, because that is a real gap in the run. Adding a quantity here is a claim that the engine genuinely has no such output, not that a comparison was inconvenient.",
+  "engines": {
+    "opendss": {
+      "produces": [
+        "voltage_magnitude",
+        "voltage_angle",
+        "active_power",
+        "reactive_power",
+        "current",
+        "loss",
+        "reactive_loss",
+        "loading",
+        "in_service",
+        "converged",
+        "total_fault_current",
+        "i_3ph",
+        "fault_type",
+        "rotor_speed",
+        "turbine_power",
+        "electrical_power",
+        "frequency"
+      ],
+      "cannot_produce": {
+        "excitation_voltage": "OpenDSS's generator dynamics model has no field circuit, so there is no excitation voltage state to report.",
+        "electrical_torque": "OpenDSS reports shaft and electrical power; torque is not a state its generator model exposes.",
+        "mechanical_torque": "OpenDSS reports shaft power (PShaft), not mechanical torque.",
+        "rotor_angle": "Monitor mode 3 exposes speed and shaft power; the machine's own rotor angle is not among its reported states.",
+        "relative_rotor_angle": "Requires a reference machine angle, which OpenDSS does not report for any machine.",
+        "internal_rotor_angle": "PowerFactory's internal machine angle has no OpenDSS equivalent state.",
+        "external_rotor_angle": "PowerFactory's external machine angle has no OpenDSS equivalent state.",
+        "rotor_position_d": "Rotor position referred to the reference bus voltage is not an OpenDSS generator state.",
+        "rotor_position_x": "Rotor position from the machine state vector is not an OpenDSS generator state."
+      },
+      "asset_rules": [
+        {
+          "when_engine_native_name_starts_with": "Vsource.",
+          "cannot_produce_kinds": ["machine"],
+          "reason": "OpenDSS models the reference machine as an ideal voltage source, which has no machine states at all -- no speed, no angle, no shaft power."
+        }
+      ]
+    },
+    "powerfactory": {
+      "produces": [
+        "voltage_magnitude", "voltage_angle", "active_power", "reactive_power",
+        "current", "loss", "reactive_loss", "loading", "in_service", "converged",
+        "total_fault_current", "i_3ph", "fault_type", "rotor_speed",
+        "turbine_power", "electrical_power", "frequency", "excitation_voltage",
+        "electrical_torque", "mechanical_torque", "rotor_angle",
+        "relative_rotor_angle", "internal_rotor_angle", "external_rotor_angle",
+        "rotor_position_d", "rotor_position_x"
+      ],
+      "cannot_produce": {},
+      "asset_rules": []
+    }
+  },
+  "machine_quantities": [
+    "rotor_speed", "turbine_power", "electrical_power", "excitation_voltage",
+    "electrical_torque", "mechanical_torque", "rotor_angle",
+    "relative_rotor_angle", "internal_rotor_angle", "external_rotor_angle",
+    "rotor_position_d", "rotor_position_x"
+  ]
+}

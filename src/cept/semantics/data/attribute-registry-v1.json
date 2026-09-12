@@ -1,0 +1,1194 @@
+{
+  "schema": "cept-attribute-registry-v1",
+  "review_note": "PowerFactory exposes ~150-320 attributes per element class. Most are graphics, reliability statistics, or values PowerFactory itself calculates -- not inputs that describe the network. This file says which of them matter. Pattern rules disposition whole families at once so review stays tractable; an attribute matched by no rule and captured by no collector is reported as 'unreviewed' on every ingest, which is how a genuinely meaningful input stops being invisible. Adding a pattern is a claim that nothing in that family changes a study result.",
+  "enumeration": {
+    "method": "dir(obj) filtered by obj.HasAttribute(name)",
+    "verified_on": "PowerFactory 2023 SP1; HasAttribute returns 1 for 'dline' and 0 for 'GetAttribute', which is what separates data from methods"
+  },
+  "not_needed_patterns": [
+    {
+      "pattern": "^c_",
+      "reason": "PowerFactory-calculated cache, not a source input"
+    },
+    {
+      "pattern": "^cdisp",
+      "reason": "single-line-diagram display position"
+    },
+    {
+      "pattern": "^cpHead|^cpArea|^cpZone|^cpSite|^cpSubstat|^cpGrid|^cpBranch|^cpFeed|^cpOwner|^cpOperator",
+      "reason": "container back-reference; topology is carried by the element's own terminals"
+    },
+    {
+      "pattern": "^Box|^Icon|^Marker|^Label|^Text|^Font|^Colour|^Color",
+      "reason": "diagram rendering"
+    },
+    {
+      "pattern": "^GPS",
+      "reason": "geographic coordinate, not an electrical input"
+    },
+    {
+      "pattern": "^FO[A-Z]|^FOR[0-9]|^CCEar|^Rep[A-Z]|^Mu[A-Z]|^p_rel|^stochastic",
+      "reason": "reliability failure/repair statistics; no deterministic study consumes them"
+    },
+    {
+      "pattern": "^appr_|^chr_name|^doc_id|^for_name|^dat_src|^root_id|^tid_|^oid_|^gnrl_modif|^desc$|^cimRdfId",
+      "reason": "bookkeeping/provenance metadata inside PowerFactory"
+    },
+    {
+      "pattern": "^dataExt",
+      "reason": "user-defined extension blob"
+    },
+    {
+      "pattern": "^i_cscan|^i_scan|^cScan",
+      "reason": "frequency-scan bookkeeping"
+    },
+    {
+      "pattern": "^Ice|^Wind[A-Z]|^Temper|^Tmax|^Tmin|^Tload|^Ambient",
+      "reason": "thermal/weather rating inputs; CEPT compares electrical results, not thermal ratings"
+    },
+    {
+      "pattern": "^NrCust|^iInterrupt|^Anlge|^AccessTime|^outage",
+      "reason": "outage/customer statistics used by reliability studies only"
+    },
+    {
+      "pattern": "^i_hmea|^i_pmea|^pMeas|^pQmea",
+      "reason": "measurement wiring, not a network input"
+    },
+    {
+      "pattern": "^c[A-Z]|^ci[A-Z]",
+      "reason": "PowerFactory-derived display/state value (cDisplayName, ciEnergized), not a source input"
+    },
+    {
+      "pattern": "_a$|_a_|^coslini[rst]?_a",
+      "reason": "per-phase 'actual' value derived from the balanced input"
+    },
+    {
+      "pattern": "^Inom|^Irated|^InomPre|^Imax|^Ilim",
+      "reason": "current rating derived from the element type"
+    },
+    {
+      "pattern": "^T(a[0-9]|op|cold|hot|inrush|dc)$|^Top$|^Tmax|^depSmooth",
+      "reason": "thermal/saturation timing input; CEPT compares electrical results"
+    },
+    {
+      "pattern": "^T(clear|prot|switch)$",
+      "reason": "protection timing; no CEPT study consumes it (a protection study would)"
+    },
+    {
+      "pattern": "_uc$|_ucPU$|^P_(max|min)$|^Pngrel$|^Pnom$|^Pctrl$",
+      "reason": "unit-commitment/dispatch limit; not consumed by load flow, fault or RMS"
+    },
+    {
+      "pattern": "^(Z|R|X|B|G)[0-9]?_tmax$|^ReRl$|^XeXl$|^a[0-9]?dc$|^Z[0-9]$",
+      "reason": "impedance restated in a derived form; the primary r/x/b/c inputs are captured"
+    },
+    {
+      "pattern": "^Strat$|^cBasedOn$|^fSCDF$|^Ikd$|^J$|^cTdc$",
+      "reason": "reviewed as not consumed by any CEPT study path"
+    },
+    {
+      "pattern": "^commissionDate$|^NodeName$|^Electrodes$|^fold_id$|^gnrl_modby$|^ansiclass$|^aohl_$|^cohl_$|^iopt_(cnd|inp|inpshc)$",
+      "reason": "source bookkeeping or construction detail with no electrical effect on CEPT's studies"
+    },
+    {
+      "pattern": "^i(Limb|tratioadpt|trd[lr])|^ksat$|^lline$|^alpha$|^InomAir$",
+      "reason": "construction/saturation detail not used by the balanced representation"
+    },
+    {
+      "pattern": "^Irze$|^iNeutInter$|^Con[12]$|^ctrl_type$",
+      "reason": "neutral/earthing wiring detail not represented in the balanced Case"
+    },
+    {
+      "pattern": "^loc_name$|^pid_$|^for_name$",
+      "reason": "object identifier; carried as the element name"
+    },
+    {
+      "pattern": "^allow[A-Z]|^cnt[A-Z]|^availFactor$|^Ptolerance|^Vtolerance",
+      "reason": "contingency-analysis setting; CEPT does not run PowerFactory's contingency module"
+    },
+    {
+      "pattern": "^dbg_",
+      "reason": "PowerFactory debug switch"
+    },
+    {
+      "pattern": "^cmeth|^cnm_|^cshcloc$|^cfshcloc$|^cq_|^cpower$|^cgnd$|^ctag|^cosgini$",
+      "reason": "PowerFactory-derived value, not a source input"
+    },
+    {
+      "pattern": "[Cc]ost|^shed|^dispatch$|^beta$|^aCategory$|^coldStart|^QtargetRPR$|^iOPFC|^iPriority$|^ivpriority$|^i_opf",
+      "reason": "optimal-power-flow / market input; no CEPT study path consumes it"
+    },
+    {
+      "pattern": "^vstep|^smoothf|^strnfc$|^pict1$|^pitt1$|^pT$|^drawInrush$|^iinrush$|^ducts$|^armTyp$|^mlei$|^rtemp$|^tmax$|^rline_tmax$",
+      "reason": "construction/regulation detail with no effect on the balanced electrical solution"
+    },
+    {
+      "pattern": "Sbasepu$|^bSbasepu$|^rtox|^xtor$|^ccosphi$",
+      "reason": "impedance restated on a different base; the primary input is captured"
+    },
+    {
+      "pattern": "^ddroop$|^i_speedVar$|^iner_inp$|^hpn$|^nslty$",
+      "reason": "machine detail not represented by the reviewed single-mass model"
+    },
+    {
+      "pattern": "^f(max|min|tau)|^iterVF|^if_depth$|^icond$|^iopt_(dir|ord)$|^k0$|^ka0$|^Unom$",
+      "reason": "frequency-dependent / EMT line-model input; CEPT's reviewed line model is the lumped RMS representation"
+    },
+    {
+      "pattern": "^is[A-Z0-9]|^i_uoptCont|^isCtrl|^genShiftKey$|^gratio$|^drawStall$|^drawInr$|^iHmcType$|^ignd$|^efd|^ifd|^efficiency",
+      "reason": "OPF/placement/excitation-base setting not consumed by CEPT's load-flow, fault or RMS paths"
+    },
+    {
+      "pattern": "^imldc|^maxload$|^ntnum$|^cpCtrlNode|^i_(hv|lv)con$",
+      "reason": "tap line-drop-compensation and winding-connection restatement; the vector group is captured from the transformer type"
+    },
+    {
+      "pattern": "^xtormin$|^zonefact$|^slipmin$|^smoothFac$",
+      "reason": "reviewed as not consumed by any CEPT study path"
+    },
+    {
+      "pattern": "^soil|^solar_rad$|^temp_env$|^mediumTemp$|^thick_d$|^trays$|^occupCoeff$|^thetaX$|^txt_typ$|^qurs_A$|^shMat$|^loadfactor$",
+      "reason": "cable-laying / thermal-environment input; affects rating, not the electrical solution CEPT compares"
+    },
+    {
+      "pattern": "^maxErrVF|^polesVF|^tolBode$|^stMargin|^maxResPole|^minResTrain|^useDCcorr$|^meth(_bs|_nfc|_nfcmv)?$",
+      "reason": "vector-fitting / frequency-domain model-order setting used by EMT line fitting"
+    },
+    {
+      "pattern": "^k[az][0-9]$|^kz[0-9]$|^phik0$|^phiz[0-9]$|^rearth$|^ktrto$",
+      "reason": "earth-return / zero-sequence coupling detail not represented in the balanced line model"
+    },
+    {
+      "pattern": "^limRamp|^numBreakpointsCostOp$|^polyDegree$|^pCharYr|^scalingFacSoftConstr",
+      "reason": "ramping / cost-curve input for optimisation, not consumed by CEPT"
+    },
+    {
+      "pattern": "^lambda$|^mean$|^variance$|^rf_st$|^mdm(ex|lp)$|^pmaxratf$|^ratfac$|^speed_th$|^tags?$",
+      "reason": "stochastic or machine bookkeeping value reviewed as not consumed by CEPT"
+    },
+    {
+      "pattern": "^pStoch$|^pTypStoch$|^iperfect$|^iRestore$|^reclAttempts$|^cpRelays$",
+      "reason": "reliability/restoration wiring; consumed by PowerFactory's reliability module, not by CEPT"
+    },
+    {
+      "pattern": "^cpBay$|^cpBusbar$|^pZone$|^iSection$|^cnm$",
+      "reason": "substation-layout back-reference; topology is carried by the element's own terminals"
+    },
+    {
+      "pattern": "^condMat$|^tmat$|^coldloadtab|^ifrqft$|^mTaps$|^nntapabs$|^cloddy$|^loddy$",
+      "reason": "material/table lookup or absolute-tap restatement with no effect on the balanced solution"
+    }
+  ],
+  "classes": {
+    "ElmCoup": {
+      "required": [
+        "bus1",
+        "bus2",
+        "on_off"
+      ],
+      "optional": [
+        "aUsage",
+        "nphase",
+        "outserv",
+        "isclosed",
+        "iSep"
+      ],
+      "not_needed": {}
+    },
+    "ElmGenstat": {
+      "required": [
+        "bus1",
+        "pgini",
+        "outserv"
+      ],
+      "optional": [
+        "qgini",
+        "usetp",
+        "av_mode",
+        "ip_ctrl",
+        "sgn",
+        "cosn",
+        "ngnum"
+      ],
+      "not_needed": {}
+    },
+    "ElmLne": {
+      "required": [
+        "dline",
+        "typ_id",
+        "bus1",
+        "bus2",
+        "outserv"
+      ],
+      "optional": [
+        "ishclne",
+        "fshcloc",
+        "nlnum",
+        "iopt_model",
+        "iopt_lne",
+        "npar",
+        "nphase",
+        "Inom_a",
+        "R0",
+        "R1",
+        "X0",
+        "X1",
+        "B0",
+        "B1",
+        "G0",
+        "G1",
+        "C0",
+        "C1",
+        "npara",
+        "nCond"
+      ],
+      "not_needed": {
+        "Inom": "rated current is read from the line type",
+        "Irated": "duplicate of the type rating"
+      }
+    },
+    "ElmLod": {
+      "required": [
+        "bus1",
+        "plini",
+        "qlini",
+        "outserv"
+      ],
+      "optional": [
+        "typ_id",
+        "iopt_model",
+        "usetp",
+        "scale0",
+        "i_sym",
+        "coslini",
+        "coslini",
+        "i_scale",
+        "u0",
+        "phtech",
+        "mode_inp",
+        "slini",
+        "ilini",
+        "r0",
+        "x0",
+        "r1",
+        "x1",
+        "xt",
+        "pf_recap"
+      ],
+      "not_needed": {}
+    },
+    "ElmShnt": {
+      "required": [
+        "bus1",
+        "outserv",
+        "shtype",
+        "mode_inp",
+        "ushnm"
+      ],
+      "optional": [
+        "qtotn",
+        "qcapn",
+        "ncapa",
+        "ncapx",
+        "iZeroSeq",
+        "greap",
+        "bcap",
+        "xrea",
+        "rrea",
+        "gparac",
+        "bcapac",
+        "systp",
+        "nphase",
+        "iopt_typ"
+      ],
+      "not_needed": {
+        "rlrea": "reactor loss PowerFactory computes at the operating voltage; the primitive inputs are bcap/rrea/xrea"
+      }
+    },
+    "ElmSym": {
+      "required": [
+        "typ_id",
+        "bus1",
+        "pgini",
+        "outserv"
+      ],
+      "optional": [
+        "qgini",
+        "usetp",
+        "bustp",
+        "av_mode",
+        "ip_ctrl",
+        "ngnum",
+        "iv_mode",
+        "Kpf",
+        "pmax_uc",
+        "pmin_uc",
+        "Pmax_uc",
+        "Pmin_uc",
+        "q_max",
+        "q_min",
+        "scaleQmax",
+        "scaleQmin",
+        "usp_max",
+        "usp_min",
+        "sgini",
+        "pf_recap",
+        "phtech",
+        "speedinit",
+        "mode_inp",
+        "ve_const",
+        "ve_rated"
+      ],
+      "not_needed": {}
+    },
+    "ElmTerm": {
+      "required": [
+        "uknom",
+        "outserv"
+      ],
+      "optional": [
+        "iUsage",
+        "phtech",
+        "systp",
+        "vtarget",
+        "Vtarget",
+        "dvmax",
+        "dvmin",
+        "nphase",
+        "unknom",
+        "vmax",
+        "vmin"
+      ],
+      "not_needed": {}
+    },
+    "ElmTr2": {
+      "required": [
+        "typ_id",
+        "bushv",
+        "buslv",
+        "outserv"
+      ],
+      "optional": [
+        "nntap",
+        "ntnum",
+        "ntrnum",
+        "npar",
+        "dutap",
+        "phitr",
+        "dphif",
+        "tap",
+        "usetp",
+        "ntrcn",
+        "i_auto",
+        "Snom",
+        "Kpctrl",
+        "Kqctrl",
+        "Tctrl",
+        "Kpart",
+        "Kpctrl2",
+        "Kqctrl2",
+        "Tctrl2",
+        "Kpart2",
+        "cosphib_lv",
+        "psetp",
+        "psetp2",
+        "qsetp",
+        "qsetp2",
+        "usetp2",
+        "psp_low",
+        "psp_up",
+        "psp_low2",
+        "psp_up2",
+        "qsp_low",
+        "qsp_up",
+        "qsp_low2",
+        "qsp_up2",
+        "usp_low",
+        "usp_up",
+        "usp_low2",
+        "usp_up2",
+        "ldcct",
+        "ldcct2",
+        "ldcpt",
+        "ldcpt2"
+      ],
+      "not_needed": {}
+    },
+    "ElmXnet": {
+      "required": [
+        "bus1",
+        "usetp",
+        "outserv"
+      ],
+      "optional": [
+        "snss",
+        "rntxn",
+        "snssmin",
+        "rntxnmin",
+        "bustp",
+        "pgini",
+        "qgini",
+        "phiini"
+      ],
+      "not_needed": {}
+    },
+    "StaSwitch": {
+      "required": [
+        "on_off"
+      ],
+      "optional": [
+        "iUsage",
+        "nphase",
+        "typ_id",
+        "aUsage",
+        "isclosed",
+        "iUse",
+        "iSep",
+        "iResDir",
+        "reclAttempts"
+      ],
+      "not_needed": {}
+    },
+    "TypLne": {
+      "required": [
+        "rline",
+        "xline"
+      ],
+      "optional": [
+        "cline",
+        "bline",
+        "frnom",
+        "sline",
+        "uline",
+        "rline0",
+        "xline0",
+        "bline0",
+        "cline0",
+        "nlnph",
+        "nneutral"
+      ],
+      "not_needed": {
+        "bline": "susceptance restated from cline at frnom; cline is the captured primary input"
+      }
+    },
+    "TypLod": {
+      "required": [],
+      "optional": [
+        "aP",
+        "bP",
+        "cP",
+        "aQ",
+        "bQ",
+        "cQ",
+        "kpu",
+        "kqu",
+        "kpf",
+        "kqf",
+        "kpu0",
+        "kpu1",
+        "kqu0",
+        "kqu1",
+        "i_nln",
+        "nlnph",
+        "udmin",
+        "udmax",
+        "Prp",
+        "pgrd",
+        "qcq",
+        "t1"
+      ],
+      "not_needed": {}
+    },
+    "TypSym": {
+      "required": [
+        "sgn",
+        "ugn"
+      ],
+      "optional": [
+        "cosn",
+        "frequ",
+        "Q_max",
+        "Q_min",
+        "xd",
+        "xq",
+        "xdss",
+        "xdsss",
+        "xqss",
+        "xl",
+        "rstr",
+        "tds0",
+        "tqs0",
+        "tdss0",
+        "tqss0",
+        "h",
+        "xrl",
+        "iturbo",
+        "ngnum",
+        "q_max",
+        "q_min",
+        "polepairs",
+        "lss",
+        "psim",
+        "isat",
+        "iamort",
+        "nphase",
+        "r1d",
+        "model_inp",
+        "iopt_data",
+        "xrls",
+        "xrlss",
+        "r1de",
+        "r1q",
+        "r1qe",
+        "r2d",
+        "r2q",
+        "r3q",
+        "rfd",
+        "rfde",
+        "sg10",
+        "sg12",
+        "t1d",
+        "t1q",
+        "t2d",
+        "t2q",
+        "xrl",
+        "x1d",
+        "x1de",
+        "x1q",
+        "x1qe",
+        "x2d",
+        "x2q",
+        "x3q",
+        "xad",
+        "xaq",
+        "xdsat",
+        "xfd",
+        "xfde",
+        "xstr",
+        "x0sy",
+        "x2sy",
+        "tds",
+        "tdss",
+        "tqs",
+        "tqss",
+        "t3d",
+        "t3q",
+        "t4d",
+        "t4q",
+        "t5d",
+        "t5q",
+        "t6d",
+        "t6q",
+        "t7d",
+        "t8d"
+      ],
+      "not_needed": {}
+    },
+    "TypTr2": {
+      "required": [
+        "strn",
+        "utrn_h",
+        "utrn_l",
+        "uktr"
+      ],
+      "optional": [
+        "pcutr",
+        "r1pu",
+        "x1pu",
+        "uk0tr",
+        "ur0tr",
+        "l0pu",
+        "frnom",
+        "tr2cn_h",
+        "tr2cn_l",
+        "nt2ag",
+        "curmg",
+        "pfe",
+        "itapch",
+        "ntpmn",
+        "ntpmx",
+        "dutap",
+        "phitr",
+        "x0pu",
+        "l1pu",
+        "uk0delta",
+        "ur0delta",
+        "x0delta",
+        "r0delta",
+        "uk0_hlo",
+        "uk0_hls",
+        "uk0_lho",
+        "nt2ph",
+        "x0pu_hlo",
+        "x0pu_hls",
+        "x0pu_lho",
+        "x0tor0",
+        "x0tor0delta",
+        "x0tor0tmn",
+        "x0tor0tmx",
+        "xtortmn",
+        "xtortmx",
+        "xtr0_hlo",
+        "xtr0_hls",
+        "xtr0_lho",
+        "zx0hl_h",
+        "zx0hl_l",
+        "zx0hl_n",
+        "r0pu",
+        "uktrr",
+        "psi0",
+        "bm1",
+        "gm1",
+        "tap_side"
+      ],
+      "not_needed": {}
+    }
+  },
+  "contract_note": "Every mapped attribute answers four questions before an adapter may write it. kind: is it an input the source supplies (primitive), a value the engine recomputes (derived), a name/reference (identity), or read-only evidence (diagnostic)? basis_owner: which object supplies the base any unit conversion needs, written 'Class.attribute' -- the network-wide fallback is not a basis owner. orientation: which side, sign, or reference frame the source value is stated against. disposition: where the value ends up. Attributes not listed here take contract_defaults. Writing a 'derived' attribute is always a defect: PowerFactory recomputes it and discards the write, so the model silently differs from the Case that claims to describe it.",
+  "contract_defaults": {
+    "kind": "primitive",
+    "basis_owner": null,
+    "orientation": null,
+    "disposition": "case_field"
+  },
+  "contracts": {
+    "TypLne": {
+      "cline": {
+        "kind": "primitive",
+        "basis_owner": "TypLne.frnom",
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "capacitance per length; susceptance follows from it at the TYPE's own frnom. IEEE-14 is a 60 Hz project holding 50 Hz line types: converting at the network frequency raised every nonzero B1 by exactly 20 percent."
+      },
+      "bline": {
+        "kind": "derived",
+        "basis_owner": "TypLne.frnom",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "susceptance restated from cline at frnom; never written, always recomputed"
+      },
+      "cline0": {
+        "kind": "primitive",
+        "basis_owner": "TypLne.frnom",
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "zero-sequence capacitance; same basis rule as cline"
+      },
+      "bline0": {
+        "kind": "derived",
+        "basis_owner": "TypLne.frnom",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "zero-sequence susceptance restated from cline0 at frnom"
+      },
+      "frnom": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "the type's own rated frequency; it is the basis owner for cline/cline0 and must never be replaced by the project frequency"
+      }
+    },
+    "TypTr2": {
+      "frnom": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "the transformer type's own rated frequency basis"
+      },
+      "strn": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "transformer rated power; basis owner for uktr/pcutr per-unit conversion"
+      },
+      "uktr": {
+        "kind": "primitive",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "stated on the transformer's own rating, not the system base"
+      },
+      "pcutr": {
+        "kind": "primitive",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "stated on the transformer's own rating, not the system base"
+      },
+      "uktrr": {
+        "kind": "primitive",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "stated on the transformer's own rating, not the system base"
+      },
+      "uk0tr": {
+        "kind": "primitive",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "stated on the transformer's own rating, not the system base"
+      },
+      "ur0tr": {
+        "kind": "primitive",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "stated on the transformer's own rating, not the system base"
+      },
+      "r1pu": {
+        "kind": "derived",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "per-unit impedance PowerFactory computes from uktr/pcutr and strn"
+      },
+      "x1pu": {
+        "kind": "derived",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "per-unit impedance PowerFactory computes from uktr/pcutr and strn"
+      },
+      "r0pu": {
+        "kind": "derived",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "per-unit impedance PowerFactory computes from uktr/pcutr and strn"
+      },
+      "x0pu": {
+        "kind": "derived",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "per-unit impedance PowerFactory computes from uktr/pcutr and strn"
+      },
+      "l0pu": {
+        "kind": "derived",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "per-unit impedance PowerFactory computes from uktr/pcutr and strn"
+      },
+      "l1pu": {
+        "kind": "derived",
+        "basis_owner": "TypTr2.strn",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "per-unit impedance PowerFactory computes from uktr/pcutr and strn"
+      },
+      "tap_side": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": "winding",
+        "disposition": "case_field",
+        "reason": "which winding the tap changer acts on. IEEE-39 declares HV; placing the ratio on the LV winding inverts it and collapsed the transmission side to about 0.918 pu instead of raising it."
+      },
+      "dutap": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "TypTr2.tap_side",
+        "disposition": "case_field",
+        "reason": "voltage step per tap, applied on the declared winding"
+      },
+      "phitr": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "TypTr2.tap_side",
+        "disposition": "case_field",
+        "reason": "phase shift per tap, applied on the declared winding"
+      },
+      "ntpmn": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "TypTr2.tap_side",
+        "disposition": "case_field",
+        "reason": "minimum tap position on the declared winding"
+      },
+      "ntpmx": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "TypTr2.tap_side",
+        "disposition": "case_field",
+        "reason": "maximum tap position on the declared winding"
+      },
+      "nt2ag": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "vector_group",
+        "disposition": "case_field",
+        "reason": "vector-group phase displacement in 30-degree steps; a sign or reference error here rotates every downstream angle"
+      },
+      "tr2cn_h": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "hv_winding",
+        "disposition": "case_field",
+        "reason": "winding connection stated per winding; not interchangeable"
+      },
+      "tr2cn_l": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "lv_winding",
+        "disposition": "case_field",
+        "reason": "winding connection stated per winding; not interchangeable"
+      }
+    },
+    "TypSym": {
+      "frequ": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "the machine type's own rated frequency basis"
+      },
+      "sgn": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "machine rated apparent power; basis owner for per-unit machine reactances"
+      },
+      "ugn": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "machine rated voltage; basis owner for per-unit machine impedances"
+      },
+      "ngnum": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "parallel unit count"
+      }
+    },
+    "ElmShnt": {
+      "qcapn": {
+        "kind": "derived",
+        "basis_owner": "ElmShnt.bcap",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "in mode_inp=LAY PowerFactory computes rated reactive power from bcap and xrea and discards any write; the IEEE-14 shunt came back as 0.96 Mvar instead of 19 Mvar because CEPT wrote this instead of bcap."
+      },
+      "mode_inp": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "selects WHICH inputs are primitive for this shunt; LAY makes bcap/rrea/xrea the inputs and qcapn a result"
+      },
+      "bcap": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "layout-mode primitive input; must be written and read back"
+      },
+      "rrea": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "layout-mode primitive input; must be written and read back"
+      },
+      "xrea": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "layout-mode primitive input; must be written and read back"
+      },
+      "rlrea": {
+        "kind": "derived",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "computed from the reactor at the operating voltage; not a source input"
+      }
+    },
+    "ElmLne": {
+      "R1": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "X1": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "R0": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "X0": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "B1": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "B0": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "G1": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "G0": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "C1": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "C0": {
+        "kind": "derived",
+        "basis_owner": "ElmLne.dline",
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "total branch value computed from the type and length; the type attribute and dline are the primitives"
+      },
+      "bus1": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": "from_terminal",
+        "disposition": "case_field",
+        "reason": "from-terminal; branch flow signs are stated against it"
+      },
+      "bus2": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": "to_terminal",
+        "disposition": "case_field",
+        "reason": "to-terminal; branch flow signs are stated against it"
+      },
+      "nlnum": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "number of parallel lines; dropping it divides the impedance CEPT builds"
+      },
+      "npar": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "parallel line count"
+      },
+      "npara": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "parallel line count"
+      }
+    },
+    "ElmLod": {
+      "slini": {
+        "kind": "derived",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "apparent power restated from plini/qlini"
+      },
+      "ilini": {
+        "kind": "derived",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "current restated from the load's power and terminal voltage"
+      },
+      "coslini": {
+        "kind": "derived",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "diagnostic",
+        "reason": "power factor restated from plini/qlini"
+      },
+      "plini": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "load_consumption",
+        "disposition": "case_field",
+        "reason": "active power drawn, positive out of the network -- the opposite sign convention to a machine's pgini"
+      },
+      "qlini": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "load_consumption",
+        "disposition": "case_field",
+        "reason": "reactive power drawn, positive out of the network"
+      },
+      "pf_recap": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "power_factor_sign",
+        "disposition": "case_field",
+        "reason": "whether the stated power factor is capacitive; it decides the sign of Q"
+      }
+    },
+    "ElmTr2": {
+      "nntap": {
+        "kind": "primitive",
+        "basis_owner": "TypTr2.dutap",
+        "orientation": "TypTr2.tap_side",
+        "disposition": "case_field",
+        "reason": "tap position counted from the type's neutral position, in the type's step size, acting on the type's declared winding"
+      },
+      "bushv": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": "hv_winding",
+        "disposition": "case_field",
+        "reason": "terminal of the HV winding; the winding order defines the ratio direction"
+      },
+      "buslv": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": "lv_winding",
+        "disposition": "case_field",
+        "reason": "terminal of the LV winding; the winding order defines the ratio direction"
+      },
+      "ntnum": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "number of parallel transformer units; dropping it changes the impedance and the rating the study sees"
+      },
+      "ntrnum": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "parallel unit count"
+      },
+      "npar": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "parallel unit count"
+      }
+    },
+    "ElmSym": {
+      "pgini": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "generator_injection",
+        "disposition": "case_field",
+        "reason": "dispatched active power, positive into the network"
+      },
+      "qgini": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "generator_injection",
+        "disposition": "case_field",
+        "reason": "dispatched reactive power, positive into the network"
+      },
+      "pf_recap": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "power_factor_sign",
+        "disposition": "case_field",
+        "reason": "whether the stated power factor is capacitive; it decides the sign of Q"
+      },
+      "ngnum": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "number of parallel machines; it scales dispatch and reactive limits"
+      },
+      "usetp": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "controlled_terminal",
+        "disposition": "case_field",
+        "reason": "voltage setpoint held at the controlled terminal, not necessarily the machine's own bus"
+      },
+      "av_mode": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": "controlled_terminal",
+        "disposition": "case_field",
+        "reason": "which quantity and terminal the machine regulates"
+      },
+      "ip_ctrl": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "designates the reference machine; the source picks it, not the rebuild"
+      },
+      "bustp": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "PV/PQ/SL role; it decides which of pgini/qgini/usetp is held"
+      }
+    },
+    "ElmGenstat": {
+      "ngnum": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "parallel unit count"
+      }
+    },
+    "ElmXnet": {
+      "usetp": {
+        "kind": "primitive",
+        "basis_owner": null,
+        "orientation": "controlled_terminal",
+        "disposition": "case_field",
+        "reason": "external grid voltage setpoint at its terminal"
+      },
+      "bustp": {
+        "kind": "identity",
+        "basis_owner": null,
+        "orientation": null,
+        "disposition": "case_field",
+        "reason": "external grid role"
+      }
+    }
+  }
+}

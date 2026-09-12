@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cept-power-studio"
+version = "0.2.0.dev0"
+description = "Candidate public OpenDSS-first CEPT study workflow."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "CEPT" }]
+dependencies = [
+    "networkx>=3.0",
+    "OpenDSSDirect.py>=0.9",
+    "pydantic>=2.5",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3",
+]
+
+[project.optional-dependencies]
+notebooks = [
+    "jupyter>=1.0",
+    "nbclient>=0.8",
+    "nbconvert>=7.0",
+    "nbformat>=5.9",
+]
+
+[project.scripts]
+cept = "cept.public_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cept*"]
+
+[tool.setuptools.package-data]
+cept = ["testsystems/ieee13/*.csv", "testsystems/ieee13/*.dss"]

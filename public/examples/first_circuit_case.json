@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "name": "public_first_circuit",
+    "author": "CEPT",
+    "description": "Small three-phase source-line-load example used by the public first load-flow lesson.",
+    "mode": "demonstrator"
+  },
+  "network": {
+    "kind": "inline",
+    "frequency_hz": 60,
+    "inline": {
+      "buses": [
+        {"name": "source", "kv": 12.47, "phases": 3},
+        {"name": "load", "kv": 12.47, "phases": 3}
+      ],
+      "lines": [
+        {
+          "name": "line1",
+          "from_bus": "source",
+          "to_bus": "load",
+          "length_km": 1.0,
+          "r1_ohm_per_km": 0.2,
+          "x1_ohm_per_km": 0.4,
+          "r0_ohm_per_km": 0.6,
+          "x0_ohm_per_km": 1.2,
+          "b1_us_per_km": 0.0
+        }
+      ],
+      "loads": [
+        {"id": "load1", "bus": "load", "phases": 3, "kw": 100.0, "pf": 0.95}
+      ],
+      "external_grids": [
+        {
+          "name": "grid",
+          "bus": "source",
+          "pu": 1.0,
+          "angle_deg": 0.0,
+          "sk3_mva": 1000.0,
+          "x_r_ratio": 10.0
+        }
+      ]
+    }
+  },
+  "study": {"type": "load_flow"}
+}
