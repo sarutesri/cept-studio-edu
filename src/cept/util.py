@@ -22,14 +22,4 @@ def sha256_file(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def write_json(path: str | Path, payload: Any) -> None:
-    """Write deterministic UTF-8 JSON with one trailing newline."""
-    Path(path).write_text(
-        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-
-
-
-
-__all__ = ["read_json", "sha256_file", "write_json"]
+__all__ = ["read_json", "sha256_file"]

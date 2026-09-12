@@ -88,27 +88,13 @@
     },
     "ElmPvsys": {
       "note": "PV-system element captured as a static-generator row in the typed Case (load-flow representation); the PV/DER + OpenDER co-sim representation boundary is a separate reviewed layer (T-011 follow-on)."
-    },
-    "ElmVsc": {
-      "case_field": "converters",
-      "note": "Bipolar PWM converter (T-038; following/forming per proven i_acdc map)."
-    },
-    "ElmVscmono": {
-      "case_field": "converters",
-      "note": "Monopolar PWM converter (T-038)."
-    },
-    "ElmDcu": {
-      "case_field": "dc_sources",
-      "note": "Voltage-holding DC (battery) unit with positive uset (T-038)."
-    },
-    "ElmLoddc": {
-      "case_field": "dc_loads",
-      "note": "Constant-power DC load (T-038)."
     }
   },
   "blocking": {
     "ElmScap": "series capacitor is not represented in the typed Case",
     "ElmSvs": "static var system is not represented in the typed Case",
+    "ElmVsc": "voltage-source converter / HVDC is not represented in the typed Case",
+    "ElmVscmono": "monopolar VSC is not represented in the typed Case",
     "ElmRectifier": "rectifier is not represented in the typed Case",
     "ElmAsm": "induction machine is not represented in the typed Case",
     "ElmAsmsc": "induction machine with slip control is not represented in the typed Case",

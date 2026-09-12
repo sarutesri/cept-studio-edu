@@ -4,11 +4,11 @@ This module is the deliberately small education-facing surface.  It reuses
 the canonical :class:`cept.schema.case.Case`, OpenDSS adapter, and result
 models; it does not create a second solver or expose PowerFactory internals.
 
-The current CEPT Public boundary supports inline Cases and the bundled IEEE
-13-node feeder for load flow, unbalanced load flow, hosting capacity, and fault
-studies. Every file-backed run carries a case fingerprint, solver identity, an
-explicit ``WORKFLOW_VALIDATED`` claim boundary, and a fail-closed verification
-receipt.
+The public v0.1 boundary supports inline Cases and the bundled IEEE 13-node
+feeder for load flow, unbalanced load flow, hosting capacity, and fault
+studies.  Every file-backed run carries a case fingerprint, solver identity,
+an explicit ``WORKFLOW_VALIDATED`` claim boundary, and a fail-closed
+verification receipt.
 """
 
 from __future__ import annotations
@@ -107,7 +107,7 @@ def validate_public_case(case: Case) -> dict[str, Any]:
     study_type = case.study.type
     if study_type not in PUBLIC_STUDIES:
         raise PublicBoundaryError(
-            f"study.type={study_type!r} is not in the CEPT Public scope; "
+            f"study.type={study_type!r} is not in the CEPT Public v0.1 scope; "
             "unsupported studies are blocked rather than approximated."
         )
     kind = case.network.kind
@@ -115,7 +115,7 @@ def validate_public_case(case: Case) -> dict[str, Any]:
         name = str(case.network.name or "").lower()
         if name not in PUBLIC_BUILTINS:
             raise PublicBoundaryError(
-                f"builtin feeder {case.network.name!r} is not in the CEPT Public scope; "
+                f"builtin feeder {case.network.name!r} is not in the CEPT Public v0.1 scope; "
                 f"available public feeders: {sorted(PUBLIC_BUILTINS)}"
             )
     elif kind == "inline":
@@ -123,7 +123,7 @@ def validate_public_case(case: Case) -> dict[str, Any]:
             raise PublicBoundaryError("inline network is missing its typed network payload")
     else:
         raise PublicBoundaryError(
-            "CEPT Public accepts inline Cases and the bundled IEEE13 feeder only; "
+            "CEPT Public v0.1 accepts inline Cases and the bundled IEEE13 feeder only; "
             "arbitrary dss_file paths are not yet part of the public release."
         )
     return {
@@ -398,67 +398,30 @@ def run_study(
     typed_case = case if isinstance(case, Case) else Case.model_validate(case)
     validate_public_case(typed_case)
     if solver != "native":
-        raise PublicBoundaryError("CEPT Public exposes the native OpenDSS solver only.")
+        raise PublicBoundaryError("CEPT Public v0.1 exposes the native OpenDSS solver only.")
 
     readiness = readiness_for_case(typed_case)
     if readiness.status != "PASS" or readiness.prepared is None:
         reason = readiness.gaps[0]["reason"] if readiness.gaps else "Case admission was blocked."
         raise PublicBoundaryError(str(reason))
-    software_identity = {"edition": "public", "public_version": public_version()}
     plan = build_execution_plan(
         readiness.prepared,
         solver=solver,
-        software_identity=software_identity,
+        software_identity={"edition": "public", "public_version": public_version()},
     )
     plan_summary = dict(execution_plan_summary(plan))
     plan_summary["claim_cap"] = PUBLIC_CLAIM
     plan_summary["research_status"] = PUBLIC_CLAIM
-
-    run_dir = Path(out).resolve() if out is not None else None
-    if run_dir is not None:
-        try:
-            execution_module = importlib.import_module("cept.application.execution")
-        except ModuleNotFoundError as exc:
-            if exc.name != "cept.application.execution":
-                raise
-            # The positive public export intentionally omits the private
-            # artifact service. Preserve the public file-backed contract with
-            # its existing bounded writer in that staged edition.
-            result, _adapter = execute_run(plan)
-            attempt_id = new_attempt_id()
-        else:
-            request_type = execution_module.StudyExecutionRequest
-            execution_module.execute_study_to_artifacts(
-                request_type(
-                    case=typed_case,
-                    run_dir=run_dir,
-                    export=False,
-                    include_show_commands=False,
-                    force=force,
-                    strict=False,
-                    argv=["cept", "study", "run", "--public"],
-                    solver=solver,
-                    experiment_context={"claim": PUBLIC_CLAIM},
-                    software_identity=software_identity,
-                    console_output=False,
-                )
-            )
-            result = StudyResult.model_validate(_read_json(run_dir / "results.json"))
-            plan_summary = dict(_read_json(run_dir / "execution-plan.json"))
-            plan_summary["claim_cap"] = PUBLIC_CLAIM
-            plan_summary["research_status"] = PUBLIC_CLAIM
-            attempt_payload = _read_json(run_dir / "attempt.json")
-            attempt_id = str(attempt_payload["attempt_id"])
-    else:
-        result, _adapter = execute_run(plan)
-        attempt_id = new_attempt_id()
+    result, _adapter = execute_run(plan)
     verification = _verification_record(typed_case, result)
+    attempt_id = new_attempt_id()
     verification.update(
         {
             "attempt_id": attempt_id,
-            "execution_key": plan_summary.get("plan_fingerprint", plan.plan_fingerprint),
+            "execution_key": plan.plan_fingerprint,
         }
     )
+    run_dir = _prepare_run_dir(Path(out), force=force) if out is not None else None
     if run_dir is not None:
         _write_run_artifacts(run_dir, typed_case, result, verification, plan_summary, attempt_id)
     return PublicRun(typed_case, result, verification, run_dir, plan_summary)
