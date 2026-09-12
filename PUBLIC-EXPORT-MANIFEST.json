@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "635714bc90570ef1fdffbe32e46eebd466d8d85c",
+  "canonical_source_commit": "c6aa72a04f9bf2efd6f120316e035ea971fb37c8",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -43,17 +43,17 @@
     {
       "path": "LICENSE",
       "source": "packaging/public/LICENSE",
-      "sha256": "74d1596d3d10298713b7ac01989b0f02b90a1152bc96f0b467cb3895d9e25c50"
+      "sha256": "7cab17e9299e5e914a7d8f5f014c5b3ec35054c0e3361ea71220d3341e1d2d26"
     },
     {
       "path": "README.md",
       "source": "packaging/public/README.md",
-      "sha256": "89ffcb6075dec46296583336fd7444b615f00b69682fdd0fbe844a18600e988e"
+      "sha256": "1020fc23e26df1dc2188e5bc45225e3c86cf5f388aeddbbedfe0455f2913d29a"
     },
     {
       "path": "docs/site/colab.md",
       "source": "docs/site/colab.md",
-      "sha256": "7027a8277aceddf822fc3eb7d6db68a1c4e203de8c38d9bfcb60203401b1992f"
+      "sha256": "a83982d364b0035afb57b3bf173a8ec520df72657a63a38bdafe14ae0ee9935e"
     },
     {
       "path": "docs/site/public-course.md",
@@ -63,7 +63,7 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "e46decb39562618efc624f27d460ef70d405b247513f51eeaa2f570a8c3f7dab"
+      "sha256": "782a1318d6b1736c09353a40aa2631eaa2c392f61dfbf18cdd7b08b9b7a1e4d0"
     },
     {
       "path": "public/examples/README.md",
@@ -108,7 +108,7 @@
     {
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
-      "sha256": "fcd4e7b7dbc233d5ba9570238e6f18966d4a20bb9952cb0f24d3169993adcfaa"
+      "sha256": "46aeb3384f602a2b6261c0d6df9eb5470820b4f2a001f08db4a2e94e59a45c8c"
     },
     {
       "path": "pyproject.toml",

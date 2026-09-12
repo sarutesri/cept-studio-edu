@@ -115,6 +115,6 @@ export:
     packaging/public/LICENSE: LICENSE
 
 license:
-  status: pending_approval
-  approved_spdx: null
-  release_blocker: true
+  status: approved
+  approved_spdx: Apache-2.0
+  release_blocker: false

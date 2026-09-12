@@ -26,10 +26,10 @@ cold-start review. The repository runner is:
 python tools/run_public_notebooks.py --python <fresh-venv-python> --output-dir <external-output>
 ```
 
-The links above open the canonical `master`-branch notebooks in Google Colab.
-The repository and package are still candidate/private, so an anonymous Colab
-request currently returns GitHub `404 Not Found` until the public snapshot is
-approved. These links do not by themselves record a passed real-Colab gate.
+The links above open the `master`-branch notebooks in Google Colab.
+Anonymous Colab access follows the public mirror; while the mirror is still
+private, anonymous requests return GitHub `404 Not Found`. These links do not
+by themselves record a passed real-Colab gate.
 
 No notebook embeds a private project path, PowerFactory input, or an invented
 engineering value. The explicit demonstrator assumptions are visible in the

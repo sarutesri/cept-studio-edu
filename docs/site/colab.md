@@ -1,18 +1,18 @@
 ---
-title: Private notebook course
-description: Learn CEPT by running six small OpenDSS notebook examples with authorized GitHub access.
+title: Notebook course
+description: Learn CEPT by running six small OpenDSS notebook examples in Google Colab.
 ---
 
 <div class="cept-hero cept-hero--colab" markdown>
 
-<span class="cept-status cept-status-beta">Learn · Private preview</span>
+<span class="cept-status cept-status-beta">Learn · Preview</span>
 
 ## Learn by running small examples.
 
 The notebook course is the browser-first way to explore CEPT. Each lesson shows
 what you set up, what OpenDSS calculates, and what CEPT saves for inspection.
 The bounded claim is `WORKFLOW_VALIDATED`; it does not validate a physical
-project. Authorized collaborators can open the notebooks in Google Colab.
+project. Open the notebooks in Google Colab; anonymous access follows the public mirror.
 
 <div class="cept-actions" markdown>
 <a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/master/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span><span>Start with Lesson 00</span></a>
@@ -21,9 +21,8 @@ project. Authorized collaborators can open the notebooks in Google Colab.
 
 </div>
 
-!!! info "Private for now"
-    The notebooks currently require GitHub access to the private repository.
-    Anonymous access remains intentionally unavailable during this review cycle.
+!!! info "Preview status"
+    The teaching package runs under Apache-2.0 with a `WORKFLOW_VALIDATED` bound; it does not validate a physical project. A passed real-Colab cold-start review is still pending.
 
 
 ```mermaid

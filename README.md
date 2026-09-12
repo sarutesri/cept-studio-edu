@@ -46,9 +46,9 @@ cept study verify runs/ieee13
 ```
 
 The wheel intentionally contains no PowerFactory adapter, private project
-paths, internal evidence, or private research assets. Public release remains
-blocked until the license is approved, the real Google Colab notebook gate is
-completed, and the external public-repository gate is reviewed.
+paths, internal evidence, or private research assets. The license is approved
+(Apache-2.0); public release remains blocked until the real Google Colab
+notebook gate is completed and the external public-repository gate is reviewed.
 
 The canonical private repository remains the source of truth. Do not publish
 the staging tree until `tools/run_public_gate.py` reports a release-ready
