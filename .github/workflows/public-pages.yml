@@ -26,11 +26,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Build site from exported public staging only
-        run: python tools/build_edu_site.py . _site
+        run: python tools/build_edu_site.py . "${{ runner.temp }}/cept-edu-site"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: ${{ runner.temp }}/cept-edu-site
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

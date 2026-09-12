@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "43de3847fd816376b6b1fa3a866ac5bbe1aec441",
+  "canonical_source_commit": "d947fb2ae23fe884fd1769a88b50aa5594304997",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -52,7 +52,7 @@
     {
       "path": ".github/workflows/public-pages.yml",
       "source": "packaging/public/public-pages.yml",
-      "sha256": "923da90f90c1dc8b1cdf05d4e889e2c5a363216abc3c39737868fdfcaca2de5e"
+      "sha256": "b7e7453e7c9094c4f3291fa9ffaeed5b706ea6ad3dbebac0ea76eaaf173a9150"
     },
     {
       "path": "LICENSE",
