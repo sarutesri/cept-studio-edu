@@ -36,8 +36,12 @@ captures the solver-returned result, and records the solver identity. The
 candidate's receipt is bounded to `WORKFLOW_VALIDATED`; it is not a claim of
 project validation, field-evidence acceptance, or PowerFactory agreement.
 
-For a local staged install, use the generated wheel and then run:
-
+The six notebooks pin the published teaching wheel by URL and SHA-256. For a
+local install, download the wheel from
+[`v0.2.0-edu.1`](https://github.com/sarutesri/cept-studio-edu/releases/tag/v0.2.0-edu.1),
+verify SHA-256
+`c7e609a1d9cc85b322bfb615f0c796c7ea5c43815b197289eb555786964478bc`,
+install it, and then run:
 ```text
 cept system doctor
 cept capability show
