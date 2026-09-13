@@ -18,6 +18,12 @@ _SCALE = 400.0
 _LONG_CHAIN_MAX_COLUMNS = 10
 _LONG_CHAIN_ROW_GAP = 2.0
 _DENSE_MIN_BUSES = 25
+# Small radial feeders benefit from subtree-centred ranks as well. The
+# compact layered fallback keeps only global rank order, which can place a
+# child subtree back under a neighbouring feeder and force long visual
+# dog-legs even when the topology is a simple tree.
+_SMALL_TREE_LAYOUT_MIN_BUSES = 10
+
 _DENSE_EXPLICIT_MIN_COVERAGE = 0.75
 _DENSE_EXPLICIT_MAX_ASPECT = 6.0
 _DENSE_EXPLICIT_MIN_GAP = 0.40 * _SCALE
@@ -477,10 +483,15 @@ def _component_layout(
     )
     if homogeneous_dense_star:
         return _pack_dense_levels(subgraph, roots)
+    tree_with_enough_branches = (
+        subgraph.number_of_edges() == subgraph.number_of_nodes() - 1
+        and subgraph.number_of_nodes() >= _SMALL_TREE_LAYOUT_MIN_BUSES
+    )
     engineering = (
         subgraph.number_of_nodes() >= _DENSE_MIN_BUSES
         or len(roots) > 1
         or max_degree >= _SWITCHBOARD_MIN_FANOUT
+        or tree_with_enough_branches
     )
     if engineering:
         return _engineering_tree(subgraph, roots, kv)[0]
@@ -536,6 +547,17 @@ def _inline_graph(
     graph.add_edges_from((line.from_bus, line.to_bus) for line in net.lines)
     graph.add_edges_from((item.hv_bus, item.lv_bus) for item in net.transformers)
     graph.add_edges_from((item.bus1, item.bus2) for item in net.switches)
+    # T-039: the DC island is first-class topology. DC buses are layout nodes
+    # and each converter is an edge from its AC bus to its DC pole bus(es),
+    # so the island is placed deterministically instead of collapsing to the
+    # (0, 0) fallback that fails the collision gate.
+    for dc_bus in net.dc_buses or []:
+        graph.add_node(dc_bus.name)
+        kv[dc_bus.name] = float(dc_bus.kv)
+    for conv in net.converters or []:
+        graph.add_edge(conv.bus, conv.dc_plus_bus)
+        if conv.dc_minus_bus is not None:
+            graph.add_edge(conv.bus, conv.dc_minus_bus)
     roots = {grid.bus for grid in net.external_grids if grid.bus in graph}
     if not roots:
         roots = {gen.bus for gen in net.generators if gen.bus_type == "slack" and gen.bus in graph}

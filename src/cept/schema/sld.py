@@ -23,7 +23,7 @@ from pydantic import BaseModel, Field
 # Generator / DER kinds get distinct symbols + colors in the diagram.
 GenKind = Literal["pv", "wind", "hydro", "syncgen", "battery", "generator", "indmach", "grid"]
 ShuntKind = Literal["capacitor", "reactor", "statcom", "svc"]
-EdgeKind = Literal["line", "transformer", "switch", "regulator"]
+EdgeKind = Literal["line", "transformer", "switch", "regulator", "converter"]
 NodeKind = Literal["substation", "bus"]
 EventKind = Literal["fault", "open", "close", "trip_gen", "shed_load", "set_tap", "info"]
 

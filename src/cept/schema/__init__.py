@@ -93,6 +93,12 @@ from cept.schema.provenance import (
     SourceManifest,
     TopologyEvidence,
 )
+from cept.schema.intake_resolution import (
+    CaseInfoResolutionItem,
+    CaseInfoResolutionLedger,
+    ResolutionPolicy,
+    ResolutionStatus,
+)
 
 __all__ = [
     "Case",
@@ -170,4 +176,8 @@ __all__ = [
     "SourceFile",
     "SourceManifest",
     "TopologyEvidence",
+    "CaseInfoResolutionItem",
+    "CaseInfoResolutionLedger",
+    "ResolutionPolicy",
+    "ResolutionStatus",
 ]

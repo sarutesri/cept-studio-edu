@@ -1,9 +1,9 @@
 # CEPT Public candidate notebooks
 
-These lessons are deliberately small and solver-visible. Each notebook uses
-the direct OpenDSS API for a reference calculation, runs the same typed Case
-through CEPT, and compares only quantities that both sides actually expose.
-The comparison is a workflow demonstration, not project validation.
+These lessons are deliberately small and solver-visible. Each notebook keeps
+solver output separate from teaching text and makes the evidence boundary
+visible. The comparison and receipts are workflow demonstrations, not project
+validation.
 
 | Notebook | Topic |
 | --- | --- |
@@ -13,25 +13,30 @@ The comparison is a workflow demonstration, not project validation.
 | [`03_hosting_capacity.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_hosting_capacity.ipynb) | PV hosting-capacity search |
 | [`04_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb) | Single-line-to-ground fault |
 | [`05_validation_reproducibility.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb) | Fingerprints, artifacts, and verification |
-| [`06_colab_tui.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb) | Complete CLI tour, then TUI-feel agent chat with your own key |
+| [`06_colab_tui.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb) | Guided Case-information review, optional OpenCode help, and one bounded solver run |
 
-The notebooks are candidate public teaching assets until the package passes
-the staged wheel gate and an owner approves the release license. They should
-be executed from a fresh installed wheel, not from the source checkout. The
-desktop product is Windows/Python 3.10; the intended web teaching runtime is
-Google Colab. Colab runs the notebook in a hosted Linux VM, so the automated
-runner below is necessary but does not replace the final real-Colab
-cold-start review. The repository runner is:
+Lesson 06 is designed as a small workspace rather than a wall of CLI output.
+A learner can paste incomplete Case information, see which fields are known or
+missing, choose `strict`, `assisted`, or `exploratory` resolution, and use an
+optional OpenCode assistant. Missing engineering inputs never become solver
+values silently. The final demo remains solver-backed and reports the exact
+`WORKFLOW_VALIDATED` receipt boundary.
+
+The notebooks should be executed from a fresh installed wheel, not from the
+source checkout. The desktop product is Windows/Python 3.10; the intended web
+teaching runtime is Google Colab. Colab runs the notebook in a hosted Linux VM,
+so the automated runner below is necessary but does not replace the final
+real-Colab cold-start review. The repository runner is:
 
 ```text
 python tools/run_public_notebooks.py --python <fresh-venv-python> --output-dir <external-output>
 ```
 
-The links above open the `master`-branch notebooks in Google Colab.
-Anonymous Colab access follows the public mirror; while the mirror is still
-private, anonymous requests return GitHub `404 Not Found`. These links do not
-by themselves record a passed real-Colab gate.
+The links above point at the canonical private development source; the export
+pipeline rewrites public release links to `sarutesri/cept-studio-edu`. A passed
+link or automated notebook run does not by itself record the authenticated
+real-Colab acceptance gate.
 
 No notebook embeds a private project path, PowerFactory input, or an invented
-engineering value. The explicit demonstrator assumptions are visible in the
-Case or in the lesson text.
+engineering value. Demonstrator assumptions must be visible in the Case or the
+Case-information resolution ledger.

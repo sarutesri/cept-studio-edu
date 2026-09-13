@@ -30,6 +30,13 @@ def adapter_names() -> list[str]:
 
 
 def __getattr__(name: str) -> Any:
+    if name == "powerfactory_inventory_worker":
+        try:
+            return importlib.import_module("cept.adapters.pf.inventory")
+        except ModuleNotFoundError as exc:
+            raise ImportError(
+                "PowerFactory inventory is a CEPT Pro capability and is not installed in this CEPT Public package."
+            ) from exc
     if name == "OpenDSSAdapter":
         return importlib.import_module("cept.adapters.opendss").OpenDSSAdapter
     if name == "PowerFactoryAdapter":
@@ -66,7 +73,7 @@ __all__ = [
     "PowerFactoryNotAvailable",
     "PowerFactoryRunError",
     "adapter_for",
-    "adapter_names",
+    "powerfactory_inventory_worker",
     "audit_active_native_diagram",
     "default_probe",
     "build_native_pfd_plan",

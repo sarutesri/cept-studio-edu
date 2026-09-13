@@ -1,121 +1,67 @@
 ---
 title: Notebook course
-description: Learn CEPT by running six small OpenDSS notebook examples in Google Colab.
+description: Learn CEPT through seven small OpenDSS lessons in Google Colab, including guided Case-information review.
 ---
 
 <div class="cept-hero cept-hero--colab" markdown>
 
-<span class="cept-status cept-status-beta">Learn · Preview</span>
+<span class="cept-status cept-status-beta">Learn · Public education</span>
 
-## Learn by running small examples.
+## Start small. Keep the evidence visible.
 
-The notebook course is the browser-first way to explore CEPT. Each lesson shows
-what you set up, what OpenDSS calculates, and what CEPT saves for inspection.
-The bounded claim is `WORKFLOW_VALIDATED`; it does not validate a physical
-project. Open the notebooks in Google Colab; anonymous access follows the public mirror.
+The notebook course is the browser-first way to explore CEPT. Each lesson keeps
+three things separate: **what you provide**, **what OpenDSS calculates**, and
+**what CEPT saves as evidence**. The bounded claim is `WORKFLOW_VALIDATED`; it
+does not validate a physical project.
 
 <div class="cept-actions" markdown>
 <a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span><span>Start with Lesson 00</span></a>
-[See the course map](public-course.md){ .md-button }
+<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 06 in Google Colab" title="Open guided Case intake"><span class="cept-colab-mark" aria-hidden="true"></span><span>Try your own Case info</span></a>
 </div>
 
 </div>
 
-!!! info "Preview status"
-    The teaching package runs under Apache-2.0 with a `WORKFLOW_VALIDATED` bound; it does not validate a physical project. A passed real-Colab cold-start review is still pending.
-
+!!! info "Evidence boundary"
+    The teaching package demonstrates solver-backed workflow evidence. A notebook PASS is not `PROJECT_VALIDATED`, field acceptance, or PowerFactory agreement. Real authenticated Colab execution remains a separate acceptance gate from repository-side notebook tests.
 
 ```mermaid
 flowchart LR
-    A[Open notebook] --> B[Set up study]
-    B --> C[Run OpenDSS]
-    C --> D[Inspect result]
-    D --> E[Check saved evidence]
+    A[Your information] --> B[Review gaps]
+    B --> C[Typed Case]
+    C --> D[OpenDSS]
+    D --> E[Verify evidence]
 ```
 
-## Choose a lesson
+## Recommended path
 
-| Lesson | Try this |
-| --- | --- |
-| **00 · Environment** | Check the runtime and what a successful run means. |
-| **01 · First circuit** | Build a tiny two-bus load flow and inspect voltage. |
-| **02 · IEEE13** | Explore an unbalanced three-phase feeder. |
-| **03 · Hosting capacity** | Increase PV and keep the voltage criterion visible. |
-| **04 · Fault study** | Run a declared ground fault and inspect solver-returned current. |
-| **05 · Reproducibility** | Follow fingerprints, saved artifacts, and checks. |
-| **06 · Colab TUI** | Tour the full CLI, then chat with the agent using your key. |
+
 <div class="cept-card-grid cept-card-grid--three" markdown>
 
 <div class="cept-card" markdown>
-<span class="cept-status">Lesson 00</span>
+<span class="cept-status">Start</span>
 
-### Environment
-Check the runtime, package boundary, and claim scope.
+### 00 · Environment
+Check that CEPT and OpenDSS are available and understand what a PASS can prove.
 
-<div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb){ .cept-source-link target="_blank" rel="noopener" }
-</div>
+<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Open in Colab</span></a>
 </div>
 
 <div class="cept-card" markdown>
-<span class="cept-status">Lesson 01</span>
+<span class="cept-status">Core</span>
 
-### First circuit
-Build a tiny two-bus load flow and inspect the returned voltage.
+### 01–05 · Learn the studies
+Move from a tiny load flow to unbalanced IEEE13, hosting capacity, fault, and reproducibility.
 
-<div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_first_circuit_load_flow.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 01 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_first_circuit_load_flow.ipynb){ .cept-source-link target="_blank" rel="noopener" }
-</div>
+[See all lessons](public-course.md){ .md-button }
 </div>
 
 <div class="cept-card" markdown>
-<span class="cept-status">Lesson 02</span>
+<span class="cept-status">Apply</span>
 
-### IEEE13
-Explore an unbalanced three-phase feeder.
+### 06 · Bring your Case information
+Paste incomplete information, review missing fields, choose a resolution policy, optionally ask OpenCode for help, then run a separate bounded demo.
 
-<div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 02 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb){ .cept-source-link target="_blank" rel="noopener" }
-</div>
-</div>
-
-<div class="cept-card" markdown>
-<span class="cept-status">Lesson 03</span>
-
-### Hosting capacity
-Increase PV while keeping the voltage criterion visible.
-
-<div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_hosting_capacity.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 03 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_hosting_capacity.ipynb){ .cept-source-link target="_blank" rel="noopener" }
-</div>
-</div>
-
-<div class="cept-card" markdown>
-<span class="cept-status">Lesson 04</span>
-
-### Fault study
-Run a declared ground fault and inspect solver-returned current.
-
-<div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 04 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb){ .cept-source-link target="_blank" rel="noopener" }
-</div>
-</div>
-
-<div class="cept-card" markdown>
-<span class="cept-status">Lesson 05</span>
-
-### Reproducibility
-Follow fingerprints, saved artifacts, and checks.
-
-<div class="cept-card-actions" markdown>
-<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 05 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
-[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb){ .cept-source-link target="_blank" rel="noopener" }
-</div>
+<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Open guided intake</span></a>
 </div>
 
 <div class="cept-card" markdown>
@@ -132,20 +78,46 @@ Tour the full CLI, then chat with the agent using your own key.
 
 </div>
 
+## Seven lessons
 
-<div class="cept-actions" markdown>
-<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_ieee13_unbalanced.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Try IEEE13 in Colab</span></a>
-[Open the full lesson map](public-course.md){ .md-button }
-</div>
+| Lesson | Focus | What stays visible |
+| --- | --- | --- |
+| **00 · Environment** | runtime and claim boundary | CEPT/OpenDSS identity |
+| **01 · First circuit** | tiny two-bus load flow | source → line → load and voltage |
+| **02 · IEEE13** | unbalanced three-phase feeder | phase-specific voltage |
+| **03 · Hosting capacity** | PV search | declared criterion and capacity bracket |
+| **04 · Fault study** | single-line-to-ground fault | solver-returned fault current |
+| **05 · Reproducibility** | fingerprints and receipts | Case/result identity and checks |
+| **06 · Case information + OpenCode** | incomplete real-world starting data | source/derived/missing/default/AI assumption status |
 
-## What these lessons are for
+## Lesson 06: flexible input, strict truth
 
-The notebooks demonstrate bounded solver-backed workflows. They are useful for
-learning and reproducibility checks; they do **not** validate a physical project
-or field installation.
+Lesson 06 is the bridge from a tutorial to real work. The learner may start
+with a short note or, in the full CEPT/OpenCode workflow, several project-local
+files. The assistant may organize and map the information, but it must not make
+missing engineering parameters disappear.
+
+The review has three policies:
+
+- `strict` — source/derived values only;
+- `assisted` — may use an explicitly approved, named documented default;
+- `exploratory` — may additionally use an explicitly approved AI-selected assumption for a demonstrator.
+
+Every policy blocks unresolved required inputs. Research intake remains
+source-backed. A default and an AI-selected assumption are deliberately not the
+same thing, and neither is presented as measurement evidence.
+
+## Why the final demo is separate
+
+The sample Case information in Lesson 06 intentionally omits a transformer
+parameter. CEPT therefore does **not** solve that learner Case. The notebook
+runs a bundled IEEE13 load-flow demonstration at the end so the learner can
+still see a genuine OpenDSS run and verification receipt without laundering a
+missing input into a fake result.
 
 For the full Windows workflow with interactive SLD and report output, continue
-to [Getting started](getting-started.md).
+to [Getting started](getting-started.md). For mixed source data and Case
+preparation, see [Prepare a CEPT Case](case-preparation.md).
 
 Found a confusing lesson or unexpected result?
 [Report it](https://github.com/sarutesri/cept-studio/issues/new).

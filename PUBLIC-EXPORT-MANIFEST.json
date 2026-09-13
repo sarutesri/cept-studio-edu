@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "749eaeb5cba21cc1c9019c3385462c5ae52bcef1",
+  "canonical_source_commit": "c0dd88afa658a711b7e3f81db20fb4974a8ca660",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -73,12 +73,12 @@
     {
       "path": "docs/site/colab.md",
       "source": "docs/site/colab.md",
-      "sha256": "12cb937d09b3c83afa5b42a9ec50968bfba5af76e7811c1c644d653c1f25d239"
+      "sha256": "cafbb6fc968bd93942c3a9a1f46c56098649bb07b4f6e9a1a1fc556ad7a619b3"
     },
     {
       "path": "docs/site/public-course.md",
       "source": "docs/site/public-course.md",
-      "sha256": "1872e3d9bb05b1afae189179dbf4bd69f6e97a62f98c0f9e94be9bad1e97ad97"
+      "sha256": "1198f508c2f88ee7a3c779cd052ef31f8c133b9bd2f73bc0133f1ad338f5d9f1"
     },
     {
       "path": "public-release.yaml",
@@ -88,12 +88,12 @@
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
       "source": "public/agent/.opencode/commands/cept-edu.md",
-      "sha256": "a590d169d6f0d849e04f8d8f946e83ba3c9d2cc6d694cdc95e792b6739bc5ab5"
+      "sha256": "cb715399d5b0bbf644d1d6b9036d7a77929d8c30d1a2ef228fe6b7e91dca8a05"
     },
     {
       "path": "public/agent/.opencode/commands/cept.md",
       "source": "public/agent/.opencode/commands/cept.md",
-      "sha256": "c09fd394db1e2e3a312a0c20fe7aea7d5453a1137cea7e6f6e2524be00291013"
+      "sha256": "cb715399d5b0bbf644d1d6b9036d7a77929d8c30d1a2ef228fe6b7e91dca8a05"
     },
     {
       "path": "public/agent/README.md",
@@ -114,6 +114,11 @@
       "path": "public/examples/first_circuit_case.json",
       "source": "public/examples/first_circuit_case.json",
       "sha256": "56fb0a95fbf548c6e51879335a57728671930608b23b64bd99767e3f9a880eae"
+    },
+    {
+      "path": "public/examples/th-quickstart/README.md",
+      "source": "public/examples/th-quickstart/README.md",
+      "sha256": "121159d7654f88b812b2678a9f87e0b790f2e31856b6a2271fdda737cb75c04c"
     },
     {
       "path": "public/notebooks/00_environment.ipynb",
@@ -148,12 +153,12 @@
     {
       "path": "public/notebooks/06_colab_tui.ipynb",
       "source": "public/notebooks/06_colab_tui.ipynb",
-      "sha256": "e14925f0acce97cdc5f1bdf13ba608435f52197fd80965e4ed167871aa920a10"
+      "sha256": "fa33d09b0a311a3d3d70c2feec48c9f7614cd1ce21c66e8dce9a59de427f009d"
     },
     {
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
-      "sha256": "a44edef7536205b7049393f818ea6315c2ac8a6015d971101667d89b6e8d8ec3"
+      "sha256": "b52a32c68524df1721695c1c31d7150c36a3bbba537e5fc77287a05dfe8760f3"
     },
     {
       "path": "public/site/education.css",
@@ -173,7 +178,7 @@
     {
       "path": "src/cept/adapters/__init__.py",
       "source": "src/cept/adapters/__init__.py",
-      "sha256": "dc46c4dda35437d0e10ef0a3861d439669ea66fa797aebadf251cc89c2639235"
+      "sha256": "83c758a4e6fa38cf1c3b0e0a444707488c657862e207dd0a44fa0c3e3b3926f0"
     },
     {
       "path": "src/cept/adapters/opender.py",
@@ -238,7 +243,7 @@
     {
       "path": "src/cept/adapters/opendss/network.py",
       "source": "src/cept/adapters/opendss/network.py",
-      "sha256": "c11ee5401459d423cc18618bd62b568effba7cba5bcef6ed110b04deefe53f0c"
+      "sha256": "fd386a7bf2e213a6a9adfd228b875e71bfad40a829001fcb233b5c219277d57f"
     },
     {
       "path": "src/cept/adapters/opendss/protection.py",
@@ -353,7 +358,7 @@
     {
       "path": "src/cept/geometry.py",
       "source": "src/cept/geometry.py",
-      "sha256": "b2eb6562267c5c6492190ef3b7763e063bb65eb3a31735377cbd3da715316eba"
+      "sha256": "b2b22b8a73b72566c3ff96aa2261bc7495c1b8ed5818daee30d81224194f0ea4"
     },
     {
       "path": "src/cept/intent/__init__.py",
@@ -403,7 +408,7 @@
     {
       "path": "src/cept/public.py",
       "source": "src/cept/public.py",
-      "sha256": "a3c3afa621f39b7f77682477aa0d71ee8f3fe9c2c7063941be1978f573a41aac"
+      "sha256": "dba26e10e7583c0b432d96d0240051069c9cd0d0d705cea2dd0de55e064ea278"
     },
     {
       "path": "src/cept/public_cli.py",
@@ -413,12 +418,12 @@
     {
       "path": "src/cept/schema/__init__.py",
       "source": "src/cept/schema/__init__.py",
-      "sha256": "219a3ae6e26fcd5c3e5d513371eae06066dc981486311e6f78bd26b3159098a6"
+      "sha256": "1b31d2c99664ce88d4e731a46d0c5bd298c2da7a0e605c8978d52684ada71c06"
     },
     {
       "path": "src/cept/schema/case/__init__.py",
       "source": "src/cept/schema/case/__init__.py",
-      "sha256": "524e0a62b20cc3d857e3e71a40cb2b8ca85990f4faf19cb4440bbd2d0bd05251"
+      "sha256": "c23b73c97598566963d8364ac54f073a1dfc0a034a49f4cf081d0a308ec807ef"
     },
     {
       "path": "src/cept/schema/case/case.py",
@@ -433,7 +438,12 @@
     {
       "path": "src/cept/schema/case/network.py",
       "source": "src/cept/schema/case/network.py",
-      "sha256": "95904cea9f1e9a43aa5551d3efa00bc13c718f9d6c32d5ec1fbfc2a1974f62a5"
+      "sha256": "d88a6d2f389be85f819babfdf7c8706a222f127b6660ef1539fce964a518d9ff"
+    },
+    {
+      "path": "src/cept/schema/intake_resolution.py",
+      "source": "src/cept/schema/intake_resolution.py",
+      "sha256": "dbaee858df4cff61ea078320f8e9e37ed3a99924003efcf406c857a433a27f99"
     },
     {
       "path": "src/cept/schema/provenance.py",
@@ -453,7 +463,7 @@
     {
       "path": "src/cept/schema/sld.py",
       "source": "src/cept/schema/sld.py",
-      "sha256": "14856c3c603a6526b087dbcfe3216b77aad13ff4fb2789731aca4963a9b1ac8b"
+      "sha256": "b00e608fe7a795796d2daee7dff9e90c6d41945d189e4e224007ca7ab3bab65c"
     },
     {
       "path": "src/cept/semantics/__init__.py",
@@ -473,7 +483,7 @@
     {
       "path": "src/cept/semantics/data/element-coverage-v1.json",
       "source": "src/cept/semantics/data/element-coverage-v1.json",
-      "sha256": "a89ae39e7021d33c3fa8667f7033459e34c5ed34f64128ae34b8146ad57a78d0"
+      "sha256": "9b140d7c9d841bba5c17a466cf66a52ef9d3bd8681d0eeb4b0bbcbea420d0d88"
     },
     {
       "path": "src/cept/semantics/data/engine-capability-v1.json",
@@ -518,12 +528,12 @@
     {
       "path": "src/cept/util.py",
       "source": "src/cept/util.py",
-      "sha256": "3a3d0ef20789b8667d7db3d262406b3ae6b96c4882b7c8fc58018a833d3d62eb"
+      "sha256": "f234e59bb4c577c42bdea21db2df3afbdfa9104756e67039179c5398c68e93ab"
     },
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "ddd53d64de4e78e9a95d9d608d5a1cffc965c42e21407799b5d1e67f4fa6cb52"
+      "sha256": "41484373fd76a3946b420925eee4d7805400c138772a4b7c0ae5a499edbad7ee"
     },
     {
       "path": "tools/run_public_notebooks.py",

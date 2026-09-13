@@ -442,6 +442,14 @@ def compile_inline(
 
     inline = net.inline
     assert inline is not None
+    # T-038: OpenDSS has no VSC/DC model. A converter silently dropped here
+    # would leave the solved network missing generation the Case declares,
+    # so the compiler refuses instead of approximating.
+    if inline.converters or inline.dc_sources or inline.dc_loads or inline.dc_buses:
+        raise ValueError(
+            "OpenDSS inline compiler cannot represent converters/DC elements; "
+            "use engine='powerfactory' for converter studies."
+        )
 
     dss.Text.Command("Clear")
     dss.Text.Command(f"Set DefaultBaseFreq={net.frequency_hz}")

@@ -775,6 +775,78 @@ class WECCCompositeSpec(BaseModel):
         return self
 
 
+class InlineDCBus(BaseModel):
+    """A DC busbar (PowerFactory ``ElmTerm`` with ``systype=1`` DC system).
+
+    Carried separately from AC buses so the two systems can never share a
+    name: the adapters build DC terminals with the DC system flag and refuse
+    a collision fail-closed.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1)
+    kv: float = Field(..., gt=0, description="Nominal DC pole-to-pole voltage (kV).")
+
+
+class InlineConverter(BaseModel):
+    """A voltage-source converter between one AC bus and a DC bus pair.
+
+    Engine-neutral form of PowerFactory ``ElmVsc`` (bipolar, ``dc_minus_bus``
+    set) / ``ElmVscmono`` (monopolar, ``dc_minus_bus`` omitted). Proven
+    load-flow control mapping on PowerFactory 2023 SP1 (T-038 probes):
+    ``following`` selects the PQ-following ``i_acdc`` mode (no angle or AC
+    voltage control, converges alongside an AC slack), ``forming`` keeps the
+    factory ``Vac-phi`` default (controls angle; fails closed at the solver
+    when a second angle reference is present). OpenDSS has no VSC/DC model
+    and refuses a network containing converters.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1)
+    bus: str = Field(..., min_length=1, description="AC point of connection.")
+    dc_plus_bus: str = Field(..., min_length=1, description="DC positive-pole bus.")
+    dc_minus_bus: Optional[str] = Field(
+        None, description="DC negative-pole bus; omitted selects the monopolar form."
+    )
+    mva: float = Field(..., gt=0, description="Rated apparent power (MVA).")
+    ac_kv: float = Field(..., gt=0, description="Rated AC line-to-line voltage (kV).")
+    dc_kv: float = Field(..., gt=0, description="Rated DC pole-to-pole voltage (kV).")
+    control: Literal["following", "forming"] = Field(
+        "following",
+        description="Load-flow/EMT control posture; see class notes for the native mapping.",
+    )
+    p_mw: float = Field(0.0, description="Active-power setpoint, AC to DC positive (MW).")
+    q_mvar: float = Field(0.0, description="Reactive-power setpoint (Mvar).")
+
+
+class InlineDCSource(BaseModel):
+    """A DC voltage-holding source (PowerFactory ``ElmDcu`` battery unit).
+
+    The element that balances a DC island in load flow, mirroring the AC
+    external grid/slack requirement: a DC island with a converter in
+    ``following`` mode and no DC source has no voltage reference and the
+    native solver leaves it de-energized or fails to converge.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1)
+    bus: str = Field(..., min_length=1, description="DC bus this source holds.")
+    kv: float = Field(..., gt=0, description="Nominal DC voltage (kV).")
+    voltage_setpoint_pu: float = Field(..., gt=0, description="Held DC voltage (pu of kv).")
+
+
+class InlineDCLoad(BaseModel):
+    """A constant-power DC load (PowerFactory ``ElmLoddc``)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1)
+    bus: str = Field(..., min_length=1, description="DC bus this load draws from.")
+    kw: float = Field(..., ge=0, description="Active power demand (kW).")
+
 class InlineSwitch(BaseModel):
     name: str
     bus1: str
@@ -925,6 +997,19 @@ class InlineNetwork(BaseModel):
     external_grids: list[InlineExternalGrid] = Field(default_factory=list)
     generators: list[InlineGenerator] = Field(default_factory=list)
     shunts: list[InlineShunt] = Field(default_factory=list)
+    converters: Optional[list[InlineConverter]] = Field(
+        None,
+        description="Voltage-source converters (AC/DC). None when the study has none.",
+    )
+    dc_buses: Optional[list[InlineDCBus]] = Field(
+        None, description="DC busbars referenced by converters, sources, and DC loads."
+    )
+    dc_sources: Optional[list[InlineDCSource]] = Field(
+        None, description="DC voltage-holding sources (one per balanced DC island)."
+    )
+    dc_loads: Optional[list[InlineDCLoad]] = Field(
+        None, description="Constant-power DC loads."
+    )
     switches: list[InlineSwitch] = Field(default_factory=list)
     terminal_switches: list[InlineTerminalSwitch] = Field(default_factory=list)
     open_elements: list[str] = Field(
@@ -975,14 +1060,22 @@ class InlineNetwork(BaseModel):
     def _omit_absent_load_flow_tolerances(
         self, handler: SerializerFunctionWrapHandler, info: SerializationInfo
     ) -> Any:
-        # Additive tuning fields (source-declared PF load-flow criteria): omit
-        # them when not provided so fingerprints and stored case.json for
-        # existing studies never move (same contract as StudySpec intent /
-        # InlineBus phase technology).  Values that differ from None are still
-        # serialized, so a set criterion is preserved.
+        # Additive tuning fields (source-declared PF load-flow criteria) and
+        # the VSC/DC lane (T-038): omit them when not provided so fingerprints
+        # and stored case.json for existing studies never move (same contract
+        # as StudySpec intent / InlineBus phase technology).  Values that
+        # differ from None are still serialized, so a set criterion or a
+        # declared converter is preserved.
         payload = handler(self)
         if isinstance(payload, dict):
-            for key in ("load_flow_node_tolerance_kva", "load_flow_equation_tolerance_pct"):
+            for key in (
+                "load_flow_node_tolerance_kva",
+                "load_flow_equation_tolerance_pct",
+                "converters",
+                "dc_buses",
+                "dc_sources",
+                "dc_loads",
+            ):
                 if payload.get(key) is None:
                     payload.pop(key, None)
         return payload
@@ -1071,6 +1164,28 @@ class InlineNetwork(BaseModel):
             _check(eg.bus, f"external_grid '{eg.name}'.bus")
         for g in self.generators:
             _check(g.bus, f"generator '{g.name}'.bus")
+        dc_names = {b.name for b in self.dc_buses or []}
+        if len(dc_names) != len(self.dc_buses or []):
+            raise ValueError("InlineNetwork DC bus names must be unique")
+        if names & dc_names:
+            clash = sorted(names & dc_names)
+            raise ValueError(
+                "InlineNetwork AC and DC buses must not share names: " + ", ".join(clash)
+            )
+
+        def _check_dc(bus: str, where: str) -> None:
+            if bus not in dc_names:
+                raise ValueError(f"{where} references unknown DC bus '{bus}'")
+
+        for c in self.converters or []:
+            _check(c.bus, f"converter '{c.name}'.bus")
+            _check_dc(c.dc_plus_bus, f"converter '{c.name}'.dc_plus_bus")
+            if c.dc_minus_bus is not None:
+                _check_dc(c.dc_minus_bus, f"converter '{c.name}'.dc_minus_bus")
+        for s in self.dc_sources or []:
+            _check_dc(s.bus, f"dc_source '{s.name}'.bus")
+        for d in self.dc_loads or []:
+            _check_dc(d.bus, f"dc_load '{d.name}'.bus")
         if not self.external_grids and not any(g.bus_type == "slack" for g in self.generators):
             raise ValueError(
                 "InlineNetwork needs at least one external_grid or a slack generator as a voltage reference."

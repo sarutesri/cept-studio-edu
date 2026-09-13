@@ -80,10 +80,10 @@ LESSONS: tuple[dict[str, str], ...] = (
     {
         "stem": "06_colab_tui",
         "number": "06",
-        "title_en": "Colab TUI feel: /cept CLI, then /cept agent",
-        "title_th": "ฟีล TUI ใน Colab: /cept CLI แล้วต่อ /cept agent",
-        "summary_en": "Tour every public CLI verb, then chat with the /cept agent using your own key.",
-        "summary_th": "ทัวร์ CLI ครบทุก verb แล้วคุยกับ agent /cept ด้วย key ของตัวเอง",
+        "title_en": "Bring your Case information: review first, solve second",
+        "title_th": "นำข้อมูลเคสมา: ตรวจช่องว่างก่อน แล้วค่อยรัน",
+        "summary_en": "Review incomplete Case information, choose an explicit resolution policy, optionally use OpenCode, then run a separate bounded solver demo.",
+        "summary_th": "ตรวจข้อมูลเคสที่ยังไม่ครบ เลือกนโยบายการเติมข้อมูลอย่างชัดเจน ใช้ OpenCode ได้แบบ optional แล้วค่อยรัน demo ที่แยกจากเคสของผู้เรียน",
     },
 )
 
@@ -464,7 +464,7 @@ def _index_page(
 <main id="content">
   <section class="hero shell">
     <div class="hero-copy">
-      <div class="eyebrow">OPEN DSS · TYPED CASE · SIX LESSONS</div>
+      <div class="eyebrow">OPEN DSS · TYPED CASE · SEVEN LESSONS</div>
       <h1>Learn the study.<br><em>Keep the evidence.</em></h1>
       <p class="hero-lead">A source-readable, solver-visible introduction to CEPT for power-system learners.</p>
       <p class="thai-copy" lang="th">บทเรียนแบบเปิดที่พาเห็นทั้งโจทย์ การคำนวณ และขอบเขตของหลักฐาน โดยไม่สร้างผลลัพธ์ที่ยังไม่ได้รัน</p>
