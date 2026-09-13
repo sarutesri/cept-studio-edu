@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "a4b71e2aaa2bb4c7d284189e8b34840ff846d53e",
+  "canonical_source_commit": "749eaeb5cba21cc1c9019c3385462c5ae52bcef1",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -83,7 +83,7 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "729fe400ed0fa427b90abb89f0856638651a297af7b7f36eadb64fc65143a3fc"
+      "sha256": "b269fe459abb1b039030a5e7d7d9b7283db61d4a92a4d0ebb4d2bce2374d38ad"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
@@ -123,7 +123,7 @@
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "ba0863ce11c18a1d1a150db64ea22a7656135c9465748755b94b8d99af92e36e"
+      "sha256": "5abd0e3d344649f7486c6f9e640512090b1aefe27893c5465ff093a639a7ca07"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
@@ -143,12 +143,12 @@
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
       "source": "public/notebooks/05_validation_reproducibility.ipynb",
-      "sha256": "bdcd4cde1a77d0c6a91ada1880367e3d173af6c97a729dcb1ab86014bda86f43"
+      "sha256": "192584be989ff85182fa2b2f351f6700163829ebeb36f14069a112e513213753"
     },
     {
       "path": "public/notebooks/06_colab_tui.ipynb",
       "source": "public/notebooks/06_colab_tui.ipynb",
-      "sha256": "079afcc6cbc3ec29e7e2dba9228d1c8e4d44bafb7f901994a7a901efd316ea00"
+      "sha256": "e14925f0acce97cdc5f1bdf13ba608435f52197fd80965e4ed167871aa920a10"
     },
     {
       "path": "public/notebooks/README.md",
@@ -403,12 +403,12 @@
     {
       "path": "src/cept/public.py",
       "source": "src/cept/public.py",
-      "sha256": "b7cc0fe922a9ed8eb5dcac736614142028186bd4ee4a248680b55a34f0ad60e1"
+      "sha256": "a3c3afa621f39b7f77682477aa0d71ee8f3fe9c2c7063941be1978f573a41aac"
     },
     {
       "path": "src/cept/public_cli.py",
       "source": "src/cept/public_cli.py",
-      "sha256": "2abc18336ebb8c219488e98ff56f49cd4ec9ad91bc21f071f7a7348a8f15acc2"
+      "sha256": "ee19e441c561560561af1b7123cd6b28f3deb81c1e36d4e2438ffc2b92cc84ab"
     },
     {
       "path": "src/cept/schema/__init__.py",

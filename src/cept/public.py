@@ -428,7 +428,12 @@ def run_study(
 
 
 def verify_study(run_dir: str | Path) -> dict[str, Any]:
-    """Re-validate a public run from its persisted Case and result artifacts."""
+    """Re-validate a public run from its persisted Case and result artifacts.
+
+    Read-only: the run directory is never modified.  The returned receipt is
+    freshly computed (artifact hashes included); only ``study run`` writes
+    ``public-verification.json``.
+    """
 
     path = Path(run_dir).resolve()
     case_payload = _read_json(path / "case.json")
@@ -557,7 +562,6 @@ def verify_study(run_dir: str | Path) -> dict[str, Any]:
     if isinstance(stored_receipt.get("artifact_set_digest"), str):
         verification["artifact_set_digest"] = stored_receipt["artifact_set_digest"]
     verification["run_dir"] = str(path)
-    _json_dump(path / "public-verification.json", verification)
     return verification
 
 

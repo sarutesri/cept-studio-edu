@@ -36,9 +36,10 @@ support:
   standalone_linux:
     status: not_supported_initially
 
-# These are readiness candidates, not a public Stable release claim.  A
-# capability is promoted only by the public gate after the staged package and
-# its matching educational evidence pass.
+# These are readiness candidates, not a public Stable release claim.  Machine
+# evidence promotes a capability to LOCAL_PRODUCT_PASS via the public gate;
+# release additionally requires the human acceptance recorded in T-028 (owner
+# ledger) — never gate output alone.
 capabilities:
   load_flow:
     engine: opendss

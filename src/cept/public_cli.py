@@ -63,19 +63,28 @@ def _doctor() -> int:
     except Exception as exc:  # pragma: no cover - exact native error varies by platform
         print(f"CEPT Public doctor: BLOCKED — OpenDSSDirect unavailable: {exc}", file=sys.stderr)
         return 1
+    try:
+        trial = run_study(demo_case("load-flow", network="ieee13"))
+        trial_ok = bool(trial.verification.get("passed"))
+        trial_detail = str(trial.verification.get("status"))
+    except Exception as exc:
+        trial_ok = False
+        trial_detail = f"{type(exc).__name__}: {exc}"
     print(
         json.dumps(
             {
-                "status": "PASS",
+                "status": "PASS" if trial_ok else "BLOCKED",
                 "edition": "public",
                 "engine": "opendss",
                 "engine_version": version,
+                "trial_solve": "PASS" if trial_ok else "BLOCKED",
+                "trial_detail": trial_detail,
                 "support": public_capabilities()["support"],
             },
             indent=2,
         )
     )
-    return 0
+    return 0 if trial_ok else 1
 
 
 def main(argv: list[str] | None = None) -> int:
