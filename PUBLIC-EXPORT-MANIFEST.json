@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "d9376940eed3ec4b2b33fac2d79be3b0fb4d4b16",
+  "canonical_source_commit": "0c6d866ed32a20626916a43d4dbb51d244c253b1",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -112,32 +112,32 @@
     {
       "path": "public/notebooks/00_environment.ipynb",
       "source": "public/notebooks/00_environment.ipynb",
-      "sha256": "c43876ee6af56acf4bc62880d6f4f94a84e9a638d003592ecbed73a6ceb7a003"
+      "sha256": "8ad8990a49592f88bc69f6202bec8537698c6a6db55d70d70d119e6a457f0e63"
     },
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "356e641ffea624f31aa5efc95738481c9103f82b4c6bec70b8f3699458b7c3c7"
+      "sha256": "ba0863ce11c18a1d1a150db64ea22a7656135c9465748755b94b8d99af92e36e"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "08b183f6060b35ae9139ae7d6264cbedb847f3c50012e3a0fb2ff8341bf485de"
+      "sha256": "7f95e8fb05ba04adaa10d297ca99af219f21213f082bf8869744292a2374f7bf"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "9c7a5fac9b2c6baccbbe4824c3d70c34fa774431feaf320db0b67e13bac4d029"
+      "sha256": "61f628791ae96fb05187d7588ba3c6a3bed9a61b628597561b2536e6a97e0d47"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "ddc6471e647cc6eefd4e447a18c8cd24eb806fd118a1ae4ff0bc4f5c9492e69a"
+      "sha256": "621cee3abfeaae7204948c659ca44a4bb7586e4828a2b83760efaad723fe2c66"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
       "source": "public/notebooks/05_validation_reproducibility.ipynb",
-      "sha256": "79e3cbc5c8b9c79256e30e8f6b4831c1208ec726f524734455201029046a35b5"
+      "sha256": "bdcd4cde1a77d0c6a91ada1880367e3d173af6c97a729dcb1ab86014bda86f43"
     },
     {
       "path": "public/notebooks/README.md",
