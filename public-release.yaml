@@ -16,6 +16,7 @@ education:
     - public/notebooks/03_hosting_capacity.ipynb
     - public/notebooks/04_fault_study.ipynb
     - public/notebooks/05_validation_reproducibility.ipynb
+    - public/notebooks/06_colab_tui.ipynb
   runner: tools/run_public_notebooks.py
 
 source:

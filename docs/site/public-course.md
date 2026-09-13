@@ -1,11 +1,11 @@
 ---
 title: Education course map
-description: Six private notebook lessons for learning CEPT through small OpenDSS studies.
+description: Seven private notebook lessons for learning CEPT through small OpenDSS studies.
 ---
 
 <div class="cept-page-hero" markdown>
 
-<span class="cept-kicker">Learn · Six small studies</span>
+<span class="cept-kicker">Learn · Seven small studies</span>
 
 # CEPT education course map
 
@@ -32,6 +32,7 @@ The bounded claim for the lessons is `WORKFLOW_VALIDATED`; the course is not bei
 | `03_hosting_capacity` | PV sweep | voltage criterion and capacity bracket |
 | `04_fault_study` | ground fault | solver-returned fault current |
 | `05_validation_reproducibility` | saved evidence | Case/result identity and checks |
+| `06_colab_tui` | Colab TUI feel | full CLI tour plus key-gated agent chat |
 
 Every lesson is designed to be small enough to run, inspect, and question.
 

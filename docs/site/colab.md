@@ -43,6 +43,7 @@ flowchart LR
 | **03 · Hosting capacity** | Increase PV and keep the voltage criterion visible. |
 | **04 · Fault study** | Run a declared ground fault and inspect solver-returned current. |
 | **05 · Reproducibility** | Follow fingerprints, saved artifacts, and checks. |
+| **06 · Colab TUI** | Tour the full CLI, then chat with the agent using your key. |
 <div class="cept-card-grid cept-card-grid--three" markdown>
 
 <div class="cept-card" markdown>
@@ -114,6 +115,18 @@ Follow fingerprints, saved artifacts, and checks.
 <div class="cept-card-actions" markdown>
 <a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 05 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
 [Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb){ .cept-source-link target="_blank" rel="noopener" }
+</div>
+</div>
+
+<div class="cept-card" markdown>
+<span class="cept-status">Lesson 06</span>
+
+### Colab TUI
+Tour the full CLI, then chat with the agent using your own key.
+
+<div class="cept-card-actions" markdown>
+<a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 06 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>
+[Private source](https://github.com/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb){ .cept-source-link target="_blank" rel="noopener" }
 </div>
 </div>
 

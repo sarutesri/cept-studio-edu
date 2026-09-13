@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "3e0eed5ed8ccc6c5728ab8240a4cf58f9be95d8f",
+  "canonical_source_commit": "1592e453d53b689e6f7097b2ce73f32356f6e969",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -63,7 +63,7 @@
     {
       "path": "README.md",
       "source": "packaging/public/README.md",
-      "sha256": "3534b6dc3ae4124a7b2a1af15b8d7f961d6dd897fa4e3cc340460b3818c2c700"
+      "sha256": "93e1d84d01151002b4b44a0555c1fa606af3c42b04e86244df20c8f8beaffec6"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -73,17 +73,17 @@
     {
       "path": "docs/site/colab.md",
       "source": "docs/site/colab.md",
-      "sha256": "3630739be6de3d060b995e318de574841ec7e8111e63a9178fb9a10ae5768e00"
+      "sha256": "12cb937d09b3c83afa5b42a9ec50968bfba5af76e7811c1c644d653c1f25d239"
     },
     {
       "path": "docs/site/public-course.md",
       "source": "docs/site/public-course.md",
-      "sha256": "e6a264ae9b8aaf86d0fc8a8a3179d3d1e42d169a51180c4cf74fd464e7ef0d94"
+      "sha256": "1872e3d9bb05b1afae189179dbf4bd69f6e97a62f98c0f9e94be9bad1e97ad97"
     },
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "1638ba45b612bb1c56fb4eb989c5e5ebc1ff0d05405b11f18b1183a75f96b0de"
+      "sha256": "729fe400ed0fa427b90abb89f0856638651a297af7b7f36eadb64fc65143a3fc"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
@@ -146,9 +146,14 @@
       "sha256": "bdcd4cde1a77d0c6a91ada1880367e3d173af6c97a729dcb1ab86014bda86f43"
     },
     {
+      "path": "public/notebooks/06_colab_tui.ipynb",
+      "source": "public/notebooks/06_colab_tui.ipynb",
+      "sha256": "a89197df0a8b135e7a781b7e0e0d08552629b490e7a30a3bbdee10d6891e92f7"
+    },
+    {
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
-      "sha256": "8280bb27388e098409c9ccc187fc3a75a12e71f529ab79c58c7012e582e265e6"
+      "sha256": "a44edef7536205b7049393f818ea6315c2ac8a6015d971101667d89b6e8d8ec3"
     },
     {
       "path": "public/site/education.css",
@@ -518,7 +523,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "bc6133f90ada7168b564c2b6c94c31b18150841febf3a704d6918a6f1f81b270"
+      "sha256": "ddd53d64de4e78e9a95d9d608d5a1cffc965c42e21407799b5d1e67f4fa6cb52"
     },
     {
       "path": "tools/run_public_notebooks.py",

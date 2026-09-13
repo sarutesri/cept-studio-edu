@@ -77,6 +77,14 @@ LESSONS: tuple[dict[str, str], ...] = (
         "summary_en": "Follow Case fingerprints, solver identity, artifacts, and the boundary of workflow validation.",
         "summary_th": "ติดตาม Case fingerprint, solver, artifacts และขอบเขตของ WORKFLOW_VALIDATED",
     },
+    {
+        "stem": "06_colab_tui",
+        "number": "06",
+        "title_en": "Colab TUI feel: /cept CLI, then /cept agent",
+        "title_th": "ฟีล TUI ใน Colab: /cept CLI แล้วต่อ /cept agent",
+        "summary_en": "Tour every public CLI verb, then chat with the /cept agent using your own key.",
+        "summary_th": "ทัวร์ CLI ครบทุก verb แล้วคุยกับ agent /cept ด้วย key ของตัวเอง",
+    },
 )
 
 
@@ -125,7 +133,7 @@ def _inline_markdown(value: str) -> str:
 
 
 def _render_markdown(source: str) -> str:
-    """Render the small Markdown vocabulary used by the six lessons."""
+    """Render the small Markdown vocabulary used by the seven lessons."""
 
     lines = source.replace("\r\n", "\n").split("\n")
     blocks: list[str] = []
@@ -487,7 +495,7 @@ def _index_page(
   </section>
   <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Six small, source-bound steps</h2></div>
+      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven small, source-bound steps</h2></div>
       <p class="section-note" lang="th">เลือกอ่านหรือเปิดใน Colab</p>
     </div>
     <div class="lesson-grid">{"".join(cards)}</div>
@@ -507,7 +515,7 @@ def _index_page(
         "Learning index",
         body,
         stylesheet="assets/education.css",
-        description="Six solver-visible CEPT power-system education lessons.",
+        description="Seven solver-visible CEPT power-system education lessons.",
     )
 
 
