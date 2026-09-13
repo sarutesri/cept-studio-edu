@@ -110,6 +110,7 @@ export:
     - public/notebooks/**
     - public/examples/**
     - public/agent/README.md
+    - public/agent/.opencode/commands/cept.md
     - public/agent/.opencode/commands/cept-edu.md
     - public/agent/observe-replay.json
     - public/site/**

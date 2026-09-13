@@ -4,7 +4,7 @@
   "evidence_role": "agent interaction example only; not a solver receipt or product-acceptance result",
   "executor": {
     "tool": "OpenCode",
-    "mode": "headless local run from the source checkout",
+    "mode": "headless `opencode run --command cept` from a public-only tree",
     "model": "opencode/muse-spark-1.3-contributor-free",
     "variant": "xhigh",
     "credential_values_recorded": false
@@ -13,21 +13,26 @@
   "observed_actions": [
     {
       "kind": "command",
-      "command": "python -m cept.public_cli study demo load-flow --network ieee13 --out runs/agent-ieee13 --force",
-      "exit_status": 0
+      "command": "cept study demo load-flow --network ieee13",
+      "exit_status": 2,
+      "note": "CLI failed closed: --out is required. The agent read the usage error and retried with an explicit output directory."
     },
     {
       "kind": "command",
-      "command": "python -m cept.public_cli study verify runs/agent-ieee13",
+      "command": "cept study demo load-flow --network ieee13 --out runs/ieee13-demo --force",
       "exit_status": 0
     },
     {
       "kind": "read",
-      "path": "runs/agent-ieee13/manifest.json"
+      "path": "runs/ieee13-demo"
     },
     {
       "kind": "read",
-      "path": "runs/agent-ieee13/public-verification.json"
+      "path": "runs/ieee13-demo/public-verification.json"
+    },
+    {
+      "kind": "read",
+      "path": "runs/ieee13-demo/validation_report.json"
     }
   ],
   "observed_verdict": {
@@ -37,7 +42,7 @@
     "status": "PASS",
     "claim": "WORKFLOW_VALIDATED",
     "case_fingerprint": "748c8026c9d6",
-    "artifact_set_digest": "cept-artifacts-e480ce888067d1be0bddab4e9ad3006ecd6ca25ceffc71ac01ec077a08940e8d"
+    "artifact_set_digest": "cept-artifacts-e759d99511e6c7de9581cdd7bd2fe946a33780a86e051c557e29edec29965949"
   },
   "sanitization": {
     "absolute_paths_replaced": true,
@@ -45,5 +50,5 @@
     "raw_model_events_not_published": true,
     "solver_values_recalculated": false
   },
-  "claim_boundary": "The replay proves that this observed agent invoked the commands and read their artifacts. Only the original solver artifacts support engineering claims. WORKFLOW_VALIDATED is not project or field validation."
+  "claim_boundary": "The replay proves that this observed agent invoked the short `cept` commands and read their artifacts, including recovery from a fail-closed CLI error. Only the original solver artifacts support engineering claims. WORKFLOW_VALIDATED is not project or field validation."
 }

@@ -6,12 +6,14 @@ This optional lesson shows an agent invoking the same installed CEPT Public CLI 
 
 1. Install the pinned CEPT Public wheel and verify its published SHA-256 before starting OpenCode.
 2. Install OpenCode separately and authenticate with a provider using its documented login flow. Do not paste tokens into a notebook, prompt, output cell, repository file, or replay.
-3. Copy `.opencode/commands/cept-edu.md` into the teaching workspace.
+3. Copy `.opencode/commands/cept.md` into the teaching workspace (`cept-edu.md` is the same lesson under its explicit name).
 4. Run:
 
 ```text
-opencode run --command cept-edu --format json --model opencode/muse-spark-1.3-contributor-free --variant xhigh "Run the bounded IEEE 13-node load-flow demonstration and explain only verified artifacts."
+opencode run --command cept --format json --model opencode/muse-spark-1.3-contributor-free --variant xhigh "Run the bounded IEEE 13-node load-flow demonstration and explain only verified artifacts."
 ```
+
+In the OpenCode TUI this is the short `/cept` command, so learners always see which command the agent is driving.
 
 The model identifier above is a convenience for the free teaching route, not part of CEPT's engineering evidence. Provider availability can change. If it is unavailable, select an authenticated model explicitly; do not silently substitute one in a recorded comparison.
 

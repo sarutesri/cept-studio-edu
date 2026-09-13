@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "0c6d866ed32a20626916a43d4dbb51d244c253b1",
+  "canonical_source_commit": "3e0eed5ed8ccc6c5728ab8240a4cf58f9be95d8f",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -40,6 +40,7 @@
     "public/notebooks/**",
     "public/examples/**",
     "public/agent/README.md",
+    "public/agent/.opencode/commands/cept.md",
     "public/agent/.opencode/commands/cept-edu.md",
     "public/agent/observe-replay.json",
     "public/site/**",
@@ -82,22 +83,27 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "db3f8a86c3acaf7834003dd18a4dd0d51168389cd3902a6436e4228c428792d2"
+      "sha256": "1638ba45b612bb1c56fb4eb989c5e5ebc1ff0d05405b11f18b1183a75f96b0de"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
       "source": "public/agent/.opencode/commands/cept-edu.md",
-      "sha256": "17565ae8bb1bdf3ad78fd5261fd1d1a57b39105b3cac94948f2306731b62a241"
+      "sha256": "a590d169d6f0d849e04f8d8f946e83ba3c9d2cc6d694cdc95e792b6739bc5ab5"
+    },
+    {
+      "path": "public/agent/.opencode/commands/cept.md",
+      "source": "public/agent/.opencode/commands/cept.md",
+      "sha256": "c09fd394db1e2e3a312a0c20fe7aea7d5453a1137cea7e6f6e2524be00291013"
     },
     {
       "path": "public/agent/README.md",
       "source": "public/agent/README.md",
-      "sha256": "8b0cc92398aaec848f9c094859265c9a5afa460bb5ec84cac4b64c65805ce626"
+      "sha256": "7c9a1a6be619b0f31bb5d4c493f6fa41fee8e0a4031a461f8ba21609e37c091c"
     },
     {
       "path": "public/agent/observe-replay.json",
       "source": "public/agent/observe-replay.json",
-      "sha256": "de1be82a6325f7087f204912908e7749ee2917db71c42d98d61ddb9572932ef6"
+      "sha256": "2b639e4c18640112dd71eaef72582574c819e9b3458e89dea8c65d2e0b42d841"
     },
     {
       "path": "public/examples/README.md",
