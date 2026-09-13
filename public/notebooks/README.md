@@ -15,12 +15,14 @@ validation.
 | [`05_validation_reproducibility.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb) | Fingerprints, artifacts, and verification |
 | [`06_colab_tui.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb) | Guided Case-information review, optional OpenCode help, and one bounded solver run |
 
-Lesson 06 is designed as a small workspace rather than a wall of CLI output.
-A learner can paste incomplete Case information, see which fields are known or
-missing, choose `strict`, `assisted`, or `exploratory` resolution, and use an
-optional OpenCode assistant. Missing engineering inputs never become solver
-values silently. The final demo remains solver-backed and reports the exact
-`WORKFLOW_VALIDATED` receipt boundary.
+Every lesson is designed result-first: run the setup cell, then read the
+headline result cards and comparison tables. Supporting code cells stay short
+and quiet; full run receipts remain inspectable in the run directory.
+Lesson 06 is a small workspace for the same pattern applied to learner-supplied
+Case information: paste what is known or missing, choose `strict`, `assisted`,
+or `exploratory` resolution, and optionally use an OpenCode assistant. Missing
+engineering inputs never become solver values silently. The final demo remains
+solver-backed and reports the exact `WORKFLOW_VALIDATED` receipt boundary.
 
 The notebooks should be executed from a fresh installed wheel, not from the
 source checkout. The desktop product is Windows/Python 3.10; the intended web
