@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "1592e453d53b689e6f7097b2ce73f32356f6e969",
+  "canonical_source_commit": "a4b71e2aaa2bb4c7d284189e8b34840ff846d53e",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -148,7 +148,7 @@
     {
       "path": "public/notebooks/06_colab_tui.ipynb",
       "source": "public/notebooks/06_colab_tui.ipynb",
-      "sha256": "a89197df0a8b135e7a781b7e0e0d08552629b490e7a30a3bbdee10d6891e92f7"
+      "sha256": "079afcc6cbc3ec29e7e2dba9228d1c8e4d44bafb7f901994a7a901efd316ea00"
     },
     {
       "path": "public/notebooks/README.md",
