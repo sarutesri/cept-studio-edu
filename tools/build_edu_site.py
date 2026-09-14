@@ -199,20 +199,45 @@ def _render_output(output: dict[str, Any]) -> str:
             f'<img src="data:image/png;base64,{html.escape(encoded, quote=True)}" alt="Notebook output image">'
             "</figure>"
         )
-    if "text/markdown" in data:
-        return f'<div class="output output-markdown">{_render_markdown(_text(data["text/markdown"]))}</div>'
+    if "text/html" in data:
+        # Headline result cards are our own deterministic markup from committed
+        # executed outputs: render them, not their escaped source. This branch
+        # must stay above text/plain, whose accompanying repr
+        # (<IPython...HTML object>) carries no information.
+        return f'<div class="output output-html">{_text(data["text/html"])}</div>'
     if "text/plain" in data:
         return f'<pre class="output"><code>{html.escape(_text(data["text/plain"]))}</code></pre>'
-    if "text/html" in data:
-        return (
-            '<details class="output-source"><summary>HTML output source</summary>'
-            f'<pre class="output"><code>{html.escape(_text(data["text/html"]))}</code></pre></details>'
-        )
     return ""
 
 
+def _titled_cell_title(source_text):
+    """Return the Colab `#@title` cell title, if the cell declares one."""
+    for line in source_text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("#@title"):
+            return stripped[len("#@title"):].strip() or "Setup"
+        if stripped.startswith("# @title"):
+            return stripped[len("# @title"):].strip() or "Setup"
+        return None
+    return None
+
+
 def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
-    code = html.escape(_text(cell.get("source")), quote=False)
+    source_text = _text(cell.get("source"))
+    code = html.escape(source_text, quote=False)
+    title = _titled_cell_title(source_text)
+    if title is not None:
+        # Setup/inputs cells carry a Colab title marker: keep one click away
+        # while outputs below stay fully visible, so results dominate the page.
+        code_block = (
+            '<details class="cell-code-setup"><summary>'
+            f'{html.escape(title)}</summary>'
+            f'<pre class="code"><code>{code}</code></pre></details>'
+        )
+    else:
+        code_block = f'<pre class="code"><code>{code}</code></pre>'
     outputs = cell.get("outputs")
     rendered_outputs: list[str] = []
     if isinstance(outputs, list):
@@ -225,7 +250,7 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
         return (
             '<section class="cell cell-code">'
             '<div class="cell-label">Code</div>'
-            f'<pre class="code"><code>{code}</code></pre>'
+            + code_block
             + "".join(rendered_outputs)
             + "</section>",
             False,
@@ -234,21 +259,21 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
         return (
             '<section class="cell cell-code">'
             '<div class="cell-label">Code</div>'
-            f'<pre class="code"><code>{code}</code></pre>'
+            + code_block +
             '<p class="not-executed"><strong>Output present but not renderable here.</strong> '
             "The exported value is not replaced with a derived value."
             '<span lang="th">มี output ในไฟล์ export แต่ไม่สามารถแสดงรูปแบบนี้ได้ และจะไม่แทนที่ด้วยค่าที่คำนวณเอง</span></p>'
-            "</section>",
+            + "</section>",
             False,
         )
     return (
         '<section class="cell cell-code">'
         '<div class="cell-label">Code</div>'
-        f'<pre class="code"><code>{code}</code></pre>'
+            + code_block +
         '<p class="not-executed"><strong>Not executed in this exported notebook.</strong> '
         "Run this lesson in Colab to produce solver output; no result is inferred here."
         '<span lang="th">ไฟล์ export นี้ยังไม่ได้รัน ให้เปิดใน Colab เพื่อสร้างผลจาก solver โดยไม่มีการเดาผลลัพธ์</span></p>'
-        "</section>",
+        + "</section>",
         True,
     )
 

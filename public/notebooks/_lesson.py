@@ -148,4 +148,4 @@ def ieee13_master():
     return Path(str(files("cept").joinpath("testsystems", "ieee13", "IEEE13Nodeckt.dss")))
 
 
-print("lesson helpers ready: cli/read/table/cards + WORKSPACE.")
+print("lesson helpers ready: read/table/cards + WORKSPACE (stage cells run literal !cept commands).")
