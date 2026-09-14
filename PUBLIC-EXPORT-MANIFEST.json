@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "c4e5beed209a5bd3ef2e814447d731245e4cd2bc",
+  "canonical_source_commit": "2053429e275485738b6b43306602836f571e09f6",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -159,6 +159,11 @@
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
       "sha256": "388778399c87ea370961134e31de914886f36aab352366a9da3aa7d349cfc65b"
+    },
+    {
+      "path": "public/notebooks/_lesson.py",
+      "source": "public/notebooks/_lesson.py",
+      "sha256": "8618face0c62b85127ffadc7b662bc177ab3ba5a36e32a09ee5223f562e02ba2"
     },
     {
       "path": "public/site/education.css",
