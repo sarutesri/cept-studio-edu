@@ -11,9 +11,9 @@ Provided names (all lessons share these; stage cells stay a few lines each):
   call. OpenDSS ``DataPath`` changes the process working directory, so stage
   cells must use ``WORKSPACE`` instead of ``Path.cwd()``.
 - ``CLI`` — installed public ``cept`` launcher path (pinned wheel).
-- ``cli(*args, verbose=False)`` — quiet subprocess runner; prints
-  ``$ cept ...`` plus ``-> exit 0`` and returns parsed JSON (or raw text).
-  Pass ``verbose=True`` to stream the full solver-backed receipt instead.
+- Stage cells run literal ``!cept ...`` shell commands — the exact grammar a
+  learner types in a terminal or Colab cell. Python only parses the returned
+  JSON (`read`) and renders result tables/cards.
 - ``read(path)`` — read a JSON artifact.
 - ``table(headers, rows)`` — print a Markdown pipe table (detail rows).
 - ``cards(items, title)`` — display headline result cards (HTML).
@@ -32,7 +32,6 @@ import html
 import importlib.util
 import json
 import os
-import shlex
 import subprocess
 import sys
 import urllib.parse
@@ -95,40 +94,6 @@ print(
 # Notebook workspace root, captured before any solver call: OpenDSS DataPath
 # changes the process working directory, so stage cells use WORKSPACE.
 WORKSPACE = Path.cwd()
-
-
-def cli(*arguments, verbose=False):
-    """Run the installed public CLI quietly; return parsed JSON or raw text."""
-    display_cmd = "cept " + shlex.join([str(argument) for argument in arguments])
-    command = [CLI, *[str(argument) for argument in arguments]]
-    print("$ " + display_cmd, flush=True)
-    if verbose:
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            cwd=Path.cwd(),
-        )
-        lines = []
-        assert process.stdout is not None
-        for line in process.stdout:
-            print(line, end="", flush=True)
-            lines.append(line)
-        returncode = process.wait()
-        output = "".join(lines)
-    else:
-        completed = subprocess.run(command, capture_output=True, text=True, cwd=Path.cwd())
-        returncode, output = completed.returncode, completed.stdout + completed.stderr
-    if returncode != 0:
-        raise subprocess.CalledProcessError(
-            returncode,
-            ["cept", *[str(argument) for argument in arguments]],
-            output=output[-4000:],
-        )
-    print("\u2192 exit 0", flush=True)
-    return json.loads(output) if output.strip().startswith("{") else output
 
 
 def read(path):

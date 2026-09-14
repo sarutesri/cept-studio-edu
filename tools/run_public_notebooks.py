@@ -72,6 +72,11 @@ def run_notebook(
     env = os.environ.copy()
     env.pop("PYTHONPATH", None)
     env["PYTHONNOUSERSITE"] = "1"
+    # The kernel shell must resolve the same interpreter environment that
+    # executes the notebook: lessons type literal `!cept ...` commands, so the
+    # Scripts directory of the supplied Python leads PATH. An unactivated venv
+    # would otherwise let an unrelated `cept` shadow the intended one.
+    env["PATH"] = str(Path(python_executable).resolve().parent) + os.pathsep + env.get("PATH", "")
     completed = subprocess.run(
         command,
         cwd=work_dir,
