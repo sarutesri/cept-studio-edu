@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "74168013ae05c8bc9c08a81d05f121cadd36e4f6",
+  "canonical_source_commit": "5be8790c13db05150488f442af195046446f761c",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -78,7 +78,7 @@
     {
       "path": "docs/site/public-course.md",
       "source": "docs/site/public-course.md",
-      "sha256": "81997547247996a1f6d38ac322f63c5c38edebdf040442ac81c7af54b3de0c80"
+      "sha256": "7f2760179cc2e694c6ba36167ac883bbd6102d8ff7026c98233d8c02e5f0c990"
     },
     {
       "path": "public-release.yaml",

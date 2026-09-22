@@ -26,17 +26,58 @@ establish project validation, field validation, or PowerFactory parity.
 
 ## Course path
 
-| Lesson | Focus | What you inspect |
-| --- | --- | --- |
-| `00_environment` | runtime and supported workflow | solver/runtime identity |
-| `01_first_circuit_load_flow` | tiny load-flow Case | load-bus voltage |
-| `02_ieee13_unbalanced` | IEEE13 feeder | three-phase bus voltage |
-| `03_hosting_capacity` | PV sweep | voltage criterion and capacity bracket |
-| `04_fault_study` | ground fault | solver-returned fault current |
-| `05_validation_reproducibility` | saved evidence | Case/result identity and checks |
-| `06_colab_tui` | guided Case-information review | known/missing/default/AI-assumption status + one bounded demo receipt |
+Every lesson is small enough to run, inspect, and question. The learner-facing
+path is terminal-first: Colab shows the same `cept <noun> <verb>` commands used
+in a normal terminal, while direct OpenDSS/Python checks remain optional
+implementation detail.
 
-Every lesson is designed to be small enough to run, inspect, and question. The learner-facing path is terminal-first: Colab shows the same `cept <noun> <verb>` commands used in a normal terminal, while direct OpenDSS/Python checks remain optional implementation detail.
+<div class="cept-course-path" markdown>
+
+<div class="cept-course-stage" markdown>
+<span class="cept-course-stage__index">01 · Foundation</span>
+
+### Make the runtime and network visible
+
+**00 · Environment** — confirm CEPT/OpenDSS identity and learn what a PASS can
+prove.
+
+**01 · First circuit** — run a tiny load flow and inspect the load-bus voltage.
+
+**02 · IEEE13 unbalanced** — move to a real three-phase feeder and inspect
+phase-specific voltage.
+
+<span class="cept-course-stage__outcome">Outcome · You can run and read a bounded solver-backed study.</span>
+</div>
+
+<div class="cept-course-stage" markdown>
+<span class="cept-course-stage__index">02 · Apply</span>
+
+### Change the engineering question
+
+**03 · Hosting capacity** — sweep PV against a declared voltage criterion and
+inspect the capacity bracket.
+
+**04 · Fault study** — run a ground fault and inspect solver-returned fault
+current.
+
+<span class="cept-course-stage__outcome">Outcome · You can see how the study definition changes what evidence is produced.</span>
+</div>
+
+<div class="cept-course-stage" markdown>
+<span class="cept-course-stage__index">03 · Evidence</span>
+
+### Keep the result connected to its trail
+
+**05 · Reproducibility** — inspect Case/result identity, fingerprints, and
+checks.
+
+**06 · Guided Case review** — review known, missing, default, and AI-assumption
+status before a separate bounded demo receipt.
+
+<span class="cept-course-stage__outcome">Outcome · You can distinguish a completed workflow from a validated physical project.</span>
+</div>
+
+</div>
 
 ## What changes in Lesson 06
 
