@@ -15,9 +15,11 @@ validation.
 | [`05_validation_reproducibility.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb) | Fingerprints, artifacts, and verification |
 | [`06_colab_tui.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb) | Guided Case-information review, optional OpenCode help, and one bounded solver run |
 
-Every lesson is designed result-first: run the setup cell, then read the
-headline result cards and comparison tables. Supporting code cells stay short
-and quiet; full run receipts remain inspectable in the run directory.
+Every lesson is terminal-first: run the setup cell, then use the same
+`cept <noun> <verb>` commands you would type in a normal terminal. CEPT prints
+compact human-readable text; JSON/parsing and direct OpenDSS comparison code
+stay in optional/collapsible detail cells. Full run receipts remain inspectable
+in the run directory.
 Lesson 06 is a small workspace for the same pattern applied to learner-supplied
 Case information: paste what is known or missing, choose `strict`, `assisted`,
 or `exploratory` resolution, and optionally use an OpenCode assistant. Missing

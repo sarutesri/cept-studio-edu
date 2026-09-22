@@ -45,7 +45,7 @@ The ledger is intake provenance, not solver output and not project validation.
 
 ## 2. Respect the CEPT Public boundary
 
-CEPT Public currently exposes the noun+verb CLI for `system doctor`, `capability show`, and `study run|demo|verify`. Do not pretend that the public wheel exposes private/full-product intake commands.
+CEPT Public currently exposes the noun+verb CLI for `environment check`, `capability show`, and `study run|demo|verify`. Do not pretend that the public wheel exposes private/full-product intake commands.
 
 If the learner already has a complete public inline `case.json` that can be assembled from source/derived values without guessing, run:
 

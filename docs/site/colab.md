@@ -9,10 +9,13 @@ description: Learn CEPT through seven small OpenDSS lessons in Google Colab, inc
 
 ## Start small. Keep the evidence visible.
 
-The notebook course is the browser-first way to explore CEPT. Each lesson keeps
-three things separate: **what you provide**, **what OpenDSS calculates**, and
-**what CEPT saves as evidence**. The bounded claim is `WORKFLOW_VALIDATED`; it
-does not validate a physical project.
+The notebook course is the browser-first way to explore CEPT, but it uses the
+same terminal-first product surface as desktop CEPT: visible lesson cells run
+literal `cept <noun> <verb>` commands and CEPT renders the human-readable
+result. Direct OpenDSS/Python checks stay optional. Each lesson keeps three
+things separate: **what you provide**, **what OpenDSS calculates**, and **what
+CEPT saves as evidence**. The bounded claim is `WORKFLOW_VALIDATED`; it does not
+validate a physical project.
 
 <div class="cept-actions" markdown>
 <a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span><span>Start with Lesson 00</span></a>
@@ -68,7 +71,7 @@ Paste incomplete information, review missing fields, choose a resolution policy,
 <span class="cept-status">Lesson 06</span>
 
 ### Colab TUI
-Tour the full CLI, then chat with the agent using your own key.
+Use the same CLI commands as a normal terminal; optional OpenCode help stays on the single researcher-facing `/cept` surface.
 
 <div class="cept-card-actions" markdown>
 <a class="cept-colab-link" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 06 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span></a>

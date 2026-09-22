@@ -36,7 +36,7 @@ establish project validation, field validation, or PowerFactory parity.
 | `05_validation_reproducibility` | saved evidence | Case/result identity and checks |
 | `06_colab_tui` | guided Case-information review | known/missing/default/AI-assumption status + one bounded demo receipt |
 
-Every lesson is designed to be small enough to run, inspect, and question.
+Every lesson is designed to be small enough to run, inspect, and question. The learner-facing path is terminal-first: Colab shows the same `cept <noun> <verb>` commands used in a normal terminal, while direct OpenDSS/Python checks remain optional implementation detail.
 
 ## What changes in Lesson 06
 

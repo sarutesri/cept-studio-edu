@@ -9,8 +9,9 @@ The candidate package contains an OpenDSS-first vertical slice for education:
 * typed inline Cases and the bundled IEEE 13-node feeder;
 * load flow, unbalanced load flow, hosting-capacity, and fault studies;
 * deterministic JSON run artifacts and a fail-closed verification receipt;
-* the `cept system doctor`, `cept capability show`, and `cept study ...`
-  noun+verb CLI; and
+* the `cept environment check`, `cept capability show`, and `cept study ...`
+  noun+verb CLI with shared human-readable `--format text` and machine
+  `--format json` output; and
 * the seven cold-start notebooks under `public/notebooks/`.
 
 Open each lesson directly in Google Colab:
@@ -44,10 +45,10 @@ verify SHA-256
 `c7e609a1d9cc85b322bfb615f0c796c7ea5c43815b197289eb555786964478bc`,
 install it, and then run:
 ```text
-cept system doctor
-cept capability show
-cept study demo load-flow --network ieee13 --out runs/ieee13 --force
-cept study verify runs/ieee13
+cept environment check --format text
+cept capability show --format text
+cept study demo load-flow --network ieee13 --out runs/ieee13 --force --format text
+cept study verify runs/ieee13 --format text
 ```
 
 The wheel intentionally contains no PowerFactory adapter, private project

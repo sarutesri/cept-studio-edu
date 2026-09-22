@@ -12,11 +12,13 @@ Provided names (all lessons share these; stage cells stay a few lines each):
   cells must use ``WORKSPACE`` instead of ``Path.cwd()``.
 - ``CLI`` — installed public ``cept`` launcher path (pinned wheel).
 - Stage cells run literal ``!cept ...`` shell commands — the exact grammar a
-  learner types in a terminal or Colab cell. Python only parses the returned
-  JSON (`read`) and renders result tables/cards.
+  learner types in a terminal or Colab cell. Human-facing CEPT output comes
+  from the CLI text renderer; Python reads persisted JSON only for optional
+  comparison/assertion details.
 - ``read(path)`` — read a JSON artifact.
-- ``table(headers, rows)`` — print a Markdown pipe table (detail rows).
-- ``cards(items, title)`` — display headline result cards (HTML).
+- ``table(headers, rows)`` — print a compact aligned terminal table.
+- ``terminal_panel(title, rows, next_command=None)`` — print notebook-only
+  review/status information using the same plain terminal rhythm as CEPT.
 - ``first_circuit_case()`` — lesson-01 demonstrator Case payload.
 - ``ieee13_master()`` — bundled IEEE13 master DSS path from the installed
   public wheel.
@@ -28,7 +30,6 @@ above and are echoed back as result tables, never silently invented.
 from __future__ import annotations
 
 import hashlib
-import html
 import importlib.util
 import json
 import os
@@ -38,8 +39,6 @@ import urllib.parse
 import urllib.request
 from importlib.resources import files
 from pathlib import Path
-
-from IPython.display import HTML, display
 
 WHEEL_URL_ENV = "CEPT_WHEEL_URL"
 WHEEL_SHA_ENV = "CEPT_WHEEL_SHA256"
@@ -102,25 +101,45 @@ def read(path):
 
 
 def table(headers, rows):
-    """Print a Markdown pipe table (detail rows; headlines use cards)."""
-    print("| " + " | ".join(headers) + " |")
-    print("| " + " | ".join("---" for _ in headers) + " |")
-    for row in rows:
-        print("| " + " | ".join(str(value) for value in row) + " |")
+    """Print a compact aligned terminal table for teaching-relevant detail rows."""
+    rendered_rows = [[str(value).replace("\n", " ") for value in row] for row in rows]
+    rendered_headers = [str(value) for value in headers]
+    all_rows = [rendered_headers, *rendered_rows]
+    widths = [
+        min(34, max(len(row[index]) if index < len(row) else 0 for row in all_rows))
+        for index in range(len(rendered_headers))
+    ]
+
+    def clipped(value, width):
+        if len(value) <= width:
+            return value
+        return value[: max(1, width - 1)] + "…"
+
+    def line(row):
+        return "  ".join(
+            clipped(row[index], widths[index]).ljust(widths[index])
+            for index in range(len(rendered_headers))
+        ).rstrip()
+
+    print(line(rendered_headers))
+    print("  ".join("-" * width for width in widths).rstrip())
+    for row in rendered_rows:
+        print(line(row))
 
 
-def cards(items, title="CEPT Studio"):
-    """Display headline result cards (HTML)."""
-    blocks = []
-    for label, value, note in items:
-        blocks.append(
-            f"""<div style="flex:1;min-width:180px;border:1px solid #d9dee8;border-radius:14px;padding:14px 16px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05)"><div style="font-size:12px;color:#667085;text-transform:uppercase;letter-spacing:.04em">{html.escape(str(label))}</div><div style="font-size:22px;font-weight:700;margin:4px 0;color:#182230">{html.escape(str(value))}</div><div style="font-size:12px;color:#667085">{html.escape(str(note))}</div></div>"""
-        )
-    display(
-        HTML(
-            f"""<div style="font-family:Inter,Arial,sans-serif;margin:10px 0 18px"><div style="font-size:18px;font-weight:700;margin-bottom:9px">{html.escape(title)}</div><div style="display:flex;gap:10px;flex-wrap:wrap">{"".join(blocks)}</div></div>"""
-        )
-    )
+def terminal_panel(title, rows, next_command=None):
+    """Print notebook-only status using the same plain terminal rhythm as CEPT."""
+    print(title)
+    print("-" * max(28, min(72, len(title))))
+    for label, value in rows:
+        lines = str(value).splitlines() or [""]
+        print(f"{str(label):<13} {lines[0]}")
+        for continuation in lines[1:]:
+            print(f"{'':13} {continuation}")
+    if next_command:
+        print()
+        print("Next")
+        print(f"  {next_command}")
 
 
 def first_circuit_case():
@@ -148,4 +167,4 @@ def ieee13_master():
     return Path(str(files("cept").joinpath("testsystems", "ieee13", "IEEE13Nodeckt.dss")))
 
 
-print("lesson helpers ready: read/table/cards + WORKSPACE (stage cells run literal !cept commands).")
+print("Lesson helpers ready. Stage cells below run the same CEPT commands as a normal terminal.")
