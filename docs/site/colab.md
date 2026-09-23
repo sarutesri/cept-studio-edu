@@ -12,10 +12,12 @@ description: Learn CEPT through seven small OpenDSS lessons in Google Colab, inc
 The notebook course is the browser-first way to explore CEPT, but it uses the
 same terminal-first product surface as desktop CEPT: visible lesson cells run
 literal `cept <noun> <verb>` commands and CEPT renders the human-readable
-result. Direct OpenDSS/Python checks stay optional. Each lesson keeps three
-things separate: **what you provide**, **what OpenDSS calculates**, and **what
-CEPT saves as evidence**. The bounded claim is `WORKFLOW_VALIDATED`; it does not
-validate a physical project.
+result. Lessons 01–04 use one simple sequence: **Setup → Inputs → Run → Explore
+SLD → Engineering result → Verify → Interpret**. Direct OpenDSS/Python checks
+stay collapsed at the optional tail instead of interrupting the learner path.
+Each lesson keeps three things separate: **what you provide**, **what OpenDSS
+calculates**, and **what CEPT saves as evidence**. The bounded claim is
+`WORKFLOW_VALIDATED`; it does not validate a physical project.
 
 <div class="cept-actions" markdown>
 <a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span><span>Start with Lesson 00</span></a>
@@ -29,10 +31,12 @@ validate a physical project.
 
 ```mermaid
 flowchart LR
-    A[Your information] --> B[Review gaps]
-    B --> C[Typed Case]
-    C --> D[OpenDSS]
-    D --> E[Verify evidence]
+    A[Setup] --> B[Inputs]
+    B --> C[Run]
+    C --> D[Explore SLD]
+    D --> E[Engineering result]
+    E --> F[Verify]
+    F --> G[Interpret]
 ```
 
 ## Recommended path
@@ -53,7 +57,7 @@ Check that CEPT and OpenDSS are available and understand what a PASS can prove.
 <span class="cept-status">Core</span>
 
 ### 01–05 · Learn the studies
-Move from a tiny load flow to unbalanced IEEE13, hosting capacity, fault, and reproducibility.
+Move from a tiny load flow to unbalanced IEEE13, hosting capacity, fault, and reproducibility. Lessons 01–04 keep the same short step-by-step rhythm, show the solved SLD and bus status inline, then expose the key persisted engineering result before verification.
 
 [See all lessons](public-course.md){ .md-button }
 </div>

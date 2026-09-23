@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "5be8790c13db05150488f442af195046446f761c",
+  "canonical_source_commit": "ec18b96effa42458b8d84a592ed3c933259b507c",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -13,6 +13,7 @@
     "src/cept/__init__.py",
     "src/cept/public.py",
     "src/cept/public_cli.py",
+    "src/cept/public_notebook.py",
     "src/cept/application/__init__.py",
     "src/cept/application/readiness.py",
     "src/cept/application/run_identity.py",
@@ -73,7 +74,7 @@
     {
       "path": "docs/site/colab.md",
       "source": "docs/site/colab.md",
-      "sha256": "80e73aef631ee00be3a11fc6d2a43d1838f65586b3fa69ef89d63e745f21c53b"
+      "sha256": "4766dcf1f36e34206e46812a787f40b6e34a65d9d5cb1601a742a58d2fa53263"
     },
     {
       "path": "docs/site/public-course.md",
@@ -83,7 +84,7 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "b269fe459abb1b039030a5e7d7d9b7283db61d4a92a4d0ebb4d2bce2374d38ad"
+      "sha256": "64bb5796201f56ab96b543833d119be1041e3d43a3957aa77de385285dba2f28"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
@@ -128,22 +129,22 @@
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "19bfbc81ba56bfe3ae10d617fbfd5e61148d1c6623885746d2d3c4943016e68a"
+      "sha256": "af23203bcf4ea0b9668854a5d36b66cee22c8442ba280fc28add5cefb5150c63"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "146c52696d8cfcba96d51da0d6c70957c088cde7fc9942333d9ff9704a6557b2"
+      "sha256": "dd20b009262e1a2f3891346bbdfc90e8a0ae9bccc212b8502bb54418ae3e6dc7"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "1135a20d44c621d5727e70b5f9198b9c8b4c96076c55365f3dc9543d4e15b113"
+      "sha256": "df13881a80123f4bc455de3e7e3e28c58e982812e79a17297c96a5d690621293"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "407549390c9016a4479af9f935c7a5f8c99a8357e8e20723b448f459aaabc5b0"
+      "sha256": "5a74398446207666c82705617a9574bd913d881617d0defff496382c0cfb7fea"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
@@ -158,7 +159,7 @@
     {
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
-      "sha256": "2dbfb26c5f9b8b2ad251ba617d0e660d134376d53083dbe72d985c351567d1be"
+      "sha256": "ff1e963da0c6df7ed831583f5012d9053437420b90fe8c7d9ef835a2bd6608b2"
     },
     {
       "path": "public/notebooks/_lesson.py",
@@ -419,6 +420,11 @@
       "path": "src/cept/public_cli.py",
       "source": "src/cept/public_cli.py",
       "sha256": "7fb3eee17e9dac57fd39c55b68ed6bcc6623e3eac47743dfdcc1c52c40c0dfde"
+    },
+    {
+      "path": "src/cept/public_notebook.py",
+      "source": "src/cept/public_notebook.py",
+      "sha256": "6530fed5fcb14bde0bd8b3a9774b6dc3fd52324c0d489384cbf89e6fc21f0a02"
     },
     {
       "path": "src/cept/schema/__init__.py",

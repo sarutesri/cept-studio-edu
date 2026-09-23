@@ -85,6 +85,7 @@ export:
     - src/cept/__init__.py
     - src/cept/public.py
     - src/cept/public_cli.py
+    - src/cept/public_notebook.py
     - src/cept/application/__init__.py
     - src/cept/application/readiness.py
     - src/cept/application/run_identity.py

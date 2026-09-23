@@ -16,10 +16,15 @@ validation.
 | [`06_colab_tui.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb) | Guided Case-information review, optional OpenCode help, and one bounded solver run |
 
 Every lesson is terminal-first: run the setup cell, then use the same
-`cept <noun> <verb>` commands you would type in a normal terminal. CEPT prints
-compact human-readable text; JSON/parsing and direct OpenDSS comparison code
-stay in optional/collapsible detail cells. Full run receipts remain inspectable
-in the run directory.
+`cept <noun> <verb>` commands you would type in a normal terminal. Lessons
+01–04 now share one short learner rhythm: **Setup → Inputs → Run → Explore SLD
+→ Engineering result → Verify → Interpret**. Direct OpenDSS/Python comparison
+cells are moved to the optional tail so they do not interrupt the main path.
+The solved SLD stays inline, hovering/focusing a bus shows solver-returned phase
+values, and the engineering-result cell reads only persisted result fields.
+Time-domain results can use the same view layer for persisted solver traces when
+those studies are supported. Full run receipts remain inspectable in the run
+directory.
 Lesson 06 is a small workspace for the same pattern applied to learner-supplied
 Case information: paste what is known or missing, choose `strict`, `assisted`,
 or `exploratory` resolution, and optionally use an OpenCode assistant. Missing
