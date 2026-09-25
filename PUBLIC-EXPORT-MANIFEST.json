@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "aad3d05f82ec672fb41dc8bbd5f5f6b9ec322115",
+  "canonical_source_commit": "226f2c5b8b661b24eb7c69ab063d836a2991cecf",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -144,7 +144,7 @@
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "4dde15813a751793bc1de339efae08b5cd5c9b64611641b7ff307f2982f1f65d"
+      "sha256": "a25859bbc5490f4eeabc99fdf86ad00f4eaefdd934e201540b699567652fb618"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
@@ -549,7 +549,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "93ec59dbeeb4474670e5be33e9f2bcccd8e7447b66a4513ac7ac4fee03be64c6"
+      "sha256": "53bc7483eb5e3925cc2c02c4fd0b2f1b2bc47b16276d79e557f4cc6d83851926"
     },
     {
       "path": "tools/run_public_notebooks.py",

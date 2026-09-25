@@ -41,9 +41,9 @@ LESSONS: tuple[dict[str, str], ...] = (
         "stem": "01_first_circuit_load_flow",
         "number": "01",
         "stage": "foundation",
-        "title_en": "Run a two-bus load flow",
-        "summary_en": "Predict the load-bus voltage, run the study, and inspect phase values and losses.",
-        "outcome_en": "Example: 0.9998 pu at the load bus and 0.0143 kW loss",
+        "title_en": "Run the IEEE 4-node feeder",
+        "summary_en": "Run the standard IEEE 4-node feeder with step-down transformer, then inspect voltages, losses, and SLD.",
+        "outcome_en": "Example: 0.9477 pu at Node 4 with step-down transformer",
     },
     {
         "stem": "02_ieee13_unbalanced",
