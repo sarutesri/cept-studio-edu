@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "05e19ab97a60b063b12a5bfee1cb745f0a488d6b",
+  "canonical_source_commit": "7ec29c041c299fd79b192af810a201ec11aa3b3f",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -149,22 +149,22 @@
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "c0a46fee9a690bf79ed5a3a65531523a92af7913ac9498274af76f65218b52fe"
+      "sha256": "8aa057492ca524eefeaf2fc00fd830f60979a171e24d3a81ed32986d764d8c16"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "63f5cd6d37b2d1b26b5e1c051cad31e1c40ff6fa58c4bf22755639ef276ccd41"
+      "sha256": "143aac9f9897a7fdbd50013b2af52320a72f3e2bb930b51ae60b4174c7090dd8"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "55165909a175a4c2f90ea5f511e78173a27a3d94951f5f6b67944671cf9f6c3e"
+      "sha256": "b3547477310383045ec59374a158683c5a5ea9c603289953c7347b0cae07aa63"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "5fb69cdfc884fd2107d6c9ec900509229c07da8dba67b8a484ca05a806523b62"
+      "sha256": "66054b557b4ebff4b9cedd848b24e4c7f961c078a932370ce4c0e48049677b87"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
@@ -324,7 +324,7 @@
     {
       "path": "src/cept/domain/sld/geometry.py",
       "source": "src/cept/domain/sld/geometry.py",
-      "sha256": "3d6cd1133a9b0cea56e85e0afefec2c55cb01882a4b958ecb803eabf5bff1fed"
+      "sha256": "00fe3148088dbfce801088c9c050b404e10f6417be15a772aa0785525b7cee7e"
     },
     {
       "path": "src/cept/domain/sld/geometry_receipt.py",
@@ -344,7 +344,7 @@
     {
       "path": "src/cept/domain/sld/plan.py",
       "source": "src/cept/domain/sld/plan.py",
-      "sha256": "07264949a433590e7ff47d46f47f95e2efd628d664ff0b4acc9cc05ba16db74e"
+      "sha256": "5b7dac9ddaab7597f9e85ec52f4b28fca2fb27a4c0877da3108893202e58a7c4"
     },
     {
       "path": "src/cept/domain/sld/render_contract.py",
@@ -434,7 +434,7 @@
     {
       "path": "src/cept/public_notebook.py",
       "source": "src/cept/public_notebook.py",
-      "sha256": "3fb43b26247cae4e5b089b17e8039cb569e095d7b85cfa4928224942e3147900"
+      "sha256": "8186719c186bf7b36dc09219b5782408baa1209739ab74f0b5d32b0bf1b91bd2"
     },
     {
       "path": "src/cept/reporting/__init__.py",
@@ -449,7 +449,7 @@
     {
       "path": "src/cept/reporting/sld_plan.py",
       "source": "src/cept/reporting/sld_plan.py",
-      "sha256": "f43fada68bcfc14b477d43b581e6ca05ab848c29ba2ac0366d38b1e5baeddd99"
+      "sha256": "aca3d358bb30ac1a2dd0e91f77199fd879fc728db473dfa50717b4404f7725ea"
     },
     {
       "path": "src/cept/reporting/sld_runtime.py",
@@ -459,7 +459,7 @@
     {
       "path": "src/cept/reporting/sld_svg.py",
       "source": "src/cept/reporting/sld_svg.py",
-      "sha256": "6667b7c3b3ff183daf6afde1fbf440971e01103162879d698b80ac081a7dad42"
+      "sha256": "55449e5e9dd19664b642ccce9a16842c01c499b2db1ec479484cc63f3acaef8a"
     },
     {
       "path": "src/cept/schema/__init__.py",

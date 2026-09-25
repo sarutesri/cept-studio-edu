@@ -95,11 +95,6 @@ def build_canonical_sld_plan(
         edges=((edge.id, edge.src, edge.dst) for edge in edges),
         bus_half_lengths=half_lengths,
         port_spacing=CANONICAL_RENDER_PORT_SPACING,
-        bus_orientation_overrides={
-            str(node.id).lower(): "h"
-            for node in sld.nodes
-            if str(node.id).lower() in physical and node.loads
-        },
     )
     contract = build_sld_render_contract(
         geometry,

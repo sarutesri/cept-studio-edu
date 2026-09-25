@@ -88,6 +88,7 @@ _DEFS_SVG = '''<defs>
   <g id="sym-reactor" class="sld-symbol-shape"><path d="M-12,0 Q-9,-8 -6,0 Q-3,-8 0,0 Q3,-8 6,0 Q9,-8 12,0" fill="none" stroke="#6d28d9" vector-effect="non-scaling-stroke" stroke-width="2.6" stroke-linecap="round"/></g>
   <g id="sym-statcom" class="sld-symbol-shape"><polygon points="0,-14 14,0 0,14 -14,0" fill="#fff" stroke="#6d28d9" vector-effect="non-scaling-stroke" stroke-width="2.5"/><text y="3.5" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#6d28d9">SC</text></g>
   <g id="sym-svc" class="sld-symbol-shape"><rect x="-13" y="-13" width="26" height="26" rx="2.5" fill="#fff" stroke="#6d28d9" vector-effect="non-scaling-stroke" stroke-width="2.5"/><text y="3.5" text-anchor="middle" font-family="system-ui,sans-serif" font-size="7.5" font-weight="700" fill="#6d28d9">SVC</text></g>
+  <g id="sym-event" class="sld-symbol-shape"><circle r="12" fill="#fff" stroke="#dc2626" vector-effect="non-scaling-stroke" stroke-width="2.4"/><text y="4.5" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="800" fill="#dc2626">!</text></g>
 </defs>'''
 
 
@@ -96,6 +97,8 @@ def _device_kind(node: dict[str, Any]) -> str:
     name = str(node.get("name") or "")
     if name.startswith("__load_"):
         return "load"
+    if name.startswith("__event_"):
+        return "event"
     return kind or "generator"
 
 
@@ -691,6 +694,16 @@ def render_native_sld_svg(
             f'<g class="sld-device sld-symbol" transform="translate({x:.2f} {y:.2f}) rotate({rotation:.1f}) scale({glyph_scale:.4f})" data-kind="{html.escape(kind)}" data-device-id="{html.escape(str(node.get("name") or node.get("display_name") or ""))}"><use href="{href}"/><title>{title}</title></g>'
         )
 
+    events: list[str] = []
+    for node in nodes:
+        if not node.get("is_device") or _device_kind(node) != "event":
+            continue
+        x, y = float(node.get("x", 0.0)), float(node.get("y", 0.0))
+        title = html.escape(str(node.get("sld_hover_label") or node.get("display_name") or "Event"))
+        events.append(
+            f'<g class="sld-event sld-symbol" transform="translate({x:.2f} {y:.2f}) scale({glyph_scale:.4f})" data-kind="event"><use href="#sym-event"/><title>{title}</title></g>'
+        )
+
     style = '''<style>
       .cept-sld-svg{background:#fff;user-select:none}
       .cept-sld-svg .sld-branch,.cept-sld-svg .sld-terminal-stem,.cept-sld-svg .sld-symbol-shape *{vector-effect:non-scaling-stroke}
@@ -705,6 +718,7 @@ def render_native_sld_svg(
 <g class="sld-layer sld-inlines">{''.join(inlines)}</g>
 <g class="sld-layer sld-busbars">{''.join(busbars)}</g>
 <g class="sld-layer sld-junctions">{''.join(junctions)}</g>
+<g class="sld-layer sld-events">{''.join(events)}</g>
 <g class="sld-layer sld-devices">{''.join(devices)}</g>
 <g class="sld-layer sld-labels">{''.join(labels)}</g>
 </svg>'''

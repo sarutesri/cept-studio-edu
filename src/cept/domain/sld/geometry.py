@@ -987,12 +987,7 @@ def canonical_sld_geometry(
 ) -> CanonicalSLDGeometry:
     """Build geometry for the interactive/reporting SLD view model."""
     selected = positions or {node.id: (node.x, node.y) for node in sld.nodes}
-    orientation_overrides: dict[str, Axis] = {
-        str(node.id).lower(): "h"
-        for node in sld.nodes
-        if node.loads
-    }
-    orientation_overrides.update(kwargs.pop("bus_orientation_overrides", {}) or {})
+    orientation_overrides = dict(kwargs.pop("bus_orientation_overrides", {}) or {})
     return canonical_geometry(
         positions=selected,
         edges=((edge.id, edge.src, edge.dst) for edge in sld.edges),
@@ -1017,11 +1012,7 @@ def canonical_inline_geometry(
         from cept.domain.sld.engineering_layout import hierarchical_layout
 
         positions = hierarchical_layout(net)
-    orientation_overrides: dict[str, Axis] = {
-        str(load.bus).lower(): "h"
-        for load in net.loads
-    }
-    orientation_overrides.update(kwargs.pop("bus_orientation_overrides", {}) or {})
+    orientation_overrides = dict(kwargs.pop("bus_orientation_overrides", {}) or {})
     edges = (
         [(line.name, line.from_bus, line.to_bus) for line in net.lines]
         + [(transformer.name, transformer.hv_bus, transformer.lv_bus) for transformer in net.transformers]

@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
 from cept.public import verify_study
+from cept.domain.sld.layout_contract import solved_layout_plan
 from cept.reporting.sld_runtime import build_sld_option_v2
 from cept.reporting.sld_svg import render_native_sld_svg
 from cept.schema.result import DynamicsResult, StudyResult
@@ -76,6 +77,26 @@ def _phase_text(node: SLDNode, phase: int) -> str:
         return f"{value:.4f} pu"
     return f"{value:.4f} pu @ {angle:.2f}°"
 
+_SLD_STYLE = """<style>
+.cept-sld-wrap{border:1px solid #d9dee8;border-radius:10px;padding:8px;background:#fff;overflow:hidden}
+.cept-sld-viewport{height:520px;min-height:340px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto;scrollbar-gutter:stable}
+.cept-sld-svg{display:block;width:100%;height:100%;background:#fff}
+.cept-sld-svg .sld-busbar,.cept-sld-svg .sld-branch,.cept-sld-svg .sld-terminal-stem,.cept-sld-svg .sld-symbol-shape *{vector-effect:non-scaling-stroke}
+.cept-sld-svg .sld-busbar:hover{fill:#0b5cad;cursor:pointer;filter:drop-shadow(0 0 2px rgba(11,92,173,.4))}
+.cept-sld-svg .sld-branch:hover{stroke:#0b5cad;stroke-width:3.2;cursor:pointer}
+.cept-sld-svg .sld-device:hover,.cept-sld-svg .sld-inline:hover{cursor:pointer;filter:drop-shadow(0 0 3px rgba(11,92,173,.6))}
+.cept-sld-legend{display:flex;gap:14px;flex-wrap:wrap;padding:8px 4px 2px;color:#475569;font-size:12px}
+.cept-sld-cap{padding:2px 4px 0;color:#64748b;font-size:11px}
+.cept-table-scroll{overflow-x:auto;border:1px solid #d9dee8;border-radius:10px;margin-top:10px}
+.cept-bus-table{border-collapse:collapse;width:100%;min-width:650px;font-size:.84rem}
+.cept-bus-table th,.cept-bus-table td{padding:7px 9px;border-bottom:1px solid #e6e9ef;text-align:left;white-space:nowrap}
+.cept-bus-table thead th{background:#f6f8fb;color:#435067;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}
+.cept-status{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800}
+.cept-status.ok{background:#e8f5ec;color:#235d37}.cept-status.under{background:#fff3d9;color:#794d00}
+.cept-status.over{background:#ffe7e1;color:#8b3020}.cept-status.out{background:#f7e7ff;color:#62327f}.cept-status.nodata{background:#eef1f5;color:#596579}
+@media (max-width:600px){.cept-sld-viewport{height:420px;min-height:420px}.cept-sld-wrap--wide .cept-sld-svg{width:760px;max-width:none;height:420px}.cept-sld-wrap--dense .cept-sld-svg{width:1040px;max-width:none;height:520px}}
+</style>"""
+
 
 
 def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
@@ -85,6 +106,7 @@ def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
     if not nodes:
         return '<div class="cept-empty">No SLD geometry is available for this result.</div>'
     buses = sum(1 for node in nodes if node.get("category") == "bus")
+    size_class = " cept-sld-wrap--dense" if buses >= 10 else " cept-sld-wrap--wide" if buses >= 4 else ""
     branches = sum(1 for link in graph.get("links") or [] if link.get("edge_id"))
     svg = render_native_sld_svg(
         graph,
@@ -92,7 +114,7 @@ def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
         strict_connections=True,
     )
     return (
-        '<div class="cept-sld-wrap">'
+        f'<div class="cept-sld-wrap{size_class}">'
         '<div class="cept-sld-help">Hover a bus, branch, or device for its solver-backed identity.</div>'
         f'<div class="cept-sld-viewport" role="img" aria-label="{_esc(sld.title)}">{svg}</div>'
         '<div class="cept-sld-legend"><span>━ Busbar</span><span>⊞ External grid</span>'
@@ -104,7 +126,10 @@ def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
 
 def _bus_table(sld: SLDModel) -> str:
     rows: list[str] = []
+    physical_bus_ids = set(solved_layout_plan(sld).physical_bus_ids)
     for node in sorted(sld.nodes, key=lambda item: item.id.lower()):
+        if str(node.id).lower() not in physical_bus_ids:
+            continue
         status = _status(node, sld)
         css = _status_class(status)
         rows.append(
@@ -440,7 +465,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .cept-section h3{font-size:1.05rem;margin:0 0 3px}
 .cept-section-note,.cept-threshold-note,.cept-sld-help{font-size:.82rem;color:#657187;margin:0 0 9px}
 .cept-sld-wrap{border:1px solid #d9dee8;border-radius:10px;padding:8px;background:#fff;overflow:hidden}
-.cept-sld-viewport{height:520px;min-height:340px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:hidden}
+.cept-sld-viewport{height:520px;min-height:340px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto;scrollbar-gutter:stable}
 .cept-sld-svg{display:block;width:100%;height:100%;background:#fff}
 .cept-sld-svg .sld-busbar,.cept-sld-svg .sld-branch,.cept-sld-svg .sld-terminal-stem,.cept-sld-svg .sld-symbol-shape *{vector-effect:non-scaling-stroke}
 .cept-sld-svg .sld-busbar:hover{fill:#0b5cad;cursor:pointer;filter:drop-shadow(0 0 2px rgba(11,92,173,.4))}
@@ -469,7 +494,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .series-3{stroke:#7b5bb5;fill:#7b5bb5}.series-4{stroke:#b34d65;fill:#b34d65}.series-5{stroke:#55737f;fill:#55737f}
 .cept-legend{display:flex;gap:9px 14px;flex-wrap:wrap;font-size:.74rem;color:#566277;padding:2px 4px 3px}.cept-legend-item{display:inline-flex;align-items:center;gap:5px}.cept-legend-swatch{width:14px;height:3px;border-radius:3px}
 .cept-empty{border:1px dashed #cbd2dd;border-radius:9px;padding:12px;color:#657187;background:#fafbfd}
-@media (max-width:600px){.cept-nb{font-size:15px}.cept-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.cept-sld-viewport{height:420px}.cept-charts{grid-template-columns:1fr}}
+@media (max-width:600px){.cept-nb{font-size:15px}.cept-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.cept-sld-viewport{height:420px;min-height:420px}.cept-sld-wrap--wide .cept-sld-svg{width:760px;max-width:none;height:420px}.cept-sld-wrap--dense .cept-sld-svg{width:1040px;max-width:none;height:520px}.cept-charts{grid-template-columns:1fr}}
 </style>
 """
 
@@ -511,7 +536,7 @@ def render_sld_html(study: StudyResult, *, dom_id: str = "cept-sld") -> str:
     if not views:
         return '<div class="cept-empty">This result does not carry an SLD.</div>'
     _label, sld = views[0]
-    return _sld_svg(sld, dom_id=dom_id) + _bus_table(sld)
+    return _SLD_STYLE + _sld_svg(sld, dom_id=dom_id) + _bus_table(sld)
 
 
 def display_sld(run_dir: str | Path) -> None:

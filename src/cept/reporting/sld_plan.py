@@ -295,11 +295,6 @@ def build_interactive_sld_plan(
         edges=((edge.id, edge.src, edge.dst) for edge in edges),
         bus_half_lengths=half_lengths,
         port_spacing=CANONICAL_RENDER_PORT_SPACING,
-        bus_orientation_overrides={
-            str(node.id).lower(): "h"
-            for node in sld.nodes
-            if str(node.id).lower() in physical and node.loads
-        },
     )
     edge_by_id: dict[str, SLDEdge] = {edge.id: edge for edge in edges}
     render_contract = build_sld_render_contract(
