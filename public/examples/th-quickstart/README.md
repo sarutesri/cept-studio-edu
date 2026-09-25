@@ -1,30 +1,30 @@
-# CEPT เริ่มต้น 3 ขั้น (OpenDSS)
+# CEPT three-step quickstart (OpenDSS)
 
-สองเส้นทางใช้คนละชุดคำสั่ง: **Public wheel / Colab** เป็นแพ็กเกจ OpenDSS ขนาดเล็ก ส่วน **Full Windows preview** เป็นแอปเดสก์ท็อปแบบเต็มที่ติดตั้งบน Windows และมีคำสั่งรายงานเพิ่มเติม
+The two supported paths use different command sets: **Public wheel / Colab** is the small OpenDSS package, while the **Full Windows preview** is the full desktop application installed on Windows.
 
 ## Public wheel / Colab
 
-ต้องมี Python 3.10 ขึ้นไปและ wheel สาธารณะที่ตรวจ SHA-256 แล้ว (ใน Colab ให้เปิด notebook จากลิงก์ Colab โดยตรง)
+Use Python 3.10 or newer and the public wheel with a verified SHA-256. In Colab, open the notebook directly from its Colab link.
 
-### ขั้นที่ 1 — เตรียมเคส
+### Step 1 — Prepare the Case
 
 ```powershell
 mkdir thq; cd thq
 copy ..\first_circuit_case.json case.json
 ```
 
-### ขั้นที่ 2 — รันและตรวจหลักฐานด้วย Public CLI
+### Step 2 — Run and verify the evidence with the Public CLI
 
 ```powershell
 cept study run case.json --out run --format text
 cept study verify run --format text
 ```
 
-คำสั่งนี้เป็นชุด Public OpenDSS เท่านั้น ไม่มีคำสั่ง `physics audit` และไม่มี `report open`; ผลที่ต้องตรวจคือ `passed: true` จาก `study verify` และไฟล์ที่บันทึกใน `run` เท่านั้น
+These are Public OpenDSS commands. The Public package does not include `physics audit` or `report open`; the evidence to check is `passed: true` from `study verify` and the files saved under `run`.
 
 ## Full Windows preview
 
-หลังติดตั้ง Windows preview ตาม [Download](https://sarutesri.github.io/cept-studio/download/):
+After installing the Windows preview from [Download](https://sarutesri.github.io/cept-studio/download/):
 
 ```powershell
 cept study run case.json --engine opendss --out run --force
@@ -32,12 +32,12 @@ cept study verify run
 cept report open run
 ```
 
-Full preview มีคำสั่งนี้ทั้งหมด; อย่านำคำสั่งแบบเต็มไปใส่ใน Public wheel หรือ Colab เพราะ Public grammar ไม่รองรับ
+The Full preview includes these commands. Do not copy the full-preview command set into the Public wheel or Colab because the Public grammar does not support it.
 
-## ถ้าไม่ผ่าน
+## If something does not pass
 
-- `BLOCKED` พร้อมชื่อฟิลด์ที่ขาด → เติมข้อมูลตามแหล่งจริง ห้ามเดาค่าใส่เอง
-- engine อื่นที่ไม่ใช่ `opendss` → รุ่น Public นี้รองรับ OpenDSS เท่านั้น
-- ผลรันเก่าหลังแก้ input → เลือก `--out` ใหม่หรือใช้ `--force` ใน Full preview แล้วรันใหม่เสมอ
+- `BLOCKED` with missing field names → add information from its source; never guess a value.
+- An engine other than `opendss` → this Public release supports OpenDSS only.
+- An old result after changing an input → choose a new `--out` directory or use `--force` in the Full preview, then run again.
 
-Public สอนเส้นทาง Case → run → verify และไม่ได้อ้างว่ามี physics audit, SLD viewer, หรือ report server ในแพ็กเกจนั้น ส่วน Full preview อาจเปิด report จาก `cept report open run`
+The Public path teaches Case → run → verify. It does not claim that the Public package includes a physics audit, SLD viewer, or report server; the Full preview may open a report with `cept report open run`.

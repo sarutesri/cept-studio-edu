@@ -10,12 +10,12 @@ description: Seven public notebook lessons for learning CEPT through small, solv
 # CEPT education course map
 
 Start with a small calculation, inspect what the solver returns, then see how
-CEPT keeps setup and evidence connected. The canonical lessons are developed in
-`cept-studio` and released only through the reviewed public export to
-`cept-studio-edu`.
+CEPT keeps setup and evidence connected. Each lesson is designed to be run,
+read, and questioned in Colab.
 
-The bounded claim for these lessons is `WORKFLOW_VALIDATED`. The course does not
-establish project validation, field validation, or PowerFactory parity.
+The lessons use the bounded claim `WORKFLOW_VALIDATED`. They show a reproducible
+teaching workflow; they do not establish project validation, field validation,
+or PowerFactory parity.
 
 <div class="cept-actions" markdown>
 [Open the Colab course](colab.md){ .md-button .md-button--primary }
@@ -103,13 +103,11 @@ When adapting a lesson, keep source, units, assumptions, defaults, AI-selected
 placeholders, and missing information visible rather than turning an example
 into a stronger claim than its evidence supports.
 
-## Source and release model
+## Keep your learning trail
 
-`cept-studio` is the only development source. The public repository is produced
-from the canonical revision by the positive-allowlist exporter; public notebooks
-must not be developed independently in `cept-studio-edu`.
-
-A repository-side notebook PASS is necessary evidence, but the authenticated
-real-Colab cold-start review remains its own release gate.
+When you adapt a lesson, keep the source, units, assumptions, defaults,
+AI-selected placeholders, and missing information visible. Run the comparison
+cells when you want to see how the result was produced, and use the verification
+receipt to confirm which exact artifacts were checked.
 
 For engineering claim semantics, continue to [Validation and evidence](validation-and-evidence.md).

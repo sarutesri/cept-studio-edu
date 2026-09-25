@@ -33,57 +33,43 @@ LESSONS: tuple[dict[str, str], ...] = (
         "stem": "00_environment",
         "number": "00",
         "title_en": "Environment and claim boundary",
-        "title_th": "สภาพแวดล้อมและขอบเขตของข้ออ้าง",
         "summary_en": "Identify the installed solver, CEPT version, and what a workflow receipt can and cannot prove.",
-        "summary_th": "ตรวจสอบ solver และรุ่นของ CEPT พร้อมแยกหลักฐานของ workflow ออกจากการรับรองโครงการ",
     },
     {
         "stem": "01_first_circuit_load_flow",
         "number": "01",
         "title_en": "First circuit and load flow",
-        "title_th": "วงจรแรกและ load flow",
         "summary_en": "Build a small source-line-load circuit and compare solver-returned voltage from OpenDSS and CEPT.",
-        "summary_th": "สร้างวงจร source-line-load ขนาดเล็ก แล้วเปรียบเทียบแรงดันจาก OpenDSS และ CEPT",
     },
     {
         "stem": "02_ieee13_unbalanced",
         "number": "02",
         "title_en": "IEEE 13-node unbalanced feeder",
-        "title_th": "ระบบจำหน่ายไม่สมดุล IEEE 13-node",
         "summary_en": "Keep single- and two-phase laterals visible while comparing phase-specific voltage magnitudes.",
-        "summary_th": "รักษาข้อมูลสายย่อยหนึ่งเฟสและสองเฟส แล้วเปรียบเทียบแรงดันแยกตามเฟส",
     },
     {
         "stem": "03_hosting_capacity",
         "number": "03",
         "title_en": "PV hosting capacity",
-        "title_th": "ความสามารถรองรับ PV",
         "summary_en": "Treat hosting capacity as a declared criterion-bound search, not a universal number.",
-        "summary_th": "เรียนรู้ว่า hosting capacity เป็นการค้นหาภายใต้เกณฑ์ที่ประกาศ ไม่ใช่ตัวเลขสากล",
     },
     {
         "stem": "04_fault_study",
         "number": "04",
         "title_en": "Single-line-to-ground fault",
-        "title_th": "ความขัดข้องสายหนึ่งเฟสลงดิน",
         "summary_en": "Apply a declared fault and distinguish solver-returned current from a protection decision.",
-        "summary_th": "ใส่ fault ตามสมมติฐาน และแยกกระแสจาก solver ออกจากการตัดสินใจด้าน protection",
     },
     {
         "stem": "05_validation_reproducibility",
         "number": "05",
         "title_en": "Validation receipt and reproducibility",
-        "title_th": "ใบรับรองการตรวจสอบและการทำซ้ำ",
         "summary_en": "Follow Case fingerprints, solver identity, artifacts, and the boundary of workflow validation.",
-        "summary_th": "ติดตาม Case fingerprint, solver, artifacts และขอบเขตของ WORKFLOW_VALIDATED",
     },
     {
         "stem": "06_colab_tui",
         "number": "06",
         "title_en": "Bring your Case information: review first, solve second",
-        "title_th": "นำข้อมูลเคสมา: ตรวจช่องว่างก่อน แล้วค่อยรัน",
         "summary_en": "Review incomplete Case information, choose an explicit resolution policy, optionally use OpenCode, then run a separate bounded solver demo.",
-        "summary_th": "ตรวจข้อมูลเคสที่ยังไม่ครบ เลือกนโยบายการเติมข้อมูลอย่างชัดเจน ใช้ OpenCode ได้แบบ optional แล้วค่อยรัน demo ที่แยกจากเคสของผู้เรียน",
     },
 )
 
@@ -259,20 +245,20 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
         return (
             '<section class="cell cell-code">'
             '<div class="cell-label">Code</div>'
-            + code_block +
-            '<p class="not-executed"><strong>Output present but not renderable here.</strong> '
-            "The exported value is not replaced with a derived value."
-            '<span lang="th">มี output ในไฟล์ export แต่ไม่สามารถแสดงรูปแบบนี้ได้ และจะไม่แทนที่ด้วยค่าที่คำนวณเอง</span></p>'
+            + code_block
+            + '<p class="not-executed"><strong>This result cannot be displayed on this page.</strong> '
+            + "Run the notebook in Colab to inspect the complete solver output."
+            + "</p>"
             + "</section>",
             False,
         )
     return (
         '<section class="cell cell-code">'
         '<div class="cell-label">Code</div>'
-            + code_block +
-        '<p class="not-executed"><strong>Not executed in this exported notebook.</strong> '
-        "Run this lesson in Colab to produce solver output; no result is inferred here."
-        '<span lang="th">ไฟล์ export นี้ยังไม่ได้รัน ให้เปิดใน Colab เพื่อสร้างผลจาก solver โดยไม่มีการเดาผลลัพธ์</span></p>'
+        + code_block
+        + '<p class="not-executed"><strong>Result not generated yet.</strong> '
+        + "Run this lesson in Colab to produce the solver-backed result."
+        + "</p>"
         + "</section>",
         True,
     )
@@ -387,13 +373,12 @@ def _header(*, home_href: str, label: str) -> str:
 '''
 
 
-def _disclosure(revision: str, manifest_hash: str) -> str:
-    return f'''
-<aside class="disclosure" aria-label="Source disclosure">
-  <strong>Source-bound export</strong>
-  <span>Generated from revision <code>{html.escape(revision)}</code>.</span>
-  <span>Export manifest SHA-256 <code>{manifest_hash}</code>.</span>
-  <span>Notebook URLs below follow the public <code>main</code> branch; they are not a claim that this revision has been published.</span>
+def _disclosure(_revision: str, _manifest_hash: str) -> str:
+    return '''
+<aside class="disclosure" aria-label="Learning note">
+  <strong>Reproduce the result</strong>
+  <span>Run the notebook in Colab to execute the declared OpenDSS workflow and inspect the saved evidence.</span>
+  <span>Use the tables and plots to check the result, then read the interpretation before changing an input.</span>
 </aside>
 '''
 
@@ -410,9 +395,9 @@ def _lesson_page(
 ) -> str:
     read_url, colab_url = _urls(repository, notebook_path)
     status = (
-        f"{missing_output_count} code cell(s) have no exported output."
+        f"{missing_output_count} result cell(s) can be generated in Colab."
         if missing_output_count
-        else "Exported notebook outputs are shown below."
+        else "Solver-backed results are shown below."
     )
     body = f'''
 {_header(home_href="../index.html", label=f'Lesson {lesson["number"]}')}
@@ -421,15 +406,13 @@ def _lesson_page(
   <div class="lesson-heading">
     <div>
       <h1>{html.escape(lesson["title_en"])}</h1>
-      <p class="thai-title" lang="th">{html.escape(lesson["title_th"])}</p>
     </div>
     <div class="lesson-actions" aria-label="Lesson links">
-      <a class="button button-primary" href="{html.escape(colab_url, quote=True)}">Run in Colab<span lang="th">เปิดใน Colab</span></a>
-      <a class="button button-secondary" href="{html.escape(read_url, quote=True)}">Read source<span lang="th">อ่าน notebook</span></a>
+      <a class="button button-primary" href="{html.escape(colab_url, quote=True)}">Run in Colab</a>
+      <a class="button button-secondary" href="{html.escape(read_url, quote=True)}">Read notebook source</a>
     </div>
   </div>
   <p class="lead">{html.escape(lesson["summary_en"])}</p>
-  <p class="thai-copy" lang="th">{html.escape(lesson["summary_th"])}</p>
   <div class="lesson-meta">
     <span>{code_count} code cell(s)</span>
     <span>{html.escape(status)}</span>
@@ -441,7 +424,7 @@ def _lesson_page(
         <div class="eyebrow">NOTEBOOK RENDER</div>
         <h2 id="notebook-heading">Read the lesson</h2>
       </div>
-      <p class="section-note">Markdown, code, and only exported outputs are rendered. Missing outputs stay visible as missing.</p>
+      <p class="section-note">Read the lesson, then run it in Colab to generate solver-backed results.</p>
     </div>
     {notebook_html}
   </section>
@@ -464,16 +447,15 @@ def _index_page(
         notebook_path = f'public/notebooks/{lesson["stem"]}.ipynb'
         read_url, colab_url = _urls(repository, notebook_path)
         output_label = (
-            "Not executed in exported notebook"
+            "Run in Colab to generate results"
             if missing_count
-            else "Exported outputs included"
+            else "Results included"
         )
         cards.append(f'''
 <article class="lesson-card">
   <div class="card-number">{html.escape(lesson["number"])}</div>
   <div class="card-content">
     <h3><a href="lessons/{html.escape(lesson["stem"])}.html">{html.escape(lesson["title_en"])}</a></h3>
-    <p class="thai-title" lang="th">{html.escape(lesson["title_th"])}</p>
     <p>{html.escape(lesson["summary_en"])}</p>
     <div class="card-status"><span class="status-dot" aria-hidden="true"></span>{html.escape(output_label)} <span class="muted">· {code_count} code cell(s)</span></div>
     <div class="card-links">
@@ -491,10 +473,9 @@ def _index_page(
     <div class="hero-copy">
       <div class="eyebrow">OPEN DSS · TYPED CASE · SEVEN LESSONS</div>
       <h1>Learn the study.<br><em>Keep the evidence.</em></h1>
-      <p class="hero-lead">A source-readable, solver-visible introduction to CEPT for power-system learners.</p>
-      <p class="thai-copy" lang="th">บทเรียนแบบเปิดที่พาเห็นทั้งโจทย์ การคำนวณ และขอบเขตของหลักฐาน โดยไม่สร้างผลลัพธ์ที่ยังไม่ได้รัน</p>
+      <p class="hero-lead">A practical, solver-visible introduction to CEPT for power-system learners.</p>
       <div class="hero-actions" aria-label="Start learning">
-        <a class="button button-primary" href="#lessons">Start with the lessons<span lang="th">เริ่มเรียน</span></a>
+        <a class="button button-primary" href="#lessons">Start with the lessons</a>
         <a class="text-link" href="{html.escape(_urls(repository, "public/notebooks/00_environment.ipynb")[1], quote=True)}">Open lesson 00 in Colab <span aria-hidden="true">↗</span></a>
       </div>
     </div>
@@ -510,7 +491,7 @@ def _index_page(
   <section class="principles shell" aria-labelledby="principles-heading">
     <div class="section-heading">
       <div><div class="eyebrow">A BOUNDED INTRODUCTION</div><h2 id="principles-heading">What this course teaches</h2></div>
-      <p class="section-note" lang="th">หลักสำคัญของหลักสูตร</p>
+      <p class="section-note">A short, solver-backed introduction.</p>
     </div>
     <div class="principle-grid">
       <article><span class="principle-index">01</span><h3>Solver truth</h3><p>Numerical results come from the declared OpenDSS run. Derived explanations are not relabeled as solver output.</p></article>
@@ -520,21 +501,21 @@ def _index_page(
   </section>
   <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven small, source-bound steps</h2></div>
-      <p class="section-note" lang="th">เลือกอ่านหรือเปิดใน Colab</p>
+      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven small, solver-backed lessons</h2></div>
+      <p class="section-note">Choose a lesson to read or run in Colab.</p>
     </div>
     <div class="lesson-grid">{"".join(cards)}</div>
   </section>
   <section class="trust-band shell" aria-labelledby="trust-heading">
-    <div><div class="eyebrow">READ THE BOUNDARY</div><h2 id="trust-heading">A result is only as strong as its evidence.</h2></div>
-    <p>These lessons use public demonstrators and a bundled feeder. They show a reproducible workflow, not a decision about a real network. No agent replay, private input, or interactive control is implied by this static site.</p>
+    <div><div class="eyebrow">READ THE RESULTS</div><h2 id="trust-heading">Use the result to ask the next question.</h2></div>
+    <p>Each lesson keeps the model, solver output, and interpretation together. Read the values, check the claim boundary, and change one declared input to see how the answer responds.</p>
   </section>
   <section class="shell source-section" aria-labelledby="source-heading">
-    <h2 id="source-heading">Export provenance</h2>
-    {_disclosure(revision, manifest_hash)}
+    <h2 id="source-heading">Keep learning</h2>
+    <p>Run a lesson, inspect its values, and use the optional comparison cells to see how the result was produced.</p>
   </section>
 </main>
-<footer class="site-footer"><div class="shell"><span>CEPT Education</span><span lang="th">หลักฐานของ workflow ไม่ใช่การรับรองโครงการ</span></div></footer>
+<footer class="site-footer"><div class="shell"><span>CEPT Education</span><span>Solver-backed learning for power-system study.</span></div></footer>
 '''
     return _page_document(
         "Learning index",

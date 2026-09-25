@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "827497842229649c25372b3ec8c571f34a0b6b8c",
+  "canonical_source_commit": "c8e26597909a59bd3c2779c7d1c9c605f1a39a79",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -89,7 +89,7 @@
     {
       "path": "docs/site/public-course.md",
       "source": "docs/site/public-course.md",
-      "sha256": "7f2760179cc2e694c6ba36167ac883bbd6102d8ff7026c98233d8c02e5f0c990"
+      "sha256": "e8da1cd6d643b1462a3b489847e27f2a4301ca90ef228e16a6013e9d2db0c2ac"
     },
     {
       "path": "public-release.yaml",
@@ -129,42 +129,42 @@
     {
       "path": "public/examples/th-quickstart/README.md",
       "source": "public/examples/th-quickstart/README.md",
-      "sha256": "630e818dca6efb3ea7fd4461f29b209ccd719dd6a975365fc46a71eedec1102b"
+      "sha256": "ed6e8f67f21f3d9ae59139a5ab9993a7c29d74283bbee98af320b5768e3895b6"
     },
     {
       "path": "public/notebooks/00_environment.ipynb",
       "source": "public/notebooks/00_environment.ipynb",
-      "sha256": "ef3d9fee0e114f10d4a5c45a9f983b17778ea814c08a879bf469785ab7c2d9ee"
+      "sha256": "c939b15c56e3d37ef4f35c11027a4f81d176fa26ea94e5f0a3986806162ef543"
     },
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "523664a005402672b18f89dd2e2c118ac64adc3e9cef8a373a8117f113655400"
+      "sha256": "0649a9831e415b0d91203e15e86d0167889d6f888e9f176f954c66151ee71bb3"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "bcc3529e58745e178bfe37c6388458ae18ee2b1f58409da228f9579fb08f0e1e"
+      "sha256": "87774a9413be9fcc3a7f902bfba58bc6bcbf6df9ffc21a39fe69e125b7ad164f"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "554a357da993c264b944d3b5856796ec39f3ab42004d51295837226d85fa1ace"
+      "sha256": "111221fabf73e5716b011b281c653ab2de0ef78d98965c8c9d686ffd9079cd39"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "fc5b9aaf9394262eb4f63b24305ceed0efae5897b03eb365102753144476092d"
+      "sha256": "77b211b22fca39edeec141c9bccc2419a119f411984934c3f8bc580210904c65"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
       "source": "public/notebooks/05_validation_reproducibility.ipynb",
-      "sha256": "5ba194ad9b937ba28f8d6f124f70dbb39f6fd9002b20579db838eed10535b738"
+      "sha256": "18dca936f63b437b9f13392022048b80fba45a07c0adeb1bab07003ad7202625"
     },
     {
       "path": "public/notebooks/06_colab_tui.ipynb",
       "source": "public/notebooks/06_colab_tui.ipynb",
-      "sha256": "4931e8dd9f9a218904ca44b5011bde79f14d2944164ec42db90c0b553c79a238"
+      "sha256": "f5d0be391ffc9dd421783acafc70e48bc5de6737e2e8704ce32c0740954df58b"
     },
     {
       "path": "public/notebooks/README.md",
@@ -179,12 +179,12 @@
     {
       "path": "public/site/education.css",
       "source": "public/site/education.css",
-      "sha256": "ba66aff81e8661f43047a97de090f5904f4946cf6f2de24ea1d0a9f82360a0a6"
+      "sha256": "c48d19ed5fa678f90a17fd1206b469f318a44aa9417c3e9acff949cc2b131a48"
     },
     {
       "path": "pyproject.toml",
       "source": "packaging/public/pyproject.toml",
-      "sha256": "29e062f7a5b26fbe0290e9370b552c52cc8afffc35399fa2edfe5c6c656c1b81"
+      "sha256": "f45a56ef6f5e2a33f0ca0a6a28ed284a34eecd8f45a532ee3a2530e1f9071dcb"
     },
     {
       "path": "src/cept/__init__.py",
@@ -544,7 +544,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "eb23d02a78a41376a3a754fa0f12b6a83f2c4899f9ee8cffc228cc10f80e2ad1"
+      "sha256": "45d90f6cc4592be6a695798cb2f85895261275dd8369c0bdadb0266019028972"
     },
     {
       "path": "tools/run_public_notebooks.py",
