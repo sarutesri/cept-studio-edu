@@ -32,45 +32,82 @@ LESSONS: tuple[dict[str, str], ...] = (
     {
         "stem": "00_environment",
         "number": "00",
-        "title_en": "Environment and claim boundary",
-        "summary_en": "Identify the installed solver, CEPT version, and what a workflow receipt can and cannot prove.",
+        "stage": "foundation",
+        "title_en": "Check the runtime",
+        "summary_en": "See which OpenDSS version is installed and what a passing workflow check does—and does not—prove.",
+        "outcome_en": "Runtime identity and a bounded readiness result",
     },
     {
         "stem": "01_first_circuit_load_flow",
         "number": "01",
-        "title_en": "First circuit and load flow",
-        "summary_en": "Build a small source-line-load circuit and compare solver-returned voltage from OpenDSS and CEPT.",
+        "stage": "foundation",
+        "title_en": "Run a two-bus load flow",
+        "summary_en": "Predict the load-bus voltage, run the study, and inspect phase values and losses.",
+        "outcome_en": "Example: 0.9998 pu at the load bus and 0.0143 kW loss",
     },
     {
         "stem": "02_ieee13_unbalanced",
         "number": "02",
-        "title_en": "IEEE 13-node unbalanced feeder",
-        "summary_en": "Keep single- and two-phase laterals visible while comparing phase-specific voltage magnitudes.",
+        "stage": "foundation",
+        "title_en": "Explore an unbalanced feeder",
+        "summary_en": "Inspect phase-specific voltage on the IEEE 13-node feeder instead of hiding the imbalance inside one average.",
+        "outcome_en": "Phase A, B, and C voltage profiles",
     },
     {
         "stem": "03_hosting_capacity",
         "number": "03",
-        "title_en": "PV hosting capacity",
-        "summary_en": "Treat hosting capacity as a declared criterion-bound search, not a universal number.",
+        "stage": "apply",
+        "title_en": "Find a PV hosting-capacity bracket",
+        "summary_en": "Change the declared voltage criterion and see how the admissible PV range moves.",
+        "outcome_en": "A capacity bracket under one explicit criterion",
     },
     {
         "stem": "04_fault_study",
         "number": "04",
-        "title_en": "Single-line-to-ground fault",
-        "summary_en": "Apply a declared fault and distinguish solver-returned current from a protection decision.",
+        "stage": "apply",
+        "title_en": "Run a line-to-ground fault",
+        "summary_en": "Apply a declared fault and inspect the solver-returned current.",
+        "outcome_en": "Fault current for the declared study—not a protection decision",
     },
     {
         "stem": "05_validation_reproducibility",
         "number": "05",
-        "title_en": "Validation receipt and reproducibility",
-        "summary_en": "Follow Case fingerprints, solver identity, artifacts, and the boundary of workflow validation.",
+        "stage": "evidence",
+        "title_en": "Verify the saved run",
+        "summary_en": "Follow the Case fingerprint and verification receipt for one exact run.",
+        "outcome_en": "The Case, artifacts, and checks behind the result",
     },
     {
         "stem": "06_colab_tui",
         "number": "06",
-        "title_en": "Bring your Case information: review first, solve second",
-        "summary_en": "Review incomplete Case information, choose an explicit resolution policy, optionally use OpenCode, then run a separate bounded solver demo.",
+        "stage": "evidence",
+        "title_en": "Review incomplete Case information",
+        "summary_en": "See how missing inputs remain visible and how strict, assisted, and exploratory policies change what can run.",
+        "outcome_en": "Known, missing, default, and AI-selected information kept separate",
     },
+)
+LESSON_STAGES: tuple[tuple[str, str, str, str, str], ...] = (
+    (
+        "foundation",
+        "01",
+        "FOUNDATION",
+        "Start with the basics",
+        "Build the runtime and result-reading habits.",
+    ),
+    (
+        "apply",
+        "02",
+        "APPLY",
+        "Try a different engineering question",
+        "Change one declared input and inspect the response.",
+    ),
+    (
+        "evidence",
+        "03",
+        "EVIDENCE",
+        "Check what the result proves",
+        "Follow the saved run and the evidence behind it.",
+    ),
 )
 
 
@@ -165,11 +202,7 @@ def _render_output(output: dict[str, Any]) -> str:
         return f'<pre class="output"><code>{html.escape(_text(output.get("text")))}</code></pre>'
     if output_type == "error":
         traceback = output.get("traceback")
-        return (
-            '<pre class="output"><code>'
-            f'{html.escape(_text(traceback))}'
-            "</code></pre>"
-        )
+        return f'<pre class="output"><code>{html.escape(_text(traceback))}</code></pre>'
 
     data = output.get("data")
     if not isinstance(data, dict):
@@ -203,9 +236,9 @@ def _titled_cell_title(source_text):
         if not stripped:
             continue
         if stripped.startswith("#@title"):
-            return stripped[len("#@title"):].strip() or "Setup"
+            return stripped[len("#@title") :].strip() or "Setup"
         if stripped.startswith("# @title"):
-            return stripped[len("# @title"):].strip() or "Setup"
+            return stripped[len("# @title") :].strip() or "Setup"
         return None
     return None
 
@@ -219,7 +252,7 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
         # while outputs below stay fully visible, so results dominate the page.
         code_block = (
             '<details class="cell-code-setup"><summary>'
-            f'{html.escape(title)}</summary>'
+            f"{html.escape(title)}</summary>"
             f'<pre class="code"><code>{code}</code></pre></details>'
         )
     else:
@@ -235,10 +268,7 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
     if rendered_outputs:
         return (
             '<section class="cell cell-code">'
-            '<div class="cell-label">Code</div>'
-            + code_block
-            + "".join(rendered_outputs)
-            + "</section>",
+            '<div class="cell-label">Code</div>' + code_block + "".join(rendered_outputs) + "</section>",
             False,
         )
     if isinstance(outputs, list) and outputs:
@@ -314,7 +344,7 @@ def _notebook_paths(stage_root: Path) -> list[tuple[dict[str, str], Path]]:
     }
     selected: list[tuple[dict[str, str], Path]] = []
     for lesson in LESSONS:
-        relative = Path("public/notebooks") / f'{lesson["stem"]}.ipynb'
+        relative = Path("public/notebooks") / f"{lesson['stem']}.ipynb"
         path = stage_root / relative
         if not path.is_file():
             raise SiteBuildError(f"staging root is missing lesson notebook: {relative.as_posix()}")
@@ -322,9 +352,7 @@ def _notebook_paths(stage_root: Path) -> list[tuple[dict[str, str], Path]]:
             raise SiteBuildError(f"lesson notebook is not recorded in export manifest: {relative.as_posix()}")
         selected.append((lesson, path))
     extras = sorted(
-        path.name
-        for path in (stage_root / "public/notebooks").glob("*.ipynb")
-        if path.stem not in configured
+        path.name for path in (stage_root / "public/notebooks").glob("*.ipynb") if path.stem not in configured
     )
     if extras:
         raise SiteBuildError("unexpected notebook files in public stage: " + ", ".join(extras))
@@ -356,7 +384,14 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str) 
 '''
 
 
-def _header(*, home_href: str, label: str) -> str:
+def _header(*, home_href: str, label: str | None = None) -> str:
+    if label is None:
+        navigation = f'<a href="{home_href}" aria-current="page">Learning index</a>'
+    else:
+        navigation = (
+            f'<a href="{home_href}">Learning index</a>\n'
+            f'      <span class="nav-current" aria-current="page">{html.escape(label)}</span>'
+        )
     return f'''
 <header class="site-header">
   <div class="shell header-inner">
@@ -365,22 +400,49 @@ def _header(*, home_href: str, label: str) -> str:
       <span><strong>CEPT</strong><small>POWER EDUCATION</small></span>
     </a>
     <nav aria-label="Primary navigation">
-      <a href="{home_href}">Learning index</a>
-      <span class="nav-current" aria-current="page">{html.escape(label)}</span>
+      {navigation}
     </nav>
   </div>
 </header>
 '''
 
 
+def _lesson_card(
+    lesson: dict[str, str],
+    *,
+    code_count: int,
+    missing_count: int,
+    repository: str,
+) -> str:
+    notebook_path = f"public/notebooks/{lesson['stem']}.ipynb"
+    read_url, colab_url = _urls(repository, notebook_path)
+    output_label = "Run in Colab to generate this result" if missing_count else "Example result included"
+    return f'''
+<article class="lesson-card">
+  <div class="card-number">{html.escape(lesson["number"])}</div>
+  <div class="card-content">
+    <h4><a href="lessons/{html.escape(lesson["stem"])}.html">{html.escape(lesson["title_en"])}</a></h4>
+    <p>{html.escape(lesson["summary_en"])}</p>
+    <p class="lesson-outcome"><span>What you can inspect</span>{html.escape(lesson["outcome_en"])}</p>
+    <div class="card-status"><span class="status-dot" aria-hidden="true"></span>{html.escape(output_label)} <span class="muted">· {code_count} code cells</span></div>
+    <div class="card-links">
+      <a href="lessons/{html.escape(lesson["stem"])}.html">View lesson</a>
+      <a href="{html.escape(colab_url, quote=True)}">Run in Colab<span class="sr-only">: {html.escape(lesson["title_en"])}</span></a>
+      <a href="{html.escape(read_url, quote=True)}">Notebook source<span class="sr-only">: {html.escape(lesson["title_en"])}</span></a>
+    </div>
+  </div>
+</article>
+'''
+
+
 def _disclosure(_revision: str, _manifest_hash: str) -> str:
-    return '''
+    return """
 <aside class="disclosure" aria-label="Learning note">
   <strong>Reproduce the result</strong>
   <span>Run the notebook in Colab to execute the declared OpenDSS workflow and inspect the saved evidence.</span>
   <span>Use the tables and plots to check the result, then read the interpretation before changing an input.</span>
 </aside>
-'''
+"""
 
 
 def _lesson_page(
@@ -399,8 +461,9 @@ def _lesson_page(
         if missing_output_count
         else "Solver-backed results are shown below."
     )
+    lesson_label = f"Lesson {lesson['number']}"
     body = f'''
-{_header(home_href="../index.html", label=f'Lesson {lesson["number"]}')}
+{_header(home_href="../index.html", label=lesson_label)}
 <main id="content" class="shell lesson-page">
   <div class="lesson-kicker">LESSON {html.escape(lesson["number"])}</div>
   <div class="lesson-heading">
@@ -431,7 +494,9 @@ def _lesson_page(
 </main>
 <footer class="site-footer"><div class="shell"><span>CEPT Education</span><span>Workflow evidence is not project validation.</span></div></footer>
 '''
-    return _page_document(lesson["title_en"], body, stylesheet="../assets/education.css", description=lesson["summary_en"])
+    return _page_document(
+        lesson["title_en"], body, stylesheet="../assets/education.css", description=lesson["summary_en"]
+    )
 
 
 def _index_page(
@@ -441,87 +506,115 @@ def _index_page(
     manifest_hash: str,
     repository: str,
 ) -> str:
-    cards: list[str] = []
+    lessons_by_stage: dict[str, list[dict[str, str]]] = {stage[0]: [] for stage in LESSON_STAGES}
     for lesson in lessons:
-        code_count, missing_count = statuses[lesson["stem"]]
-        notebook_path = f'public/notebooks/{lesson["stem"]}.ipynb'
-        read_url, colab_url = _urls(repository, notebook_path)
-        output_label = (
-            "Run in Colab to generate results"
-            if missing_count
-            else "Results included"
+        lessons_by_stage[lesson["stage"]].append(lesson)
+
+    course_stages: list[str] = []
+    for stage_key, number, label, title, note in LESSON_STAGES:
+        stage_lessons = lessons_by_stage[stage_key]
+        cards = "".join(
+            _lesson_card(
+                lesson,
+                code_count=statuses[lesson["stem"]][0],
+                missing_count=statuses[lesson["stem"]][1],
+                repository=repository,
+            )
+            for lesson in stage_lessons
         )
-        cards.append(f'''
-<article class="lesson-card">
-  <div class="card-number">{html.escape(lesson["number"])}</div>
-  <div class="card-content">
-    <h3><a href="lessons/{html.escape(lesson["stem"])}.html">{html.escape(lesson["title_en"])}</a></h3>
-    <p>{html.escape(lesson["summary_en"])}</p>
-    <div class="card-status"><span class="status-dot" aria-hidden="true"></span>{html.escape(output_label)} <span class="muted">· {code_count} code cell(s)</span></div>
-    <div class="card-links">
-      <a href="lessons/{html.escape(lesson["stem"])}.html">Read lesson</a>
-      <a href="{html.escape(colab_url, quote=True)}">Run in Colab<span class="sr-only">: {html.escape(lesson["title_en"])}</span></a>
-      <a href="{html.escape(read_url, quote=True)}">Notebook source<span class="sr-only">: {html.escape(lesson["title_en"])}</span></a>
+        heading_id = f"stage-{stage_key}"
+        course_stages.append(f'''
+<section class="course-stage" aria-labelledby="{heading_id}">
+  <div class="course-stage-heading">
+    <div class="eyebrow">{number} · {label}</div>
+    <div>
+      <h3 id="{heading_id}">{title}</h3>
+      <p>{note}</p>
     </div>
   </div>
-</article>
+  <div class="lesson-grid" data-count="{len(stage_lessons)}">{cards}</div>
+</section>
 ''')
+
+    repository_url = f"https://github.com/{html.escape(repository, quote=True)}"
     body = f'''
-{_header(home_href="index.html", label="Learning index")}
+{_header(home_href="index.html")}
 <main id="content">
   <section class="hero shell">
     <div class="hero-copy">
-      <div class="eyebrow">OPEN DSS · TYPED CASE · SEVEN LESSONS</div>
-      <h1>Learn the study.<br><em>Keep the evidence.</em></h1>
-      <p class="hero-lead">A practical, solver-visible introduction to CEPT for power-system learners.</p>
+      <div class="eyebrow">OPEN DSS · 7 SHORT LESSONS · RUNNABLE IN COLAB</div>
+      <h1>Run a small study.<br><em>See where it came from.</em></h1>
+      <p class="hero-lead">Build a load flow, explore an unbalanced feeder, test PV hosting capacity, and run a ground fault. Each lesson shows the inputs, the OpenDSS result, and the boundary of what it proves.</p>
       <div class="hero-actions" aria-label="Start learning">
-        <a class="button button-primary" href="#lessons">Start with the lessons</a>
-        <a class="text-link" href="{html.escape(_urls(repository, "public/notebooks/00_environment.ipynb")[1], quote=True)}">Open lesson 00 in Colab <span aria-hidden="true">↗</span></a>
+        <a class="button button-primary" href="lessons/01_first_circuit_load_flow.html">Start with load flow</a>
+        <a class="text-link" href="lessons/05_validation_reproducibility.html">See the evidence workflow <span aria-hidden="true">→</span></a>
       </div>
+      <p class="hero-scope">Public demonstrator workflows. They do not establish project approval, field validation, or PowerFactory parity.</p>
     </div>
     <div class="hero-card" aria-label="The learning loop">
       <div class="hero-card-label">THE LEARNING LOOP</div>
       <ol>
-        <li><span>01</span><strong>Read</strong><small>See the model and assumptions.</small></li>
-        <li><span>02</span><strong>Run</strong><small>Execute the declared notebook path.</small></li>
-        <li><span>03</span><strong>Inspect</strong><small>Keep solver output and verification separate.</small></li>
+        <li><span>01</span><strong>Read</strong><small>Start with the inputs and assumptions.</small></li>
+        <li><span>02</span><strong>Run</strong><small>Execute the declared study in Colab.</small></li>
+        <li><span>03</span><strong>Inspect</strong><small>Compare the result with its saved evidence.</small></li>
       </ol>
     </div>
   </section>
   <section class="principles shell" aria-labelledby="principles-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">A BOUNDED INTRODUCTION</div><h2 id="principles-heading">What this course teaches</h2></div>
-      <p class="section-note">A short, solver-backed introduction.</p>
+      <div><div class="eyebrow">A BOUNDED WAY TO LEARN</div><h2 id="principles-heading">See the method without losing the limits</h2></div>
+      <p class="section-note">Concrete studies, explicit inputs, and claims that stop where the evidence stops.</p>
     </div>
     <div class="principle-grid">
-      <article><span class="principle-index">01</span><h3>Solver truth</h3><p>Numerical results come from the declared OpenDSS run. Derived explanations are not relabeled as solver output.</p></article>
-      <article><span class="principle-index">02</span><h3>Typed setup</h3><p>A CEPT Case makes topology, units, study type, and assumptions visible before execution.</p></article>
-      <article><span class="principle-index">03</span><h3>Honest scope</h3><p><code>WORKFLOW_VALIDATED</code> is not field evidence, project validation, or a protection decision.</p></article>
+      <article><span class="principle-index">01</span><h3>See the source of a result</h3><p>Numerical values stay tied to the declared OpenDSS run. Interpretation remains separate.</p></article>
+      <article><span class="principle-index">02</span><h3>Start from clear inputs</h3><p>Topology, units, study type, and assumptions stay visible before execution.</p></article>
+      <article><span class="principle-index">03</span><h3>Know what it proves</h3><p><code>WORKFLOW_VALIDATED</code> supports workflow checks, not project approval, field validation, or a protection decision.</p></article>
     </div>
   </section>
   <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven small, solver-backed lessons</h2></div>
-      <p class="section-note">Choose a lesson to read or run in Colab.</p>
+      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven short studies, one visible trail</h2></div>
+      <p class="section-note">Choose a concrete question, inspect the example result, then run it in Colab.</p>
     </div>
-    <div class="lesson-grid">{"".join(cards)}</div>
+    {"".join(course_stages)}
   </section>
   <section class="trust-band shell" aria-labelledby="trust-heading">
-    <div><div class="eyebrow">READ THE RESULTS</div><h2 id="trust-heading">Use the result to ask the next question.</h2></div>
-    <p>Each lesson keeps the model, solver output, and interpretation together. Read the values, check the claim boundary, and change one declared input to see how the answer responds.</p>
+    <div>
+      <div class="eyebrow">PUBLIC FACTS</div>
+      <h2 id="trust-heading">A result should come with a trail.</h2>
+      <p>Each lesson keeps declared inputs, solver output, interpretation, and verification in one reviewable path. Change one input and compare the next result.</p>
+    </div>
+    <dl class="proof-grid">
+      <div><dt>7</dt><dd>short lessons</dd></div>
+      <div><dt>OpenDSS</dt><dd>teaching runtime</dd></div>
+      <div><dt>Python 3.10+</dt><dd>public runtime</dd></div>
+      <div><dt>Workflow-level</dt><dd>verification checks</dd></div>
+    </dl>
   </section>
   <section class="shell source-section" aria-labelledby="source-heading">
-    <h2 id="source-heading">Keep learning</h2>
-    <p>Run a lesson, inspect its values, and use the optional comparison cells to see how the result was produced.</p>
+    <div class="eyebrow">NEXT STEP</div>
+    <h2 id="source-heading">Choose where to begin</h2>
+    <p>Not sure where to start? Begin with a two-bus load flow, then change one declared input and compare the result.</p>
+    <div class="next-actions">
+      <a class="button button-primary" href="lessons/01_first_circuit_load_flow.html">Start with lesson 01</a>
+      <a class="text-link" href="{repository_url}">View the public source <span aria-hidden="true">↗</span></a>
+    </div>
   </section>
 </main>
-<footer class="site-footer"><div class="shell"><span>CEPT Education</span><span>Solver-backed learning for power-system study.</span></div></footer>
+<footer class="site-footer"><div class="shell">
+  <span>CEPT Education · Apache-2.0</span>
+  <div class="footer-links">
+    <a href="{repository_url}">Source</a>
+    <a href="{repository_url}/releases/tag/v0.2.0-edu.1">Release</a>
+    <a href="{repository_url}/blob/main/LICENSE">License</a>
+  </div>
+</div></footer>
 '''
     return _page_document(
         "Learning index",
         body,
         stylesheet="assets/education.css",
-        description="Seven solver-visible CEPT power-system education lessons.",
+        description="Run seven short OpenDSS power-system studies in Colab and inspect the inputs, results, and verification behind each answer.",
     )
 
 
@@ -564,7 +657,7 @@ def build_site(
         notebook = _read_json(path)
         notebook_html, code_count, missing_count = _render_notebook(notebook)
         statuses[lesson["stem"]] = (code_count, missing_count)
-        relative = f'public/notebooks/{lesson["stem"]}.ipynb'
+        relative = f"public/notebooks/{lesson['stem']}.ipynb"
         lesson_dir = output_dir / "lessons"
         lesson_dir.mkdir(exist_ok=True)
         page = _lesson_page(
@@ -577,7 +670,7 @@ def build_site(
             manifest_hash,
             repository,
         )
-        (lesson_dir / f'{lesson["stem"]}.html').write_text(page, encoding="utf-8", newline="\n")
+        (lesson_dir / f"{lesson['stem']}.html").write_text(page, encoding="utf-8", newline="\n")
 
     index = _index_page((lesson for lesson, _ in lessons), statuses, revision, manifest_hash, repository)
     (output_dir / "index.html").write_text(index, encoding="utf-8", newline="\n")

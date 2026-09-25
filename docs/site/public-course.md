@@ -96,8 +96,11 @@ truthful and traceable.
 ## What the course demonstrates
 
 The course demonstrates solver-backed CEPT workflows with bounded example data.
+For this public course, `sarutesri/cept-studio-edu` is the only development source;
+the canonical private CEPT Studio repository remains the product source of truth.
 It does not establish project validation, field validation, PowerFactory parity,
-or correctness of a user's own network.
+or correctness of a user's own network. A real-Colab cold-start review is still
+required before the hosted learning path is called accepted.
 
 When adapting a lesson, keep source, units, assumptions, defaults, AI-selected
 placeholders, and missing information visible rather than turning an example
