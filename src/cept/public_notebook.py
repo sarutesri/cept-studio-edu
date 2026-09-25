@@ -17,11 +17,11 @@ import math
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
+from cept.domain.sld.layout_contract import canonical_sld_edge_id
 from cept.domain.sld.plan import CanonicalSLDPlan, build_canonical_sld_plan
 from cept.public import verify_study
 from cept.schema.result import DynamicsResult, StudyResult
 from cept.schema.sld import SLDModel, SLDNode
-
 
 def _esc(value: object) -> str:
     return html.escape(str(value), quote=True)
@@ -141,7 +141,7 @@ def _sld_svg(sld: SLDModel) -> str:
 
     edge_parts: list[str] = []
     for edge in sld.edges:
-        points = routes.get(edge.id.lower(), [])
+        points = routes.get(canonical_sld_edge_id(edge.id).lower(), [])
         if len(points) < 2:
             continue
         serialized = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
