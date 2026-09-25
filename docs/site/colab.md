@@ -18,6 +18,7 @@ stay collapsed at the optional tail instead of interrupting the learner path.
 Each lesson keeps three things separate: **what you provide**, **what OpenDSS
 calculates**, and **what CEPT saves as evidence**. The bounded claim is
 `WORKFLOW_VALIDATED`; it does not validate a physical project.
+The only setup is one short bootstrap cell; after it runs, each lesson uses a direct `!cept` command.
 
 <div class="cept-actions" markdown>
 <a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener" aria-label="Open Lesson 00 in Google Colab" title="Open in Google Colab"><span class="cept-colab-mark" aria-hidden="true"></span><span>Start with Lesson 00</span></a>

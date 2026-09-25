@@ -77,6 +77,86 @@ def _phase_text(node: SLDNode, phase: int) -> str:
     return f"{value:.4f} pu @ {angle:.2f}°"
 
 
+
+def _terminal_symbol(kind: str, x: float, y: float, label: str, detail: str) -> str:
+    """Render one compact terminal symbol with a hover label."""
+    normalized = str(kind or "generator").lower()
+    symbol = {
+        "grid": "external-grid",
+        "indmach": "motor",
+        "syncgen": "generator",
+        "generator": "generator",
+    }.get(normalized, normalized)
+    glyph = {
+        "external-grid": "G",
+        "motor": "M",
+        "pv": "PV",
+        "wind": "W",
+        "hydro": "H",
+        "battery": "B",
+        "generator": "G",
+    }.get(symbol, "G")
+    if symbol == "load":
+        shape = '<polygon points="-10,-6 10,-6 0,10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
+        text = ""
+    elif symbol == "external-grid":
+        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/><path d="M-7,-7 L7,7 M7,-7 L-7,7" stroke="#0f172a" stroke-width="2"/>'
+        text = '<text x="0" y="25" text-anchor="middle">G</text>'
+    elif symbol == "motor":
+        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
+        text = '<text x="0" y="4" text-anchor="middle">M</text>'
+    elif symbol in {"capacitor", "reactor", "statcom", "svc"}:
+        shape = '<path d="M-9,-5 H9 M-9,0 H9 M-9,5 H9" stroke="#0f172a" stroke-width="2"/>'
+        text = ""
+    else:
+        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
+        text = f'<text x="0" y="4" text-anchor="middle">{glyph}</text>'
+    tooltip = f"{label}: {detail}"
+    return (
+        f'<g class="cept-terminal-symbol" data-symbol="{_esc(symbol)}" '
+        f'transform="translate({x:.1f} {y:.1f})">'
+        f"<title>{_esc(tooltip)}</title>{shape}{text}</g>"
+    )
+
+
+def _terminal_symbol_parts(
+    sld: SLDModel, positions: dict[str, tuple[float, float]]
+) -> list[str]:
+    parts: list[str] = []
+    for node in sld.nodes:
+        x, y = positions.get(node.id.lower(), (0.0, 0.0))
+        for index, generator in enumerate(node.gens):
+            parts.append(
+                _terminal_symbol(
+                    str(generator.kind).lower(),
+                    x,
+                    y - 42 - index * 26,
+                    generator.name,
+                    f"{generator.kw:.1f} kW",
+                )
+            )
+        for index, load in enumerate(node.loads):
+            parts.append(
+                _terminal_symbol(
+                    "load",
+                    x,
+                    y + 42 + index * 26,
+                    load.name,
+                    f"{load.kw:.1f} kW",
+                )
+            )
+        for index, shunt in enumerate(node.shunts):
+            parts.append(
+                _terminal_symbol(
+                    shunt.kind,
+                    x,
+                    y + 42 + (len(node.loads) + index) * 26,
+                    shunt.name,
+                    f"{shunt.kvar:.1f} kvar",
+                )
+            )
+    return parts
+
 def _bus_tooltip(node: SLDNode, sld: SLDModel) -> str:
     rows = [f"Bus {node.id}", f"Status: {_status(node, sld)}"]
     for phase, label in ((1, "A"), (2, "B"), (3, "C")):
@@ -185,6 +265,7 @@ def _sld_svg(sld: SLDModel) -> str:
         f'<svg class="cept-sld" viewBox="0 0 {int(width)} {int(height)}" role="img" '
         f'aria-label="{_esc(sld.title)}">'
         + "".join(edge_parts)
+        + "".join(_terminal_symbol_parts(sld, positions))
         + "".join(node_parts)
         + "</svg></div>"
     )

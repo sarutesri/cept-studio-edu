@@ -172,3 +172,108 @@ def ieee13_master():
 
 
 print("Lesson helpers ready. Stage cells below run the same CEPT commands as a normal terminal.")
+
+
+def _compat_symbol(kind, x, y, label, detail):
+    import html as _html
+
+    normalized = str(kind or "generator").lower()
+    symbol = {
+        "grid": "external-grid",
+        "indmach": "motor",
+        "syncgen": "generator",
+        "generator": "generator",
+    }.get(normalized, normalized)
+    glyph = {
+        "external-grid": "G",
+        "motor": "M",
+        "pv": "PV",
+        "wind": "W",
+        "hydro": "H",
+        "battery": "B",
+        "generator": "G",
+    }.get(symbol, "G")
+    if symbol == "load":
+        shape = '<polygon points="-10,-6 10,-6 0,10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
+        text = ""
+    elif symbol == "external-grid":
+        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/><path d="M-7,-7 L7,7 M7,-7 L-7,7" stroke="#0f172a" stroke-width="2"/>'
+        text = '<text x="0" y="25" text-anchor="middle">G</text>'
+    elif symbol == "motor":
+        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
+        text = '<text x="0" y="4" text-anchor="middle">M</text>'
+    elif symbol in {"capacitor", "reactor", "statcom", "svc"}:
+        shape = '<path d="M-9,-5 H9 M-9,0 H9 M-9,5 H9" stroke="#0f172a" stroke-width="2"/>'
+        text = ""
+    else:
+        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
+        text = f'<text x="0" y="4" text-anchor="middle">{glyph}</text>'
+    return (
+        f'<g class="compat-terminal-symbol" data-symbol="{_html.escape(symbol, quote=True)}" '
+        f'transform="translate({x:.1f} {y:.1f})">'
+        f'<title>{_html.escape(f"{label}: {detail}")}</title>{shape}{text}</g>'
+    )
+
+
+def display_run_compat(run_dir):
+    """Render a persisted public result with stable edges and terminal symbols."""
+    import html as _html
+    from IPython.display import HTML, display
+
+    result = read(Path(run_dir) / "results.json")
+    sld = result.get("sld") or result.get("sld_after") or {}
+    nodes, edges = sld.get("nodes") or [], sld.get("edges") or []
+    if not nodes:
+        display(HTML("<p><strong>CEPT result:</strong> this run does not carry an SLD.</p>"))
+        return
+    xs, ys = [float(n["x"]) for n in nodes], [float(n["y"]) for n in nodes]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    dx, dy = max(x1 - x0, 1.0), max(y1 - y0, 1.0)
+
+    def xy(node):
+        return 65 + (float(node["x"]) - x0) / dx * 870, 45 + (float(node["y"]) - y0) / dy * 420
+
+    pos = {str(n["id"]).lower(): xy(n) for n in nodes}
+    line_svg = []
+    for edge in edges:
+        a = pos.get(str(edge.get("src", "")).lower())
+        b = pos.get(str(edge.get("dst", "")).lower())
+        if a is None or b is None:
+            continue
+        dash = ' stroke-dasharray="8 6"' if edge.get("status") == "open" else ""
+        edge_label = _html.escape(str(edge.get("id", "branch")))
+        line_svg.append(
+            f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" '
+            f'stroke="#7a879a" stroke-width="3"{dash}><title>{edge_label}</title></line>'
+        )
+
+    symbol_svg = []
+    for node in nodes:
+        x, y = pos[str(node["id"]).lower()]
+        for index, generator in enumerate(node.get("gens") or []):
+            symbol_svg.append(_compat_symbol(generator.get("kind", "generator"), x, y - 42 - index * 26, generator.get("name", "generator"), f"{generator.get('kw', 0.0):.1f} kW"))
+        for index, load in enumerate(node.get("loads") or []):
+            symbol_svg.append(_compat_symbol("load", x, y + 42 + index * 26, load.get("name", "load"), f"{load.get('kw', 0.0):.1f} kW"))
+        for index, shunt in enumerate(node.get("shunts") or []):
+            symbol_svg.append(_compat_symbol(shunt.get("kind", "capacitor"), x, y + 42 + (len(node.get("loads") or []) + index) * 26, shunt.get("name", "shunt"), f"{shunt.get('kvar', 0.0):.1f} kvar"))
+
+    vmin, vmax = float(sld.get("v_min_pu", .95)), float(sld.get("v_max_pu", 1.05))
+    bus_svg, rows = [], []
+    for node in nodes:
+        volts = {int(k): float(v) for k, v in (node.get("v_pu") or {}).items()}
+        angles = {int(k): float(v) for k, v in (node.get("angle_deg") or {}).items()}
+        values = list(volts.values())
+        low, high = any(v < vmin for v in values), any(v > vmax for v in values)
+        status = "NO DATA" if not values else "OUT" if low and high else "UNDER" if low else "OVER" if high else "OK"
+        fill = {"OK": "#e8f5ec", "UNDER": "#fff3d9", "OVER": "#ffe7e1", "OUT": "#f7e7ff", "NO DATA": "#eef1f5"}[status]
+        stroke = {"OK": "#2f7d4a", "UNDER": "#a46700", "OVER": "#b8432e", "OUT": "#8147a6", "NO DATA": "#7b8796"}[status]
+        x, y = pos[str(node["id"]).lower()]
+
+        def phase(p):
+            return "—" if p not in volts else f"{volts[p]:.4f} pu" + (f" @ {angles[p]:.2f}°" if p in angles else "")
+
+        tip = _html.escape("Bus " + str(node["id"]) + "\nStatus: " + status + "\n" + "\n".join(f"{label}: {phase(p)}" for p, label in [(1, "A"), (2, "B"), (3, "C")] if p in volts))
+        label = _html.escape(str(node["id"]))
+        bus_svg.append(f'<g tabindex="0"><title>{tip}</title><rect x="{x-31:.1f}" y="{y-11:.1f}" width="62" height="22" rx="5" fill="{fill}" stroke="{stroke}" stroke-width="2"/><text x="{x:.1f}" y="{y+4:.1f}" text-anchor="middle" font-size="12" font-weight="700">{label}</text></g>')
+        rows.append("<tr><th>" + label + "</th><td>" + phase(1) + "</td><td>" + phase(2) + "</td><td>" + phase(3) + "</td><td><strong>" + status + "</strong></td></tr>")
+    display(HTML('<div style="font-family:system-ui,sans-serif"><h3>Interactive CEPT SLD</h3><p style="color:#657187">Hover or focus a bus to inspect solver-returned values.</p><div style="overflow:hidden;border:1px solid #d9dee8;border-radius:10px"><svg viewBox="0 0 1000 510" style="width:100%;height:auto;display:block">' + "".join(line_svg) + "".join(symbol_svg) + "".join(bus_svg) + '</svg></div><div style="overflow-x:auto;margin-top:10px"><table style="border-collapse:collapse;width:100%;min-width:650px"><thead><tr><th>Bus</th><th>Phase A</th><th>Phase B</th><th>Phase C</th><th>Status</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table></div></div>"))
