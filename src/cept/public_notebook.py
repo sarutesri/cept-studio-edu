@@ -17,9 +17,9 @@ import math
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
-from cept.domain.sld.layout_contract import canonical_sld_edge_id
-from cept.domain.sld.plan import CanonicalSLDPlan, build_canonical_sld_plan
 from cept.public import verify_study
+from cept.reporting.sld_runtime import build_sld_option_v2
+from cept.reporting.sld_svg import render_native_sld_svg
 from cept.schema.result import DynamicsResult, StudyResult
 from cept.schema.sld import SLDModel, SLDNode
 
@@ -78,212 +78,27 @@ def _phase_text(node: SLDNode, phase: int) -> str:
 
 
 
-def _terminal_symbol(
-    kind: str,
-    x: float,
-    y: float,
-    label: str,
-    detail: str,
-    bus_y: float | None = None,
-) -> str:
-    """Render one compact terminal symbol with a hover label."""
-    normalized = str(kind or "generator").lower()
-    symbol = {
-        "grid": "external-grid",
-        "indmach": "motor",
-        "syncgen": "generator",
-        "generator": "generator",
-    }.get(normalized, normalized)
-    glyph = {
-        "external-grid": "G",
-        "motor": "M",
-        "pv": "PV",
-        "wind": "W",
-        "hydro": "H",
-        "battery": "B",
-        "generator": "G",
-    }.get(symbol, "G")
-    if symbol == "load":
-        shape = '<polygon points="-10,-6 10,-6 0,10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
-        text = ""
-    elif symbol == "external-grid":
-        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/><path d="M-7,-7 L7,7 M7,-7 L-7,7" stroke="#0f172a" stroke-width="2"/>'
-        text = '<text x="0" y="25" text-anchor="middle">G</text>'
-    elif symbol == "motor":
-        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
-        text = '<text x="0" y="4" text-anchor="middle">M</text>'
-    elif symbol in {"capacitor", "reactor", "statcom", "svc"}:
-        shape = '<path d="M-9,-5 H9 M-9,0 H9 M-9,5 H9" stroke="#0f172a" stroke-width="2"/>'
-        text = ""
-    else:
-        shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
-        text = f'<text x="0" y="4" text-anchor="middle">{glyph}</text>'
-    lead = ""
-    if bus_y is not None:
-        lead = (
-            f'<line class="cept-terminal-lead" x1="0" y1="0" x2="0" '
-            f'y2="{bus_y - y:.1f}" stroke="#0f172a" stroke-width="2"/>'
-        )
-    tooltip = f"{label}: {detail}"
-    return (
-        f'<g class="cept-terminal-symbol" data-symbol="{_esc(symbol)}" '
-        f'transform="translate({x:.1f} {y:.1f})">'
-        f"<title>{_esc(tooltip)}</title>{lead}{shape}{text}</g>"
-    )
-
-
-def _terminal_symbol_parts(
-    sld: SLDModel, positions: dict[str, tuple[float, float]]
-) -> list[str]:
-    parts: list[str] = []
-    for node in sld.nodes:
-        x, y = positions.get(node.id.lower(), (0.0, 0.0))
-        for index, generator in enumerate(node.gens):
-            parts.append(
-                _terminal_symbol(
-                    str(generator.kind).lower(),
-                    x,
-                    y - 42 - index * 26,
-                    generator.name,
-                    f"{generator.kw:.1f} kW",
-                    bus_y=y,
-                )
-            )
-        for index, load in enumerate(node.loads):
-            parts.append(
-                _terminal_symbol(
-                    "load",
-                    x,
-                    y + 42 + index * 26,
-                    load.name,
-                    f"{load.kw:.1f} kW",
-                    bus_y=y,
-                )
-            )
-        for index, shunt in enumerate(node.shunts):
-            parts.append(
-                _terminal_symbol(
-                    shunt.kind,
-                    x,
-                    y + 42 + (len(node.loads) + index) * 26,
-                    shunt.name,
-                    f"{shunt.kvar:.1f} kvar",
-                    bus_y=y,
-                )
-            )
-    return parts
-
-def _bus_tooltip(node: SLDNode, sld: SLDModel) -> str:
-    rows = [f"Bus {node.id}", f"Status: {_status(node, sld)}"]
-    for phase, label in ((1, "A"), (2, "B"), (3, "C")):
-        if phase in node.v_pu:
-            rows.append(f"{label}: {_phase_text(node, phase)}")
-    if node.loads:
-        rows.append(
-            "Loads: "
-            + ", ".join(f"{item.name} {item.kw:.1f} kW" for item in node.loads)
-        )
-    if node.gens:
-        rows.append(
-            "Generation: "
-            + ", ".join(f"{item.name} {item.kw:.1f} kW" for item in node.gens)
-        )
-    if node.event is not None:
-        label = node.event.label or node.event.kind
-        rows.append(f"Event: {label}")
-    return "\n".join(rows)
-
-
-def _canonical_plan_view(
-    sld: SLDModel, *, width: float, height: float
-) -> tuple[CanonicalSLDPlan, dict[str, tuple[float, float]], dict[str, list[tuple[float, float]]]]:
-    """Project the canonical persisted-SLD plan into the notebook viewport."""
-
-    plan = build_canonical_sld_plan(sld)
-    points = [bus.center.as_tuple() for bus in plan.geometry.buses]
-    points.extend(point.as_tuple() for route in plan.geometry.routes for point in route.points)
-    if not points:
-        return plan, {}, {}
-
-    xs = [float(point[0]) for point in points]
-    ys = [float(point[1]) for point in points]
-    x0, x1 = min(xs), max(xs)
-    y0, y1 = min(ys), max(ys)
-    dx = max(x1 - x0, 1.0)
-    dy = max(y1 - y0, 1.0)
-    pad_x, pad_y = 70.0, 55.0
-    usable_w = width - 2 * pad_x
-    usable_h = height - 2 * pad_y
-
-    def scale(point: tuple[float, float]) -> tuple[float, float]:
-        return (
-            pad_x + (point[0] - x0) / dx * usable_w,
-            pad_y + (point[1] - y0) / dy * usable_h,
-        )
-
-    positions = {bus.bus_id.lower(): scale(bus.center.as_tuple()) for bus in plan.geometry.buses}
-    routes = {
-        route.edge_id.lower(): [scale(point.as_tuple()) for point in route.points]
-        for route in plan.geometry.routes
-    }
-    return plan, positions, routes
-
-
-def _sld_svg(sld: SLDModel) -> str:
-    width, height = 1000.0, 560.0
-    _plan, positions, routes = _canonical_plan_view(sld, width=width, height=height)
-    if not positions:
+def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
+    """Render the same canonical engineering SLD used by CEPT reports."""
+    graph = build_sld_option_v2(sld)
+    nodes = graph.get("nodes") or []
+    if not nodes:
         return '<div class="cept-empty">No SLD geometry is available for this result.</div>'
-
-    edge_parts: list[str] = []
-    for edge in sld.edges:
-        points = routes.get(canonical_sld_edge_id(edge.id).lower(), [])
-        if len(points) < 2:
-            continue
-        serialized = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
-        tooltip = (
-            f"{edge.id}\n{edge.src} → {edge.dst}\n"
-            f"P={edge.p_kw:.2f} kW, Q={edge.q_kvar:.2f} kvar\n"
-            f"Loss={edge.losses_kw:.3f} kW\nStatus={edge.status}"
-        )
-        css = " edge-open" if edge.status == "open" else ""
-        edge_parts.append(
-            f'<polyline class="cept-edge{css}" points="{serialized}">'
-            f"<title>{_esc(tooltip)}</title></polyline>"
-        )
-
-    node_parts: list[str] = []
-    dense = len(sld.nodes) >= 13
-    for node in sld.nodes:
-        x, y = positions.get(node.id.lower(), (0.0, 0.0))
-        status = _status(node, sld)
-        css = _status_class(status)
-        label = node.id if len(node.id) <= 14 else node.id[:13] + "…"
-        kind = "substation" if node.kind == "substation" else "bus"
-        event_mark = " ⚠" if node.event is not None else ""
-        node_parts.append(
-            f'<g class="cept-bus {css} {kind}" tabindex="0" '
-            f'aria-label="Bus {_esc(node.id)}, status {_esc(status)}">'
-            f"<title>{_esc(_bus_tooltip(node, sld))}</title>"
-            f'<rect x="{x - 33:.1f}" y="{y - 12:.1f}" width="66" height="24" rx="5"/>'
-            f'<text x="{x:.1f}" y="{y + 4:.1f}" text-anchor="middle">{_esc(label)}</text>'
-            + (
-                ""
-                if dense and node.kind != "substation"
-                else f'<text class="cept-bus-status-label" x="{x:.1f}" y="{y + 28:.1f}" text-anchor="middle">{_esc(status + event_mark)}</text>'
-            )
-            + "</g>"
-        )
-
+    buses = sum(1 for node in nodes if node.get("category") == "bus")
+    branches = sum(1 for link in graph.get("links") or [] if link.get("edge_id"))
+    svg = render_native_sld_svg(
+        graph,
+        dom_id=dom_id,
+        strict_connections=True,
+    )
     return (
         '<div class="cept-sld-wrap">'
-        '<div class="cept-sld-help">Hover or focus a bus to inspect solver-returned phase voltage and angle.</div>'
-        f'<svg class="cept-sld" viewBox="0 0 {int(width)} {int(height)}" role="img" '
-        f'aria-label="{_esc(sld.title)}">'
-        + "".join(edge_parts)
-        + "".join(_terminal_symbol_parts(sld, positions))
-        + "".join(node_parts)
-        + "</svg></div>"
+        '<div class="cept-sld-help">Hover a bus, branch, or device for its solver-backed identity.</div>'
+        f'<div class="cept-sld-viewport" role="img" aria-label="{_esc(sld.title)}">{svg}</div>'
+        '<div class="cept-sld-legend"><span>━ Busbar</span><span>⊞ External grid</span>'
+        '<span>◎ Transformer</span><span>▼ Load</span></div>'
+        f'<div class="cept-sld-cap">{buses} buses · {branches} branches · canonical CEPT geometry</div>'
+        "</div>"
     )
 
 
@@ -582,7 +397,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
     sld_sections: list[str] = []
     views = _sld_views(study)
     for index, (label, sld) in enumerate(views):
-        body = _sld_svg(sld) + _bus_table(sld)
+        body = _sld_svg(sld, dom_id=f"cept-sld-{index}") + _bus_table(sld)
         if len(views) == 1:
             sld_sections.append(body)
         else:
@@ -625,16 +440,14 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .cept-section h3{font-size:1.05rem;margin:0 0 3px}
 .cept-section-note,.cept-threshold-note,.cept-sld-help{font-size:.82rem;color:#657187;margin:0 0 9px}
 .cept-sld-wrap{border:1px solid #d9dee8;border-radius:10px;padding:8px;background:#fff;overflow:hidden}
-.cept-sld{display:block;width:100%;height:auto;min-height:260px}
-.cept-edge{fill:none;stroke:#7a879a;stroke-width:3;vector-effect:non-scaling-stroke}
-.cept-edge.edge-open{stroke-dasharray:8 7}
-.cept-bus rect{stroke-width:2;vector-effect:non-scaling-stroke;transition:stroke-width .12s ease}
-.cept-bus text{font-size:13px;font-weight:700;pointer-events:none}
-.cept-bus-status-label{font-size:10px!important;font-weight:600!important;fill:#596579}
-.cept-bus.ok rect{fill:#e8f5ec;stroke:#2f7d4a}.cept-bus.under rect{fill:#fff3d9;stroke:#a46700}
-.cept-bus.over rect{fill:#ffe7e1;stroke:#b8432e}.cept-bus.out rect{fill:#f7e7ff;stroke:#8147a6}.cept-bus.nodata rect{fill:#eef1f5;stroke:#7b8796}
-.cept-bus.substation rect{stroke-width:3}
-.cept-bus:hover rect,.cept-bus:focus rect{stroke-width:5;outline:none}
+.cept-sld-viewport{height:520px;min-height:340px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:hidden}
+.cept-sld-svg{display:block;width:100%;height:100%;background:#fff}
+.cept-sld-svg .sld-busbar,.cept-sld-svg .sld-branch,.cept-sld-svg .sld-terminal-stem,.cept-sld-svg .sld-symbol-shape *{vector-effect:non-scaling-stroke}
+.cept-sld-svg .sld-busbar:hover{fill:#0b5cad;cursor:pointer;filter:drop-shadow(0 0 2px rgba(11,92,173,.4))}
+.cept-sld-svg .sld-branch:hover{stroke:#0b5cad;stroke-width:3.2;cursor:pointer}
+.cept-sld-svg .sld-device:hover,.cept-sld-svg .sld-inline:hover{cursor:pointer;filter:drop-shadow(0 0 3px rgba(11,92,173,.6))}
+.cept-sld-legend{display:flex;gap:14px;flex-wrap:wrap;padding:8px 4px 2px;color:#475569;font-size:12px}
+.cept-sld-cap{padding:2px 4px 0;color:#64748b;font-size:11px}
 .cept-table-scroll{overflow-x:auto;border:1px solid #d9dee8;border-radius:10px;margin-top:10px}
 .cept-bus-table{border-collapse:collapse;width:100%;min-width:650px;font-size:.84rem}
 .cept-bus-table th,.cept-bus-table td{padding:7px 9px;border-bottom:1px solid #e6e9ef;text-align:left;white-space:nowrap}
@@ -656,7 +469,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .series-3{stroke:#7b5bb5;fill:#7b5bb5}.series-4{stroke:#b34d65;fill:#b34d65}.series-5{stroke:#55737f;fill:#55737f}
 .cept-legend{display:flex;gap:9px 14px;flex-wrap:wrap;font-size:.74rem;color:#566277;padding:2px 4px 3px}.cept-legend-item{display:inline-flex;align-items:center;gap:5px}.cept-legend-swatch{width:14px;height:3px;border-radius:3px}
 .cept-empty{border:1px dashed #cbd2dd;border-radius:9px;padding:12px;color:#657187;background:#fafbfd}
-@media (max-width:600px){.cept-nb{font-size:15px}.cept-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.cept-sld{min-height:220px}.cept-charts{grid-template-columns:1fr}}
+@media (max-width:600px){.cept-nb{font-size:15px}.cept-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.cept-sld-viewport{height:420px}.cept-charts{grid-template-columns:1fr}}
 </style>
 """
 
@@ -674,18 +487,38 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
     )
 
 
-def render_run_html(run_dir: str | Path) -> str:
-    """Read a persisted run and return its notebook-native HTML view."""
-
+def _study_from_run(run_dir: str | Path) -> StudyResult:
+    """Read and validate one persisted solver result."""
     root = Path(run_dir)
     result_path = root / "results.json"
     if not result_path.is_file():
         raise FileNotFoundError(f"results.json not found in {root}")
     payload = json.loads(result_path.read_text(encoding="utf-8"))
-    study = StudyResult.model_validate(payload)
+    return StudyResult.model_validate(payload)
 
+
+def render_run_html(run_dir: str | Path) -> str:
+    """Read a persisted run and return its notebook-native HTML view."""
+    root = Path(run_dir)
+    study = _study_from_run(root)
     verification = verify_study(root)
     return render_study_html(study, verification=verification)
+
+
+def render_sld_html(study: StudyResult, *, dom_id: str = "cept-sld") -> str:
+    """Render the canonical SLD and persisted bus table only."""
+    views = _sld_views(study)
+    if not views:
+        return '<div class="cept-empty">This result does not carry an SLD.</div>'
+    _label, sld = views[0]
+    return _sld_svg(sld, dom_id=dom_id) + _bus_table(sld)
+
+
+def display_sld(run_dir: str | Path) -> None:
+    """Display the canonical engineering SLD for a persisted run."""
+    from IPython.display import HTML, display
+
+    display(HTML(render_sld_html(_study_from_run(run_dir))))
 
 
 def display_run(run_dir: str | Path) -> None:
@@ -696,4 +529,4 @@ def display_run(run_dir: str | Path) -> None:
     display(HTML(render_run_html(run_dir)))
 
 
-__all__ = ["display_run", "render_run_html", "render_study_html"]
+__all__ = ["display_run", "display_sld", "render_run_html", "render_sld_html", "render_study_html"]

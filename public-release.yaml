@@ -86,6 +86,11 @@ export:
     - src/cept/public.py
     - src/cept/public_cli.py
     - src/cept/public_notebook.py
+    - src/cept/reporting/__init__.py
+    - src/cept/reporting/sld.py
+    - src/cept/reporting/sld_plan.py
+    - src/cept/reporting/sld_runtime.py
+    - src/cept/reporting/sld_svg.py
     - src/cept/application/__init__.py
     - src/cept/application/readiness.py
     - src/cept/application/run_identity.py
