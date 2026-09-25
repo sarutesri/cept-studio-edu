@@ -150,7 +150,7 @@ def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
         '<div class="cept-sld-help">Hover a bus, branch, or device for its solver-backed identity.</div>'
         f'<div class="cept-sld-viewport" role="img" aria-label="{_esc(sld.title)}">{svg}</div>'
         '<div class="cept-sld-legend"><span>━ Busbar</span><span>⊞ External grid</span>'
-        '<span>◎ Transformer</span><span>▼ Load</span></div>'
+        '<span>◎ Transformer</span><span>o—o Closed switch</span><span>▼ Load</span></div>'
         f'<div class="cept-sld-cap">{buses} buses · {branches} branches · canonical CEPT geometry</div>'
         "</div>"
     )

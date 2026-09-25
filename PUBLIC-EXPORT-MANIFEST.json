@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "4dcf2251446287d283228b62c1810a03b51a8e71",
+  "canonical_source_commit": "ad53ebf46f2973f964f1e1f8833f2027129a1aa7",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -149,22 +149,22 @@
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "646ca41608b5935e331a4a14d5abf76cc9ce88bff48ac476a2bcb218245cfd4d"
+      "sha256": "855ded0136ff640b0474f942be6c7365e50e0d8078284ce00784417e5a550b46"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "02d31398fdad3a36bcf41259751ec92be97c485526767df576408672fc922ef6"
+      "sha256": "dede7f69c70fddcd3b77b7f6cd7e69f7d6e02f8828709f02737e72c29863162f"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "a74604e2aba7562958e3546e5db04294e6e2c2bb1513922305ade404b9325da9"
+      "sha256": "5c0be4154e28d624bba0858568e13f209af99bbecf1f48536d63aec9e6ab2158"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "b6db6429c3482a48e3455464455fa7f2a5a88d3b2f458fbeb9b7d6d8c40edc58"
+      "sha256": "a6e58bf063e600e4349324753cedb47c3891986ce54fbc576ed992529204064a"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
@@ -434,7 +434,7 @@
     {
       "path": "src/cept/public_notebook.py",
       "source": "src/cept/public_notebook.py",
-      "sha256": "507f79775a0324668698050720d23ef89fc5f14103d62473fa7d0dc465960dd3"
+      "sha256": "ea198993a1f786cb690a18c323ae11b0a938664655f304d075d3038ffa745ff1"
     },
     {
       "path": "src/cept/reporting/__init__.py",
