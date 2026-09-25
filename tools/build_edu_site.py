@@ -479,15 +479,20 @@ def _lesson_navigation(current_stem: str) -> str:
         )
 
     return f"""
-<nav class="lesson-toc" aria-labelledby="lesson-toc-heading">
-  <div class="lesson-toc-heading">
-    <div><div class="eyebrow">THE COURSE</div><h2 id="lesson-toc-heading">All lessons</h2></div>
-    <a href="../index.html">Back to index</a>
-  </div>
-  <p class="lesson-toc-note">Follow the sequence or jump to the question you want to explore.</p>
-  <ol class="lesson-toc-list">{"".join(toc_items)}</ol>
-</nav>
-<nav class="lesson-pagination" aria-label="Lesson pagination">{"".join(pagination_items)}</nav>
+<div class="lesson-sidebar">
+  <details class="lesson-nav-disclosure" open>
+    <summary><span>Lesson contents</span><small>7 lessons</small></summary>
+    <nav class="lesson-toc" aria-labelledby="lesson-toc-heading">
+      <div class="lesson-toc-heading">
+        <div><div class="eyebrow">THE COURSE</div><h2 id="lesson-toc-heading">All lessons</h2></div>
+        <a href="../index.html">Back to index</a>
+      </div>
+      <p class="lesson-toc-note">Follow the sequence or jump to the question you want to explore.</p>
+      <ol class="lesson-toc-list">{"".join(toc_items)}</ol>
+    </nav>
+  </details>
+  <nav class="lesson-pagination" aria-label="Lesson pagination">{"".join(pagination_items)}</nav>
+</div>
 """
 
 
@@ -512,33 +517,37 @@ def _lesson_page(
     body = f'''
 {_header(home_href="../index.html", label=lesson_label)}
 <main id="content" class="shell lesson-page">
-  <div class="lesson-kicker">LESSON {html.escape(lesson["number"])}</div>
-  <div class="lesson-heading">
-    <div>
-      <h1>{html.escape(lesson["title_en"])}</h1>
-    </div>
-    <div class="lesson-actions" aria-label="Lesson links">
-      <a class="button button-primary" href="{html.escape(colab_url, quote=True)}">Run in Colab</a>
-      <a class="button button-secondary" href="{html.escape(read_url, quote=True)}">Read notebook source</a>
-    </div>
-  </div>
-  <p class="lead">{html.escape(lesson["summary_en"])}</p>
-  <div class="lesson-meta">
-    <span>{code_count} code cell(s)</span>
-    <span>{html.escape(status)}</span>
-  </div>
-  {lesson_navigation}
-  {_disclosure(revision, manifest_hash)}
-  <section class="notebook" aria-labelledby="notebook-heading">
-    <div class="section-heading">
-      <div>
-        <div class="eyebrow">NOTEBOOK RENDER</div>
-        <h2 id="notebook-heading">Read the lesson</h2>
+  <div class="lesson-layout">
+    {lesson_navigation}
+    <div class="lesson-main">
+      <div class="lesson-kicker">LESSON {html.escape(lesson["number"])}</div>
+      <div class="lesson-heading">
+        <div>
+          <h1>{html.escape(lesson["title_en"])}</h1>
+        </div>
+        <div class="lesson-actions" aria-label="Lesson links">
+          <a class="button button-primary" href="{html.escape(colab_url, quote=True)}">Run in Colab</a>
+          <a class="button button-secondary" href="{html.escape(read_url, quote=True)}">Read notebook source</a>
+        </div>
       </div>
-      <p class="section-note">Read the lesson, then run it in Colab to generate solver-backed results.</p>
+      <p class="lead">{html.escape(lesson["summary_en"])}</p>
+      <div class="lesson-meta">
+        <span>{code_count} code cell(s)</span>
+        <span>{html.escape(status)}</span>
+      </div>
+      {_disclosure(revision, manifest_hash)}
+      <section class="notebook" aria-labelledby="notebook-heading">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">NOTEBOOK RENDER</div>
+            <h2 id="notebook-heading">Read the lesson</h2>
+          </div>
+          <p class="section-note">Read the lesson, then run it in Colab to generate solver-backed results.</p>
+        </div>
+        {notebook_html}
+      </section>
     </div>
-    {notebook_html}
-  </section>
+  </div>
 </main>
 <footer class="site-footer"><div class="shell"><span>CEPT Education</span><span>Workflow evidence is not project validation.</span></div></footer>
 '''
