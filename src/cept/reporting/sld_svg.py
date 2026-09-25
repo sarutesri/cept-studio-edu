@@ -630,6 +630,9 @@ def render_native_sld_svg(
         text = str(node.get("label_v") or "")
         if text and node.get("label_default_visible", True):
             position = str((node.get("label") or {}).get("position") or "top")
+            label_style = node.get("label") if isinstance(node.get("label"), dict) else {}
+            label_color = html.escape(str(label_style.get("color") or "#172433"))
+            font_weight = html.escape(str(label_style.get("fontWeight") or 600))
             offset_x, offset_y = _label_offset(node)
             x += offset_x
             y += offset_y
@@ -654,7 +657,7 @@ def render_native_sld_svg(
                 for index, line in enumerate(lines_list)
             )
             labels.append(
-                f'<text class="sld-bus-label" x="{lx:.2f}" y="{ly:.2f}" text-anchor="{anchor}" font-family="system-ui,sans-serif" font-size="{font_size:.2f}" font-weight="600" fill="#172433">{tspans}</text>'
+                f'<text class="sld-bus-label" x="{lx:.2f}" y="{ly:.2f}" text-anchor="{anchor}" font-family="system-ui,sans-serif" font-size="{font_size:.2f}" font-weight="{font_weight}" fill="{label_color}">{tspans}</text>'
             )
 
     junctions: list[str] = []
