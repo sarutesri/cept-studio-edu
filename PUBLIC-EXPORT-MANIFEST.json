@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "0fbdd87ba57ecb1ccd9ca017ecbaff252d667ee7",
+  "canonical_source_commit": "24b71ecd59079e3286f2478aeeaf676e3ddca79d",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -149,22 +149,22 @@
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "766391b54c27b58749e28ab0f431ea3275331e8eff9cc241297e642d02d6688f"
+      "sha256": "7d6b808b36f592feaad4a9e7f224a3f49d1c991e466939588f0cd7bf854fff4f"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "be0c723038b64bd416e3754942571dacf38e8a54664f013745e88517a73cbd35"
+      "sha256": "dd8da41e0d2afaed176a5694be5344145df06050630910747bc12ca8b4bd2354"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "b83ec305c44870f51d6c5542e43ff33477a87593c68546f3558464610bbd68d8"
+      "sha256": "fe19aec55aedcf1e3ee4408e5fe3f971807aa792ae3da92198017b32e80f651b"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "9731ec9f99f7543bdc3d0b2e78f1e388e33a23c0bbc4253b7588029293fbd9ae"
+      "sha256": "b85ee883a803de746f9c294569539c0ced1919c049f2ca2af8a524fe1e3c20bb"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
@@ -434,7 +434,7 @@
     {
       "path": "src/cept/public_notebook.py",
       "source": "src/cept/public_notebook.py",
-      "sha256": "62461a844d75eb085f54f75e408bbf806e61aed83456f7901539ea3e114adc01"
+      "sha256": "5d7023ff5f1b753ebd687bb85bd35f0f3d9fa4ebd56a05dbcfd2ce09868b4245"
     },
     {
       "path": "src/cept/reporting/__init__.py",
@@ -459,7 +459,7 @@
     {
       "path": "src/cept/reporting/sld_svg.py",
       "source": "src/cept/reporting/sld_svg.py",
-      "sha256": "1e5b2cad03cd39e72c7d9cb4c0d3ec202b48c903f762a416f8db86a0591349f2"
+      "sha256": "3cfc9eb6c06ae5fdf7246bf9b0c7ce6f299140f7f818415574583eb5871f2c74"
     },
     {
       "path": "src/cept/schema/__init__.py",

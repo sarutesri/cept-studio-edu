@@ -636,7 +636,7 @@ def render_native_sld_svg(
             offset_x, offset_y = _label_offset(node)
             x += offset_x
             y += offset_y
-            font_size = 11.5 * text_scale
+            font_size = float(label_style.get("fontSize") or 11.5) * text_scale
             line_height = font_size * 1.15
             lines_list = html.escape(text).split("\n")
             num_lines = len(lines_list)

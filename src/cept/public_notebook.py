@@ -79,7 +79,7 @@ def _phase_text(node: SLDNode, phase: int) -> str:
 
 _SLD_STYLE = """<style>
 .cept-sld-wrap{border:1px solid #d9dee8;border-radius:10px;padding:8px;background:#fff;overflow:hidden}
-.cept-sld-viewport{height:520px;min-height:340px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto;scrollbar-gutter:stable}
+.cept-sld-viewport{height:640px;min-height:440px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto;scrollbar-gutter:stable}
 .cept-sld-svg{display:block;width:100%;height:100%;background:#fff}
 .cept-sld-svg .sld-busbar,.cept-sld-svg .sld-branch,.cept-sld-svg .sld-terminal-stem,.cept-sld-svg .sld-symbol-shape *{vector-effect:non-scaling-stroke}
 .cept-sld-svg .sld-busbar:hover{fill:#0b5cad;cursor:pointer;filter:drop-shadow(0 0 2px rgba(11,92,173,.4))}
@@ -95,7 +95,8 @@ _SLD_STYLE = """<style>
 .cept-status.ok{background:#e8f5ec;color:#235d37}.cept-status.under{background:#fff3d9;color:#794d00}
 .cept-status.over{background:#ffe7e1;color:#8b3020}.cept-status.out{background:#f7e7ff;color:#62327f}.cept-status.nodata{background:#eef1f5;color:#596579}
 .cept-bus-table tr.event-row{background:#fff7ed}.cept-bus-table tr.event-row th{color:#b91c1c}.event-value{color:#b91c1c;font-weight:800}.cept-event-label{display:block;margin-top:3px;color:#b91c1c;font-size:.7rem;font-weight:800;text-transform:uppercase}
-@media (max-width:600px){.cept-sld-viewport{height:420px;min-height:420px}.cept-sld-wrap--wide .cept-sld-svg{width:760px;max-width:none;height:420px}.cept-sld-wrap--dense .cept-sld-svg{width:1040px;max-width:none;height:520px}}
+.cept-sld-plot{margin-top:12px;border:1px solid #d9dee8;border-radius:8px;padding:10px;background:#fff}.cept-sld-plot h4{margin:0 0 6px;color:#334155;font-size:.9rem}.cept-sld-plot svg{border:1px solid #eef0f4;border-radius:5px}.cept-plot-legend{display:flex;gap:14px;flex-wrap:wrap;padding:6px 2px 0;color:#64748b;font-size:11px}.cept-plot-legend span{display:inline-flex;align-items:center;gap:5px}.cept-plot-legend i{display:inline-block;width:12px;height:3px;border-radius:2px}
+@media (max-width:600px){.cept-sld-viewport{height:520px;min-height:520px}.cept-sld-wrap--wide .cept-sld-svg{width:760px;max-width:none;height:520px}.cept-sld-wrap--dense .cept-sld-svg{width:1040px;max-width:none;height:520px}}
 </style>"""
 
 
@@ -111,6 +112,12 @@ def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
         if not str(node.get("name") or "").startswith("__event_")
     ]
     nodes = graph["nodes"]
+    for node in graph["nodes"]:
+        if node.get("category") != "bus":
+            continue
+        label = dict(node.get("label") or {})
+        label["fontSize"] = 16.5
+        node["label"] = label
     event_bus_ids = {str(node.id).lower() for node in sld.nodes if node.event is not None}
     for node in graph["nodes"]:
         if node.get("category") != "bus" or str(node.get("name", "")).lower() not in event_bus_ids:
@@ -185,6 +192,133 @@ def _bus_table(sld: SLDModel) -> str:
     )
 
 
+def _plot_svg(
+    title: str,
+    labels: Sequence[str],
+    series: Sequence[tuple[str, Sequence[float], str]],
+    *,
+    y_min: float,
+    y_max: float,
+    y_label: str,
+    reference_lines: Sequence[tuple[float, str, str]] = (),
+    bars: bool = False,
+) -> str:
+    if not labels or not series:
+        return ""
+    width, height = 900.0, 250.0
+    left, right, top, bottom = 64.0, 22.0, 30.0, 46.0
+    plot_w, plot_h = width - left - right, height - top - bottom
+    span = max(y_max - y_min, 1e-6)
+    x_step = plot_w / max(len(labels) - 1, 1)
+
+    def x(index: int) -> float:
+        return left + (index * x_step if len(labels) > 1 else plot_w / 2)
+
+    def y(value: float) -> float:
+        return top + (y_max - float(value)) / span * plot_h
+
+    parts = [
+        f'<div class="cept-sld-plot"><h4>{_esc(title)}</h4>',
+        f'<svg viewBox="0 0 {width:.0f} {height:.0f}" role="img" aria-label="{_esc(title)}" style="width:100%;height:auto;display:block">',
+    ]
+    for index in range(5):
+        value = y_min + span * index / 4
+        yy = y(value)
+        parts.append(f'<line x1="{left:.1f}" y1="{yy:.1f}" x2="{width-right:.1f}" y2="{yy:.1f}" stroke="#e5e7eb" stroke-width="1"/>')
+        parts.append(f'<text x="{left-8:.1f}" y="{yy+4:.1f}" text-anchor="end" font-size="11" fill="#64748b">{value:.3f}</text>')
+    parts.append(f'<line x1="{left:.1f}" y1="{top:.1f}" x2="{left:.1f}" y2="{height-bottom:.1f}" stroke="#64748b" stroke-width="1.2"/>')
+    parts.append(f'<line x1="{left:.1f}" y1="{height-bottom:.1f}" x2="{width-right:.1f}" y2="{height-bottom:.1f}" stroke="#64748b" stroke-width="1.2"/>')
+    label_step = max(1, math.ceil(len(labels) / 12))
+    for index, label in enumerate(labels):
+        if index % label_step and index != len(labels) - 1:
+            continue
+        parts.append(f'<text x="{x(index):.1f}" y="{height-bottom+18:.1f}" text-anchor="middle" font-size="10" fill="#475569">{_esc(label)}</text>')
+    for value, label, color in reference_lines:
+        yy = y(value)
+        parts.append(f'<line x1="{left:.1f}" y1="{yy:.1f}" x2="{width-right:.1f}" y2="{yy:.1f}" stroke="{color}" stroke-dasharray="5 4" stroke-width="1.2"/>')
+        parts.append(f'<text x="{width-right-4:.1f}" y="{yy-4:.1f}" text-anchor="end" font-size="10" fill="{color}">{_esc(label)}</text>')
+    for name, values, color in series:
+        if bars:
+            bar_w = plot_w / max(len(labels), 1) * 0.62
+            for index, value in enumerate(values):
+                yy = y(value)
+                base = y(y_min)
+                parts.append(f'<rect x="{x(index)-bar_w/2:.1f}" y="{min(yy,base):.1f}" width="{bar_w:.1f}" height="{abs(base-yy):.1f}" fill="{color}" opacity="0.86"><title>{_esc(name)}: {float(value):.3f}</title></rect>')
+        else:
+            points = " ".join(f"{x(index):.1f},{y(value):.1f}" for index, value in enumerate(values))
+            parts.append(f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="2.5" vector-effect="non-scaling-stroke"><title>{_esc(name)}</title></polyline>')
+    parts.append(f'<text x="14" y="{top+plot_h/2:.1f}" transform="rotate(-90 14 {top+plot_h/2:.1f})" text-anchor="middle" font-size="11" fill="#64748b">{_esc(y_label)}</text>')
+    legend = "".join(f'<span><i style="background:{color}"></i>{_esc(name)}</span>' for name, _values, color in series)
+    parts.append(f'</svg><div class="cept-plot-legend">{legend}</div></div>')
+    return "".join(parts)
+
+
+def _study_plot_svg(study: StudyResult) -> str:
+    if study.load_flow is not None and study.load_flow.bus_voltages:
+        bus_order: list[str] = []
+        for row in study.load_flow.bus_voltages:
+            if row.bus not in bus_order:
+                bus_order.append(row.bus)
+        phase_maps = {
+            phase: {row.bus: row.v_pu for row in study.load_flow.bus_voltages if row.phase == phase}
+            for phase in (1, 2, 3)
+        }
+        complete = [
+            (phase, values)
+            for phase, values in phase_maps.items()
+            if all(bus in values for bus in bus_order)
+        ]
+        if complete:
+            series = [
+                (f"Phase {phase}", [values[bus] for bus in bus_order], color)
+                for (phase, values), color in zip(complete, ("#2563eb", "#16a34a", "#9333ea"))
+            ]
+        else:
+            means = [
+                sum(phase_maps[phase].get(bus, 0.0) for phase in (1, 2, 3) if bus in phase_maps[phase])
+                / sum(bus in phase_maps[phase] for phase in (1, 2, 3))
+                for bus in bus_order
+            ]
+            series = [("Mean voltage", means, "#334155")]
+        all_values = [value for _name, values, _color in series for value in values]
+        low_limit = study.sld.v_min_pu if study.sld is not None else 0.95
+        return _plot_svg(
+            "Voltage profile by phase",
+            bus_order,
+            tuple(series),
+            y_min=min(all_values + [low_limit]) - 0.01,
+            y_max=max(all_values + [1.05]) + 0.01,
+            y_label="Voltage (pu)",
+            reference_lines=((low_limit, f"{low_limit:.2f} pu limit", "#dc2626"),),
+        )
+    if study.hosting_capacity is not None and study.hosting_capacity.items:
+        items = study.hosting_capacity.items
+        labels = [item.bus for item in items]
+        values = [item.hc_kw for item in items]
+        return _plot_svg(
+            "PV hosting capacity by bus",
+            labels,
+            (("Hosting capacity", values, "#0f766e"),),
+            y_min=0,
+            y_max=max(values + [study.hosting_capacity.max_search_kw]) * 1.1,
+            y_label="Hosting capacity (kW)",
+            bars=True,
+        )
+    if study.fault is not None and study.fault.currents:
+        labels = [f"Phase {row.phase}" for row in study.fault.currents]
+        values = [row.i_amp for row in study.fault.currents]
+        return _plot_svg(
+            "Fault current by phase",
+            labels,
+            (("Fault current", values, "#dc2626"),),
+            y_min=0,
+            y_max=max(values) * 1.15,
+            y_label="Current (A)",
+            bars=True,
+        )
+    return ""
+
+
 def _downsample_xy(xs: Sequence[float], ys: Sequence[float], limit: int = 1200) -> tuple[list[float], list[float]]:
     n = min(len(xs), len(ys))
     if n <= limit:
@@ -207,6 +341,8 @@ def _line_chart_svg(
     for label, raw_x, raw_y in series:
         pairs = [
             (float(x), float(y))
+
+
             for x, y in zip(raw_x, raw_y)
             if _finite(x) is not None and _finite(y) is not None
         ]
@@ -453,7 +589,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
     sld_sections: list[str] = []
     views = _sld_views(study)
     for index, (label, sld) in enumerate(views):
-        body = _sld_svg(sld, dom_id=f"cept-sld-{index}") + _bus_table(sld)
+        body = _sld_svg(sld, dom_id=f"cept-sld-{index}") + _bus_table(sld) + _study_plot_svg(study)
         if len(views) == 1:
             sld_sections.append(body)
         else:
@@ -496,7 +632,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .cept-section h3{font-size:1.05rem;margin:0 0 3px}
 .cept-section-note,.cept-threshold-note,.cept-sld-help{font-size:.82rem;color:#657187;margin:0 0 9px}
 .cept-sld-wrap{border:1px solid #d9dee8;border-radius:10px;padding:8px;background:#fff;overflow:hidden}
-.cept-sld-viewport{height:520px;min-height:340px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto;scrollbar-gutter:stable}
+.cept-sld-viewport{height:640px;min-height:440px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto;scrollbar-gutter:stable}
 .cept-sld-svg{display:block;width:100%;height:100%;background:#fff}
 .cept-sld-svg .sld-busbar,.cept-sld-svg .sld-branch,.cept-sld-svg .sld-terminal-stem,.cept-sld-svg .sld-symbol-shape *{vector-effect:non-scaling-stroke}
 .cept-sld-svg .sld-busbar:hover{fill:#0b5cad;cursor:pointer;filter:drop-shadow(0 0 2px rgba(11,92,173,.4))}
@@ -512,6 +648,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .cept-status.ok{background:#e8f5ec;color:#235d37}.cept-status.under{background:#fff3d9;color:#794d00}
 .cept-status.over{background:#ffe7e1;color:#8b3020}.cept-status.out{background:#f7e7ff;color:#62327f}.cept-status.nodata{background:#eef1f5;color:#596579}
 .cept-bus-table tr.event-row{background:#fff7ed}.cept-bus-table tr.event-row th{color:#b91c1c}.event-value{color:#b91c1c;font-weight:800}.cept-event-label{display:block;margin-top:3px;color:#b91c1c;font-size:.7rem;font-weight:800;text-transform:uppercase}
+.cept-sld-plot{margin-top:12px;border:1px solid #d9dee8;border-radius:8px;padding:10px;background:#fff}.cept-sld-plot h4{margin:0 0 6px;color:#334155;font-size:.9rem}.cept-sld-plot svg{border:1px solid #eef0f4;border-radius:5px}.cept-plot-legend{display:flex;gap:14px;flex-wrap:wrap;padding:6px 2px 0;color:#64748b;font-size:11px}.cept-plot-legend span{display:inline-flex;align-items:center;gap:5px}.cept-plot-legend i{display:inline-block;width:12px;height:3px;border-radius:2px}
 .cept-snapshot{border:1px solid #d9dee8;border-radius:10px;margin:10px 0;background:#fbfcfe}
 .cept-snapshot>summary{cursor:pointer;padding:10px 12px;font-weight:750}.cept-snapshot[open]>summary{border-bottom:1px solid #d9dee8}
 .cept-snapshot>.cept-sld-wrap,.cept-snapshot>.cept-table-scroll,.cept-snapshot>.cept-threshold-note{margin-left:10px;margin-right:10px}.cept-snapshot>.cept-threshold-note{margin-bottom:12px}
@@ -526,7 +663,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .series-3{stroke:#7b5bb5;fill:#7b5bb5}.series-4{stroke:#b34d65;fill:#b34d65}.series-5{stroke:#55737f;fill:#55737f}
 .cept-legend{display:flex;gap:9px 14px;flex-wrap:wrap;font-size:.74rem;color:#566277;padding:2px 4px 3px}.cept-legend-item{display:inline-flex;align-items:center;gap:5px}.cept-legend-swatch{width:14px;height:3px;border-radius:3px}
 .cept-empty{border:1px dashed #cbd2dd;border-radius:9px;padding:12px;color:#657187;background:#fafbfd}
-@media (max-width:600px){.cept-nb{font-size:15px}.cept-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.cept-sld-viewport{height:420px;min-height:420px}.cept-sld-wrap--wide .cept-sld-svg{width:760px;max-width:none;height:420px}.cept-sld-wrap--dense .cept-sld-svg{width:1040px;max-width:none;height:520px}.cept-charts{grid-template-columns:1fr}}
+@media (max-width:600px){.cept-nb{font-size:15px}.cept-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.cept-sld-viewport{height:520px;min-height:520px}.cept-sld-wrap--wide .cept-sld-svg{width:760px;max-width:none;height:520px}.cept-sld-wrap--dense .cept-sld-svg{width:1040px;max-width:none;height:520px}.cept-charts{grid-template-columns:1fr}}
 </style>
 """
 
@@ -568,7 +705,7 @@ def render_sld_html(study: StudyResult, *, dom_id: str = "cept-sld") -> str:
     if not views:
         return '<div class="cept-empty">This result does not carry an SLD.</div>'
     _label, sld = views[0]
-    return _SLD_STYLE + _sld_svg(sld, dom_id=dom_id) + _bus_table(sld)
+    return _SLD_STYLE + _sld_svg(sld, dom_id=dom_id) + _bus_table(sld) + _study_plot_svg(study)
 
 
 def display_sld(run_dir: str | Path) -> None:
