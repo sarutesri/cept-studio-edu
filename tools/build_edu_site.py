@@ -372,6 +372,9 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str) 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{html.escape(description, quote=True)}">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>{html.escape(title)} | CEPT Education</title>
   <link rel="stylesheet" href="{stylesheet}">
 </head>
