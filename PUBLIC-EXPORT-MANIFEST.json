@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "2a1f21857739c298954ba88d5e079af63af9cfe6",
+  "canonical_source_commit": "aad3d05f82ec672fb41dc8bbd5f5f6b9ec322115",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -144,7 +144,7 @@
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "fc872f77fb00e75a8e937583400ab855fd181d0aaf26a74f8d86e43915df0b82"
+      "sha256": "4dde15813a751793bc1de339efae08b5cd5c9b64611641b7ff307f2982f1f65d"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
@@ -179,7 +179,7 @@
     {
       "path": "public/notebooks/_lesson.py",
       "source": "public/notebooks/_lesson.py",
-      "sha256": "5ba3f618cbcf0c589ce2fbfccb2a09cc5c193dd08ec336bcdb224822d496864c"
+      "sha256": "9189e530fbad97e28f33d29fdb74d9f970a4f0dd376431cd42d84753849d27c9"
     },
     {
       "path": "public/site/education.css",

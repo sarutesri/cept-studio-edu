@@ -369,10 +369,8 @@ def display_run_compat(run_dir):
         def phase(p):
             return "—" if p not in volts else f"{volts[p]:.4f} pu" + (f" @ {angles[p]:.2f}°" if p in angles else "")
 
-        tip = _html.escape("Bus " + str(node["id"]) + "
-Status: " + status + "
-" + "
-".join(f"{label}: {phase(p)}" for p, label in [(1, "A"), (2, "B"), (3, "C")] if p in volts))
+        phases_tip = "\n".join(f"{label}: {phase(p)}" for p, label in [(1, "A"), (2, "B"), (3, "C")] if p in volts)
+        tip = _html.escape(f"Bus {node['id']}\nStatus: {status}\n{phases_tip}")
         label = _html.escape(str(node["id"]).upper())
         bw, bh = 66, 24
         svg_parts.append(f'<g tabindex="0"><title>{tip}</title><rect x="{x-bw/2:.1f}" y="{y-bh/2:.1f}" width="{bw}" height="{bh}" rx="5" fill="{fill}" stroke="{stroke}" stroke-width="2.2"/><text x="{x:.1f}" y="{y+4:.1f}" text-anchor="middle" font-size="12" font-weight="750" fill="#0f172a">{label}</text></g>')
