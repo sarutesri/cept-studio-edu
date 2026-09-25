@@ -94,7 +94,7 @@ _SLD_STYLE = """<style>
 .cept-status{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800}
 .cept-status.ok{background:#e8f5ec;color:#235d37}.cept-status.under{background:#fff3d9;color:#794d00}
 .cept-status.over{background:#ffe7e1;color:#8b3020}.cept-status.out{background:#f7e7ff;color:#62327f}.cept-status.nodata{background:#eef1f5;color:#596579}
-.cept-bus-table tr.event-row{background:#fff7ed}.cept-bus-table tr.event-row th{color:#b91c1c}.event-value{color:#b91c1c;font-weight:800}.cept-event-label{display:block;margin-top:3px;color:#b91c1c;font-size:.7rem;font-weight:800;text-transform:uppercase}
+.cept-event-mark{color:#0f766e;font-weight:800;margin-left:3px}.voltage-value-bad{color:#dc2626;font-weight:800}
 .cept-sld-plot{margin-top:12px;border:1px solid #d9dee8;border-radius:8px;padding:10px;background:#fff}.cept-sld-plot h4{margin:0 0 6px;color:#334155;font-size:.9rem}.cept-sld-plot svg{border:1px solid #eef0f4;border-radius:5px}.cept-plot-legend{display:flex;gap:14px;flex-wrap:wrap;padding:6px 2px 0;color:#64748b;font-size:11px}.cept-plot-legend span{display:inline-flex;align-items:center;gap:5px}.cept-plot-legend i{display:inline-block;width:12px;height:3px;border-radius:2px}
 @media (max-width:600px){.cept-sld-viewport{height:520px;min-height:520px}.cept-sld-wrap--wide .cept-sld-svg{width:760px;max-width:none;height:520px}.cept-sld-wrap--dense .cept-sld-svg{width:1040px;max-width:none;height:520px}}
 </style>"""
@@ -112,22 +112,28 @@ def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
         if not str(node.get("name") or "").startswith("__event_")
     ]
     nodes = graph["nodes"]
+    status_by_bus = {str(node.id).lower(): _status(node, sld) for node in sld.nodes}
+    event_bus_ids = {str(node.id).lower() for node in sld.nodes if node.event is not None}
     for node in graph["nodes"]:
         if node.get("category") != "bus":
             continue
+        node_id = str(node.get("name", "")).lower()
         label = dict(node.get("label") or {})
         label["fontSize"] = 16.5
-        node["label"] = label
-    event_bus_ids = {str(node.id).lower() for node in sld.nodes if node.event is not None}
-    for node in graph["nodes"]:
-        if node.get("category") != "bus" or str(node.get("name", "")).lower() not in event_bus_ids:
-            continue
-        style = dict(node.get("itemStyle") or {})
-        style["color"] = "#dc2626"
-        node["itemStyle"] = style
-        label = dict(node.get("label") or {})
-        label["color"] = "#b91c1c"
-        label["fontWeight"] = 800
+        if node_id in event_bus_ids:
+            label_text = str(node.get("label_v") or "")
+            if "\n" in label_text:
+                bus_name, voltage = label_text.split("\n", 1)
+                node["label_v"] = f"{bus_name} !\n{voltage}"
+            else:
+                node["label_v"] = f"{label_text} !"
+            label["fontWeight"] = 700
+        if status_by_bus.get(node_id) in {"UNDER", "OVER", "OUT"}:
+            style = dict(node.get("itemStyle") or {})
+            style["color"] = "#dc2626"
+            node["itemStyle"] = style
+            label["color"] = "#b91c1c"
+            label["fontWeight"] = 800
         node["label"] = label
     if not nodes:
         return '<div class="cept-empty">No SLD geometry is available for this result.</div>'
@@ -159,19 +165,18 @@ def _bus_table(sld: SLDModel) -> str:
         status = _status(node, sld)
         css = _status_class(status)
         event = node.event
-        row_class = ' class="event-row"' if event is not None else ""
         event_note = (
-            f'<span class="cept-event-label">Event: {_esc(event.label or event.kind)}</span>'
+            f'<span class="cept-event-mark" title="{_esc(event.label or event.kind)}">!</span>'
             if event is not None
             else ""
         )
 
         def cell(phase: int) -> str:
             value = _esc(_phase_text(node, phase))
-            return f'<strong class="event-value">{value}</strong>' if event is not None else value
+            return f'<strong class="voltage-value-bad">{value}</strong>' if status in {"UNDER", "OVER", "OUT"} else value
 
         rows.append(
-            f"<tr{row_class}>"
+            "<tr>"
             f"<th scope=\"row\">{_esc(node.id)}{event_note}</th>"
             f"<td>{cell(1)}</td>"
             f"<td>{cell(2)}</td>"
@@ -647,7 +652,7 @@ def render_study_html(study: StudyResult, *, verification: dict | None = None) -
 .cept-status{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.72rem;font-weight:800}
 .cept-status.ok{background:#e8f5ec;color:#235d37}.cept-status.under{background:#fff3d9;color:#794d00}
 .cept-status.over{background:#ffe7e1;color:#8b3020}.cept-status.out{background:#f7e7ff;color:#62327f}.cept-status.nodata{background:#eef1f5;color:#596579}
-.cept-bus-table tr.event-row{background:#fff7ed}.cept-bus-table tr.event-row th{color:#b91c1c}.event-value{color:#b91c1c;font-weight:800}.cept-event-label{display:block;margin-top:3px;color:#b91c1c;font-size:.7rem;font-weight:800;text-transform:uppercase}
+.cept-event-mark{color:#0f766e;font-weight:800;margin-left:3px}.voltage-value-bad{color:#dc2626;font-weight:800}
 .cept-sld-plot{margin-top:12px;border:1px solid #d9dee8;border-radius:8px;padding:10px;background:#fff}.cept-sld-plot h4{margin:0 0 6px;color:#334155;font-size:.9rem}.cept-sld-plot svg{border:1px solid #eef0f4;border-radius:5px}.cept-plot-legend{display:flex;gap:14px;flex-wrap:wrap;padding:6px 2px 0;color:#64748b;font-size:11px}.cept-plot-legend span{display:inline-flex;align-items:center;gap:5px}.cept-plot-legend i{display:inline-block;width:12px;height:3px;border-radius:2px}
 .cept-snapshot{border:1px solid #d9dee8;border-radius:10px;margin:10px 0;background:#fbfcfe}
 .cept-snapshot>summary{cursor:pointer;padding:10px 12px;font-weight:750}.cept-snapshot[open]>summary{border-bottom:1px solid #d9dee8}
