@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "bdcec7670487d4776203f40c18e29bb182469f9c",
+  "canonical_source_commit": "3fdac52354406b517479e759b60060359d6aa02a",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -159,12 +159,12 @@
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "6a53948a1b27a317878166d06bae838f87df178cf46171caf92cfec74548d9ff"
+      "sha256": "8fc23bad58cd08c5fe9bc465154f387fefb1997f7cda7d78eff691f66957f53a"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "fa235047a16dd9cb1787cecc43c50a4b421548e7dfe95181f8de05a48606219b"
+      "sha256": "64dd55c79a69e6d2d7d81cec7906719623776506086cfe35df66b2d7f133f691"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
@@ -434,7 +434,7 @@
     {
       "path": "src/cept/public_notebook.py",
       "source": "src/cept/public_notebook.py",
-      "sha256": "8186719c186bf7b36dc09219b5782408baa1209739ab74f0b5d32b0bf1b91bd2"
+      "sha256": "cad54a868c1eaa30e7610dbcf4a2af66fcc4de3475d53ccb84759cb6bc7723e2"
     },
     {
       "path": "src/cept/reporting/__init__.py",

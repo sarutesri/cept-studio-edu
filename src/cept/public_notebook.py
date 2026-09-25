@@ -101,8 +101,15 @@ _SLD_STYLE = """<style>
 
 def _sld_svg(sld: SLDModel, *, dom_id: str) -> str:
     """Render the same canonical engineering SLD used by CEPT reports."""
-    graph = build_sld_option_v2(sld)
-    nodes = graph.get("nodes") or []
+    graph = dict(build_sld_option_v2(sld))
+    # Public lesson diagrams show electrical topology only. Solver event
+    # annotations remain in the persisted result and production report, but
+    # must not float as unexplained symbols in a teaching SLD.
+    graph["nodes"] = [
+        node for node in graph.get("nodes") or []
+        if not str(node.get("name") or "").startswith("__event_")
+    ]
+    nodes = graph["nodes"]
     if not nodes:
         return '<div class="cept-empty">No SLD geometry is available for this result.</div>'
     buses = sum(1 for node in nodes if node.get("category") == "bus")
