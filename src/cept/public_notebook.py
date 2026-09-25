@@ -17,6 +17,8 @@ import math
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
+from cept.domain.sld.plan import CanonicalSLDPlan, build_canonical_sld_plan
+from cept.public import verify_study
 from cept.schema.result import DynamicsResult, StudyResult
 from cept.schema.sld import SLDModel, SLDNode
 
@@ -96,12 +98,16 @@ def _bus_tooltip(node: SLDNode, sld: SLDModel) -> str:
     return "\n".join(rows)
 
 
-def _geometry(sld: SLDModel, *, width: float = 1000.0, height: float = 560.0) -> dict[str, tuple[float, float]]:
-    points = [(node.x, node.y) for node in sld.nodes]
-    for edge in sld.edges:
-        points.extend(edge.route_points)
+def _canonical_plan_view(
+    sld: SLDModel, *, width: float, height: float
+) -> tuple[CanonicalSLDPlan, dict[str, tuple[float, float]], dict[str, list[tuple[float, float]]]]:
+    """Project the canonical persisted-SLD plan into the notebook viewport."""
+
+    plan = build_canonical_sld_plan(sld)
+    points = [bus.center.as_tuple() for bus in plan.geometry.buses]
+    points.extend(point.as_tuple() for route in plan.geometry.routes for point in route.points)
     if not points:
-        return {}
+        return plan, {}, {}
 
     xs = [float(point[0]) for point in points]
     ys = [float(point[1]) for point in points]
@@ -113,58 +119,29 @@ def _geometry(sld: SLDModel, *, width: float = 1000.0, height: float = 560.0) ->
     usable_w = width - 2 * pad_x
     usable_h = height - 2 * pad_y
 
-    def scale(x: float, y: float) -> tuple[float, float]:
+    def scale(point: tuple[float, float]) -> tuple[float, float]:
         return (
-            pad_x + (float(x) - x0) / dx * usable_w,
-            pad_y + (float(y) - y0) / dy * usable_h,
+            pad_x + (point[0] - x0) / dx * usable_w,
+            pad_y + (point[1] - y0) / dy * usable_h,
         )
 
-    return {node.id: scale(node.x, node.y) for node in sld.nodes}
-
-
-def _route_points(
-    sld: SLDModel,
-    edge,
-    positions: dict[str, tuple[float, float]],
-    *,
-    width: float = 1000.0,
-    height: float = 560.0,
-) -> list[tuple[float, float]]:
-    if not edge.route_points:
-        start = positions.get(edge.src)
-        end = positions.get(edge.dst)
-        return [point for point in (start, end) if point is not None]
-
-    all_points = [(node.x, node.y) for node in sld.nodes]
-    for item in sld.edges:
-        all_points.extend(item.route_points)
-    xs = [float(point[0]) for point in all_points]
-    ys = [float(point[1]) for point in all_points]
-    x0, x1 = min(xs), max(xs)
-    y0, y1 = min(ys), max(ys)
-    dx = max(x1 - x0, 1.0)
-    dy = max(y1 - y0, 1.0)
-    pad_x, pad_y = 70.0, 55.0
-    usable_w = width - 2 * pad_x
-    usable_h = height - 2 * pad_y
-    return [
-        (
-            pad_x + (float(x) - x0) / dx * usable_w,
-            pad_y + (float(y) - y0) / dy * usable_h,
-        )
-        for x, y in edge.route_points
-    ]
+    positions = {bus.bus_id.lower(): scale(bus.center.as_tuple()) for bus in plan.geometry.buses}
+    routes = {
+        route.edge_id.lower(): [scale(point.as_tuple()) for point in route.points]
+        for route in plan.geometry.routes
+    }
+    return plan, positions, routes
 
 
 def _sld_svg(sld: SLDModel) -> str:
     width, height = 1000.0, 560.0
-    positions = _geometry(sld, width=width, height=height)
+    _plan, positions, routes = _canonical_plan_view(sld, width=width, height=height)
     if not positions:
         return '<div class="cept-empty">No SLD geometry is available for this result.</div>'
 
     edge_parts: list[str] = []
     for edge in sld.edges:
-        points = _route_points(sld, edge, positions, width=width, height=height)
+        points = routes.get(edge.id.lower(), [])
         if len(points) < 2:
             continue
         serialized = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
@@ -182,9 +159,7 @@ def _sld_svg(sld: SLDModel) -> str:
     node_parts: list[str] = []
     dense = len(sld.nodes) >= 13
     for node in sld.nodes:
-        if node.id not in positions:
-            continue
-        x, y = positions[node.id]
+        x, y = positions.get(node.id.lower(), (0.0, 0.0))
         status = _status(node, sld)
         css = _status_class(status)
         label = node.id if len(node.id) <= 14 else node.id[:13] + "…"
@@ -612,12 +587,7 @@ def render_run_html(run_dir: str | Path) -> str:
     payload = json.loads(result_path.read_text(encoding="utf-8"))
     study = StudyResult.model_validate(payload)
 
-    verification = None
-    verification_path = root / "public-verification.json"
-    if verification_path.is_file():
-        candidate = json.loads(verification_path.read_text(encoding="utf-8"))
-        if isinstance(candidate, dict):
-            verification = candidate
+    verification = verify_study(root)
     return render_study_html(study, verification=verification)
 
 

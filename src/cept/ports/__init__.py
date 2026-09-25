@@ -1,9 +1,9 @@
 """Ports and adapters for the CEPT engine boundary (WP11 phase 1).
 
-``cept.ports`` declares the abstractions the domain core depends on; the
-concrete engine adapters live under ``cept.adapters`` and are reachable only
-through :mod:`cept.adapters.registry`.  This package imports nothing outside
-typing/dataclasses/pathlib/``cept.schema`` so the dependency direction stays
+``cept.adapters`` is the lazy engine-wiring facade.  The historical
+``cept.adapters.registry`` module delegates to that facade.  This package
+declares abstractions the domain core depends on and imports nothing outside
+typing/dataclasses/pathlib/``cept.schema``, keeping the dependency direction
 one-way: ports -> schema, adapters -> ports.
 """
 

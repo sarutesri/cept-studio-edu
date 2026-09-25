@@ -57,9 +57,8 @@ class InstalledEngineProbe:
     def opender_info(self) -> dict[str, Any]:
         """OpenDER availability via the adapter's own probe (never raises)."""
         try:
-            from cept.adapters.opender import availability
-
-            return availability()
+            opender = importlib.import_module("cept.adapters.opender")
+            return opender.availability()
         except Exception as exc:
             return {"available": False, "reason": f"probe failure: {type(exc).__name__}: {exc}"}
 

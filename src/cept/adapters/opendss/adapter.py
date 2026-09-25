@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import tempfile
 from typing import Any, Iterable, Optional, cast
+import importlib
 
 from cept.ports.options import RunOptions
 from cept.schema.case import (
@@ -69,11 +70,8 @@ class OpenDSSAdapter:
         from cept.adapters.opendss.experiment import apply_experiment_actions
         from cept.adapters.opendss.fault import run_fault
         from cept.adapters.opendss.hosting_capacity import run_hosting_capacity
-        from cept.adapters.opendss.dynamics import run_dynamics
-        from cept.adapters.opendss.qsts import run_qsts
-        from cept.adapters.opendss.harmonics import run_harmonics
-        from cept.adapters.opendss.protection import run_protection
-        from cept.adapters.opendss.gic import run_gic
+        def optional(name: str):
+            return importlib.import_module(f"cept.adapters.opendss.{name}")
 
         st = case.study.type
         if solver not in {"native", "ybus-nr"}:
@@ -149,7 +147,7 @@ class OpenDSSAdapter:
             for cmd in extra_commands or ():
                 self.dss.Text.Command(cmd)
             if solver == "ybus-nr":
-                from cept.adapters.opendss.ybus_power_flow import solve_ybus_power_flow
+                solve_ybus_power_flow = optional("ybus_power_flow").solve_ybus_power_flow
 
                 load_flow, evidence = solve_ybus_power_flow(self.dss, case)
                 result.load_flow = load_flow
@@ -239,6 +237,7 @@ class OpenDSSAdapter:
             return result
 
         if st in ("dynamics", "dynamics_rms"):
+            run_dynamics = optional("dynamics").run_dynamics
             result.dynamics, result.sld, result.sld_snapshots = run_dynamics(
                 self.dss, case, self._work_dir.name, self._state, extra_commands=extra_commands
             )
@@ -251,7 +250,7 @@ class OpenDSSAdapter:
             initial_solver = self._state.pop("_dynamics_initial_load_flow_solver", None)
             if initial_solver is not None:
                 result.extra["dynamics_initial_load_flow_solver"] = initial_solver
-            from cept.adapters.opendss.dynamics_mapping import dynamic_model_mapping
+            dynamic_model_mapping = optional("dynamics_mapping").dynamic_model_mapping
 
             result.extra["dynamic_model_mapping"] = dynamic_model_mapping(case)
             if self._state.get("_opendss_user_model"):
@@ -276,6 +275,7 @@ class OpenDSSAdapter:
             return result
 
         if st == "qsts":
+            run_qsts = optional("qsts").run_qsts
             result.time_series, result.sld = run_qsts(
                 self.dss, case, self._work_dir.name, self._state, extra_commands=extra_commands
             )
@@ -299,14 +299,17 @@ class OpenDSSAdapter:
             return result
 
         if st == "harmonics":
+            run_harmonics = optional("harmonics").run_harmonics
             result.harmonics, result.sld = run_harmonics(self.dss, case, self._state)
             return result
 
         if st == "protection":
+            run_protection = optional("protection").run_protection
             result.protection, result.sld = run_protection(self.dss, case, self._work_dir.name, self._state)
             return result
 
         if st == "gic":
+            run_gic = optional("gic").run_gic
             result.gic, result.sld = run_gic(self.dss, case, self._state)
             return result
 
@@ -353,7 +356,7 @@ class OpenDSSAdapter:
         """
         from cept.adapters.opendss.der import apply_ders
         from cept.adapters.opendss.network import load_network
-        from cept.adapters.opendss.ybus_power_flow import extract_passive_ybus
+        extract_passive_ybus = importlib.import_module("cept.adapters.opendss.ybus_power_flow").extract_passive_ybus
         import os
 
         inline = case.network.inline

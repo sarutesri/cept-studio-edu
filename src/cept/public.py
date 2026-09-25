@@ -12,11 +12,11 @@ receipt.
 """
 
 from __future__ import annotations
-import hashlib
+
 import importlib.metadata
 import json
 import math
-import os
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -26,6 +26,8 @@ from cept.application.run_identity import artifact_set_digest, assessment_id, ne
 from cept.schema import Case
 from cept.schema.result import StudyResult
 from cept.studies.planning import build_execution_plan, execute_run, execution_plan_summary
+from cept.util import sha256_file, write_json
+
 
 PUBLIC_STUDIES = frozenset({"load_flow", "unbalanced_load_flow", "hosting_capacity", "fault"})
 PUBLIC_BUILTINS = frozenset({"ieee13"})
@@ -36,13 +38,33 @@ PUBLIC_SUPPORT: dict[str, dict[str, str]] = {
     "standalone_linux": {"status": "not_supported_initially"},
 }
 _OWNED_ARTIFACTS = (
+    ".cept-launch-binding.json",
+    ".cept-launch-token",
     "attempt.json",
     "case.json",
-    "results.json",
+    "command_log.txt",
+    "cross_engine_report.json",
+    "cross_engine_report.md",
+    "draft-patch.json",
+    "execution-plan.json",
+    "failure.json",
+    "identity-map.json",
     "manifest.json",
-    "validation_report.json",
+    "model-revision.json",
     "public-verification.json",
+    "report.html",
+    "result-cache-receipt.json",
+    "result-cache-use.json",
+    "results.json",
+    "sld-fidelity.json",
+    "sld_collision.json",
+    "sld-layout.json",
+    "source-identity.json",
+    "validation-record.json",
+    "validation_report.json",
+    "validation_report.md",
 )
+_OWNED_DIRECTORIES = ("dss_export", "opendss", "powerfactory")
 
 class PublicBoundaryError(ValueError):
     """A Case or operation outside the CEPT Public support boundary."""
@@ -264,20 +286,10 @@ def public_version() -> str:
 
 
 def _json_dump(path: Path, payload: Mapping[str, Any]) -> None:
-    temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_text(
-        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-    os.replace(temporary, path)
-
+    write_json(path, payload)
 
 def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return sha256_file(path)
 
 
 def _prepare_run_dir(path: Path, *, force: bool) -> Path:
@@ -288,7 +300,13 @@ def _prepare_run_dir(path: Path, *, force: bool) -> Path:
     if force:
         for name in _OWNED_ARTIFACTS:
             artifact = run_dir / name
-            if artifact.is_file():
+            if artifact.is_file() or artifact.is_symlink():
+                artifact.unlink()
+        for name in _OWNED_DIRECTORIES:
+            artifact = run_dir / name
+            if artifact.is_dir() and not artifact.is_symlink():
+                shutil.rmtree(artifact)
+            elif artifact.exists() or artifact.is_symlink():
                 artifact.unlink()
     return run_dir
 
@@ -315,7 +333,7 @@ def _write_run_artifacts(
             "engine": result.engine,
             "study_type": result.study_type,
             "solver": execution_plan.get("solver"),
-            "run_dir": str(run_dir),
+            "run_dir": ".",
         },
     )
     assessment = assessment_id(
@@ -375,7 +393,7 @@ def _write_run_artifacts(
         for name in ("attempt.json", "case.json", "results.json", "manifest.json", "validation_report.json")
     }
     receipt = dict(verification)
-    receipt["run_dir"] = str(run_dir)
+    receipt["run_dir"] = "."
     receipt["artifact_sha256"] = artifact_hashes
     receipt["artifact_set_digest"] = artifact_set_digest(artifact_hashes)
     _json_dump(run_dir / "public-verification.json", receipt)
@@ -415,43 +433,9 @@ def run_study(
     plan_summary["research_status"] = PUBLIC_CLAIM
 
     run_dir = _prepare_run_dir(Path(out), force=force) if out is not None else None
-    if run_dir is not None:
-        try:
-            execution_module = importlib.import_module("cept.application.execution")
-        except ModuleNotFoundError as exc:
-            if exc.name != "cept.application.execution":
-                raise
-            # The positive public export intentionally omits the private
-            # artifact service. Preserve the public file-backed contract with
-            # its existing bounded writer in that staged edition.
-            result, _adapter = execute_run(plan)
-            attempt_id = new_attempt_id()
-        else:
-            request_type = execution_module.StudyExecutionRequest
-            execution_module.execute_study_to_artifacts(
-                request_type(
-                    case=typed_case,
-                    run_dir=run_dir,
-                    export=False,
-                    include_show_commands=False,
-                    force=force,
-                    strict=False,
-                    argv=["cept", "study", "run", "--public"],
-                    solver=solver,
-                    experiment_context={"claim": PUBLIC_CLAIM},
-                    software_identity=software_identity,
-                    console_output=False,
-                )
-            )
-            result = StudyResult.model_validate(_read_json(run_dir / "results.json"))
-            plan_summary = dict(_read_json(run_dir / "execution-plan.json"))
-            plan_summary["claim_cap"] = PUBLIC_CLAIM
-            plan_summary["research_status"] = PUBLIC_CLAIM
-            attempt_payload = _read_json(run_dir / "attempt.json")
-            attempt_id = str(attempt_payload["attempt_id"])
-    else:
-        result, _adapter = execute_run(plan)
-        attempt_id = new_attempt_id()
+    result, _adapter = execute_run(plan)
+    attempt_id = new_attempt_id()
+
     verification = _verification_record(typed_case, result)
     verification.update(
         {
@@ -598,7 +582,7 @@ def verify_study(run_dir: str | Path) -> dict[str, Any]:
     }
     if isinstance(stored_receipt.get("artifact_set_digest"), str):
         verification["artifact_set_digest"] = stored_receipt["artifact_set_digest"]
-    verification["run_dir"] = str(path)
+    verification["run_dir"] = "."
     return verification
 
 

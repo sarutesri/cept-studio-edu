@@ -4,10 +4,10 @@ Kept dependency-free (stdlib only) so every module in the package can import
 from here without risk of a circular import.
 """
 
-from __future__ import annotations
-
 import hashlib
 import json
+import os
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -23,12 +23,28 @@ def sha256_file(path: str | Path) -> str:
 
 
 def write_json(path: str | Path, payload: Any) -> None:
-    """Write deterministic UTF-8 JSON with one trailing newline."""
-    Path(path).write_text(
-        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    """Atomically write deterministic UTF-8 JSON with one trailing newline."""
 
+    target = Path(path)
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=target.parent,
+            prefix=f".{target.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as temporary:
+            temporary_path = Path(temporary.name)
+            json.dump(payload, temporary, indent=2, sort_keys=True, ensure_ascii=False)
+            temporary.write("\n")
+            temporary.flush()
+            os.fsync(temporary.fileno())
+        os.replace(temporary_path, target)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 

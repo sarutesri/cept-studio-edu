@@ -68,27 +68,37 @@ if WHEEL_URL:
         )
     wheel_path = Path.cwd() / Path(urllib.parse.urlparse(WHEEL_URL).path).name
     print(f"Downloading caller-provided wheel: {WHEEL_URL}")
-    urllib.request.urlretrieve(WHEEL_URL, wheel_path)
-    digest = hashlib.sha256(wheel_path.read_bytes()).hexdigest()
-    if digest != WHEEL_SHA256:
-        raise ValueError(f"wheel hash mismatch: expected {WHEEL_SHA256}, got {digest}")
-    subprocess.run(
-        [sys.executable, "-m", "pip", "install", "--quiet", str(wheel_path)],
-        check=True,
-    )
+    try:
+        urllib.request.urlretrieve(WHEEL_URL, wheel_path)
+        digest = hashlib.sha256(wheel_path.read_bytes()).hexdigest()
+        if digest != WHEEL_SHA256:
+            raise ValueError(f"wheel hash mismatch: expected {WHEEL_SHA256}, got {digest}")
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--quiet", str(wheel_path)],
+            check=True,
+        )
+    except Exception as exc:
+        print("What happened: the pinned wheel could not be downloaded, verified, or installed.")
+        print(f"Details: {type(exc).__name__}: {exc}")
+        print("Next: check the public wheel URL and SHA-256, then rerun this setup cell.")
+        raise SystemExit(1) from None
 else:
     print("CEPT_WHEEL_URL not supplied; using the existing installed environment.")
 
 CLI_BIN = Path(sys.executable).parent / ("cept.exe" if os.name == "nt" else "cept")
 if not CLI_BIN.is_file():
-    raise RuntimeError(
-        "cept launcher not found next to Python; reinstall the pinned public wheel"
-    )
+    print("What happened: the installed CEPT launcher was not found next to Python.")
+    print("Next: install the pinned public wheel, then rerun this setup cell.")
+    raise SystemExit(1)
 CLI = str(CLI_BIN)
 print("CLI: cept --version")
-print(
-    subprocess.run([CLI, "--version"], capture_output=True, text=True, check=True).stdout.strip()
-)
+try:
+    print(subprocess.run([CLI, "--version"], capture_output=True, text=True, check=True).stdout.strip())
+except Exception as exc:
+    print("What happened: the installed CEPT launcher could not report its version.")
+    print(f"Details: {type(exc).__name__}: {exc}")
+    print("Next: reinstall the pinned public wheel, then rerun this setup cell.")
+    raise SystemExit(1) from None
 
 # Notebook workspace root, captured before any solver call: OpenDSS DataPath
 # changes the process working directory, so stage cells use WORKSPACE.
@@ -101,23 +111,18 @@ def read(path):
 
 
 def table(headers, rows):
-    """Print a compact aligned terminal table for teaching-relevant detail rows."""
+    """Print a terminal table without truncating identity or path values."""
     rendered_rows = [[str(value).replace("\n", " ") for value in row] for row in rows]
     rendered_headers = [str(value) for value in headers]
     all_rows = [rendered_headers, *rendered_rows]
     widths = [
-        min(34, max(len(row[index]) if index < len(row) else 0 for row in all_rows))
+        max(len(row[index]) if index < len(row) else 0 for row in all_rows)
         for index in range(len(rendered_headers))
     ]
 
-    def clipped(value, width):
-        if len(value) <= width:
-            return value
-        return value[: max(1, width - 1)] + "…"
-
     def line(row):
         return "  ".join(
-            clipped(row[index], widths[index]).ljust(widths[index])
+            (row[index] if index < len(row) else "").ljust(widths[index])
             for index in range(len(rendered_headers))
         ).rstrip()
 
@@ -125,7 +130,6 @@ def table(headers, rows):
     print("  ".join("-" * width for width in widths).rstrip())
     for row in rendered_rows:
         print(line(row))
-
 
 def terminal_panel(title, rows, next_command=None):
     """Print notebook-only status using the same plain terminal rhythm as CEPT."""

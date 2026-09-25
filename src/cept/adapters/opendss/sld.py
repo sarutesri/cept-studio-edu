@@ -121,7 +121,7 @@ def build_sld(
     # Inline Cases have no OpenDSS-native drawing coordinates. Reuse the
     # deterministic CEPT layout instead of leaving every bus at (0, 0).
     if not inline_layout and case.network.kind == "inline" and case.network.inline is not None:
-        from cept.geometry import inline_layout as deterministic_layout
+        from cept.domain.sld.engineering_layout import inline_layout as deterministic_layout
 
         inline_layout = deterministic_layout(case.network.inline)
     inline_layout = inline_layout or {}

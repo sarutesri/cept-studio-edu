@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import math
+import importlib
 
 from cept.schema.case import Case, InductionMachine
 from cept.schema.result import LoadFlowResult
-
-from cept.adapters.opendss.dynamics_mapping import generator_dynamic_properties
 from cept.adapters.opendss.utils import DER_KIND
 
 
@@ -31,7 +30,9 @@ def ensure_inv_curves(dss, state: dict) -> None:
 
 def emit_pv(dss, name, bus, kw, phases, control="constant_pf", pf=1.0, kva=None, state=None) -> None:
     """Emit a PVSystem (+ InvControl for smart-inverter / GFM / GFL modes)."""
-    from cept.dynamics_lib import GFL_PV_PROPS, dyneq_command
+    if control == "gfl_dynamic":
+        dynamics_lib = importlib.import_module("cept.dynamics_lib")
+        GFL_PV_PROPS, dyneq_command = dynamics_lib.GFL_PV_PROPS, dynamics_lib.dyneq_command
 
     spec, kv_val = bus_kv(dss, bus, phases)
 
@@ -76,8 +77,9 @@ def emit_generator(dss, name, bus, kw, phases, pf=1.0, machine=None) -> None:
         f"kV={kv_val} kW={kw} PF={pf} model=1 Vminpu=0.8 Vmaxpu=1.2"
     )
     if machine is not None:
+        dynamics_mapping = importlib.import_module("cept.adapters.opendss.dynamics_mapping")
         mva = machine.mva or round(max(kw, 1.0) * 1.2 / 1000.0, 4)
-        cmd += f"{generator_dynamic_properties(machine)} MVA={mva}"
+        cmd += f"{dynamics_mapping.generator_dynamic_properties(machine)} MVA={mva}"
     dss.Text.Command(cmd)
 
 
@@ -112,9 +114,8 @@ def apply_ders(dss, case: Case, state: dict) -> None:
     state["_opender_boundary"] = []
     for der in case.ders:
         if der.opender is not None:
-            from cept.adapters.opender import require_runtime
-
-            require_runtime(der.opender)
+            opender = importlib.import_module("cept.adapters.opender")
+            opender.require_runtime(der.opender)
             state["_opender_boundary"].append(
                 {
                     "der": der.id,
@@ -171,8 +172,8 @@ def apply_opender_snapshot(
     applies its returned P/Q before a second OpenDSS solve.  Missing Common File
     Format files stay ``BOUNDARY_ONLY`` and never masquerade as model output.
     """
-    from cept.adapters.opender import run_model_step
-
+    opender = None
+    run_model_step = None
     exchanges: list[dict] = []
     for der in case.ders:
         spec = der.opender
@@ -180,6 +181,9 @@ def apply_opender_snapshot(
             continue
         if spec.as_file_path is None or spec.model_file_path is None:
             continue
+        if opender is None:
+            opender = importlib.import_module("cept.adapters.opender")
+            run_model_step = opender.run_model_step
         voltage = load_flow.voltage(der.bus, 1)
         if voltage is None:
             raise ValueError(f"OpenDER DER '{der.id}' has no solver-returned phase-1 voltage")

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import math
 import re
 from pathlib import Path
@@ -361,9 +362,8 @@ def enforce_readback(dss, net: NetworkSpec) -> list[dict]:
     tolerance exists for study conditions the engineer accepts, and "the model
     I solved is not the model I described" is not one of them.
     """
-    from cept.adapters.opendss.readback import readback_rows
-
-    rows = readback_rows(dss, net)
+    readback = importlib.import_module("cept.adapters.opendss.readback")
+    rows = readback.readback_rows(dss, net)
     failures = [r for r in rows if r.get("status") == "fail"]
     if failures:
         raise EngineFidelityError(failures)
@@ -438,7 +438,7 @@ def compile_inline(
     user_model_initial_states: dict[str, dict[str, float]] | None = None,
 ) -> None:
     """Build an :class:`InlineNetwork` from ``New`` text commands."""
-    from cept.geometry import hierarchical_layout
+    from cept.domain.sld.engineering_layout import hierarchical_layout
 
     inline = net.inline
     assert inline is not None
@@ -692,9 +692,8 @@ def compile_inline(
         if machine is None:
             dynamic_props = f" Xdp={gen.xdpp_pu} Xdpp={gen.xdpp_pu}"
         else:
-            from cept.adapters.opendss.dynamics_mapping import generator_dynamic_properties
-
-            dynamic_props = generator_dynamic_properties(machine)
+            dynamics_mapping = importlib.import_module("cept.adapters.opendss.dynamics_mapping")
+            dynamic_props = dynamics_mapping.generator_dynamic_properties(machine)
         # PowerFactory exposes pgini/qgini for PV/slack machines as the
         # initialized operating point.  Preserve that disclosed Q input when
         # OpenDSS supports it; do not invent a fixed-Q value when the source
@@ -706,9 +705,9 @@ def compile_inline(
                 raise ValueError(
                     f"OpenDSS UserModel '{user_model.name}' requires explicit dynamics for generator '{gen.name}'."
                 )
-            from cept.adapters.opendss.user_models import user_model_generator_properties
+            user_models = importlib.import_module("cept.adapters.opendss.user_models")
 
-            user_model_props = user_model_generator_properties(
+            user_model_props = user_models.user_model_generator_properties(
                 gen,
                 machine,
                 user_model,
