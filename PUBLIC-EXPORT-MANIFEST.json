@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "8f61c33e648ed78e7bd7e1a162a4c746be0fcc68",
+  "canonical_source_commit": "15aec10e3771beeaa5f45b7d25bb79a626952864",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -179,7 +179,7 @@
     {
       "path": "public/notebooks/07_pure_vs_cept.ipynb",
       "source": "public/notebooks/07_pure_vs_cept.ipynb",
-      "sha256": "d459d95b07ee2e28b2fc41816195b4d4c974539b90ff6e463517c20fadb0c0d9"
+      "sha256": "50499ac592345d3b51e3e4d5831e5de7c2cc3ea4dc1634eb6aba4978e5df5b61"
     },
     {
       "path": "public/notebooks/README.md",
@@ -584,7 +584,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "3c199a322cb959f677fc52ad4610a8f1f5afe82a6e09b1a6712211a682e42f6d"
+      "sha256": "e34ab46bc6399dc4d444a23faa2857f2bc34ff1920d2dfe1ed909cec2ecdcfb6"
     },
     {
       "path": "tools/run_public_notebooks.py",

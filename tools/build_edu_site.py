@@ -90,7 +90,7 @@ LESSONS: tuple[dict[str, str], ...] = (
         "number": "07",
         "stage": "evidence",
         "title_en": "Pure OpenDSS or CEPT?",
-        "summary_en": "Run the same Case twice and compare immediate solver output with CEPT's saved evidence trail.",
+        "summary_en": "Inject a bad source-bus reference, compare Pure OpenDSS's silent answer with CEPT's block, fix, and verify workflow.",
         "outcome_en": "Same numerical answer, stronger traceability with CEPT",
     },
 )
