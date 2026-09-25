@@ -264,10 +264,7 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
                 if rendered:
                     rendered_outputs.append(rendered)
     code_section = (
-        '<section class="cell cell-code">'
-        '<div class="cell-label">Code</div>'
-        + code_block
-        + "</section>"
+        '<section class="cell cell-code"><div class="cell-label">Code</div>' + code_block + "</section>"
     )
     if rendered_outputs:
         return (
@@ -447,6 +444,53 @@ def _disclosure(_revision: str, _manifest_hash: str) -> str:
 """
 
 
+def _lesson_navigation(current_stem: str) -> str:
+    lessons = list(LESSONS)
+    current_index = next(index for index, item in enumerate(lessons) if item["stem"] == current_stem)
+    stage_by_key = {stage[0]: stage[2].title() for stage in LESSON_STAGES}
+    toc_items: list[str] = []
+    for item in lessons:
+        is_current = item["stem"] == current_stem
+        current_class = " is-current" if is_current else ""
+        current_attr = ' aria-current="page"' if is_current else ""
+        stem = html.escape(item["stem"], quote=True)
+        number = html.escape(item["number"])
+        title = html.escape(item["title_en"])
+        stage = html.escape(stage_by_key[item["stage"]])
+        toc_items.append(
+            f'<li><a class="lesson-toc-link{current_class}" href="{stem}.html"{current_attr}>'
+            f'<span class="lesson-toc-number">{number}</span>'
+            f"<span><strong>{title}</strong><small>{stage}</small></span></a></li>"
+        )
+
+    pagination_items: list[str] = []
+    for relation, item in (
+        ("prev", lessons[current_index - 1] if current_index else None),
+        ("next", lessons[current_index + 1] if current_index < len(lessons) - 1 else None),
+    ):
+        if item is None:
+            continue
+        stem = html.escape(item["stem"], quote=True)
+        title = html.escape(item["title_en"])
+        direction = "Previous lesson" if relation == "prev" else "Next lesson"
+        pagination_items.append(
+            f'<a class="lesson-page-link" rel="{relation}" href="{stem}.html">'
+            f"<small>{direction}</small><strong>{title}</strong></a>"
+        )
+
+    return f"""
+<nav class="lesson-toc" aria-labelledby="lesson-toc-heading">
+  <div class="lesson-toc-heading">
+    <div><div class="eyebrow">THE COURSE</div><h2 id="lesson-toc-heading">All lessons</h2></div>
+    <a href="../index.html">Back to index</a>
+  </div>
+  <p class="lesson-toc-note">Follow the sequence or jump to the question you want to explore.</p>
+  <ol class="lesson-toc-list">{"".join(toc_items)}</ol>
+</nav>
+<nav class="lesson-pagination" aria-label="Lesson pagination">{"".join(pagination_items)}</nav>
+"""
+
+
 def _lesson_page(
     lesson: dict[str, str],
     notebook_path: str,
@@ -464,6 +508,7 @@ def _lesson_page(
         else "Solver-backed results are shown below."
     )
     lesson_label = f"Lesson {lesson['number']}"
+    lesson_navigation = _lesson_navigation(lesson["stem"])
     body = f'''
 {_header(home_href="../index.html", label=lesson_label)}
 <main id="content" class="shell lesson-page">
@@ -482,6 +527,7 @@ def _lesson_page(
     <span>{code_count} code cell(s)</span>
     <span>{html.escape(status)}</span>
   </div>
+  {lesson_navigation}
   {_disclosure(revision, manifest_hash)}
   <section class="notebook" aria-labelledby="notebook-heading">
     <div class="section-heading">
