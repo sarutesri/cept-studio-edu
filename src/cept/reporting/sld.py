@@ -368,7 +368,7 @@ def build_sld_option(sld: SLDModel) -> dict:
 
         # --- event marker node (offset above-left) ---
         if n.event:
-            _add_event_marker(n.event.kind, n.event.label, x - 22, y - 18, nodes)
+            _add_event_marker(n.event.kind, n.event.label, n.id, x - 22, y - 18, nodes)
 
     # --- branch edges ---
     lane_counts: dict[tuple[str, str], int] = {}
@@ -561,7 +561,7 @@ def _add_device_nodes(
         )
 
 
-def _add_event_marker(kind: str, label: str, x: float, y: float, nodes: list[dict]) -> None:
+def _add_event_marker(kind: str, label: str, bus_id: str, x: float, y: float, nodes: list[dict]) -> None:
     st = _EVENT_STYLE.get(kind, _EVENT_STYLE["info"])
     nodes.append(
         {
@@ -572,6 +572,7 @@ def _add_event_marker(kind: str, label: str, x: float, y: float, nodes: list[dic
             "symbolSize": 22 if kind == "fault" else 14,
             "is_device": True,
             "itemStyle": {"color": st["color"], "borderColor": "#fff", "borderWidth": 1},
+            "event_bus_id": bus_id,
             "label": {
                 "show": True,
                 "position": "left",

@@ -118,6 +118,8 @@ def _raw_bounds(nodes: list[dict[str, Any]], links: list[dict[str, Any]]) -> tup
     for node in nodes:
         if node.get("is_bend") or node.get("is_flow_arrow"):
             continue
+        if node.get("is_device") and _device_kind(node) == "event":
+            continue
         try:
             xs.append(float(node["x"]))
             ys.append(float(node["y"]))
@@ -148,6 +150,8 @@ def _display_scales(
         xs_by_y: dict[float, list[float]] = {}
         for n in nodes:
             if not n.get("is_device") or n.get("is_flow_arrow") or n.get("is_bend"):
+                continue
+            if _device_kind(n) == "event":
                 continue
             try:
                 y_key = round(float(n.get("y", 0.0)), 1)
@@ -698,10 +702,15 @@ def render_native_sld_svg(
     for node in nodes:
         if not node.get("is_device") or _device_kind(node) != "event":
             continue
-        x, y = float(node.get("x", 0.0)), float(node.get("y", 0.0))
+        bus = bus_by_name.get(str(node.get("event_bus_id") or "").lower())
+        if bus is not None:
+            bx, by = float(bus.get("x", 0.0)), float(bus.get("y", 0.0))
+            x, y = bx + 18.0, by - 18.0
+        else:
+            x, y = float(node.get("x", 0.0)), float(node.get("y", 0.0))
         title = html.escape(str(node.get("sld_hover_label") or node.get("display_name") or "Event"))
         events.append(
-            f'<g class="sld-event sld-symbol" transform="translate({x:.2f} {y:.2f}) scale({glyph_scale:.4f})" data-kind="event"><use href="#sym-event"/><title>{title}</title></g>'
+            f'<g class="sld-event sld-symbol" transform="translate({x:.2f} {y:.2f}) scale({glyph_scale:.4f})" data-kind="event" data-event-bus="{html.escape(str(node.get("event_bus_id") or ""))}"><use href="#sym-event"/><title>{title}</title></g>'
         )
 
     style = '''<style>

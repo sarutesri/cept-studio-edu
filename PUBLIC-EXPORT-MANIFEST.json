@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "7ec29c041c299fd79b192af810a201ec11aa3b3f",
+  "canonical_source_commit": "bdcec7670487d4776203f40c18e29bb182469f9c",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -159,12 +159,12 @@
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "b3547477310383045ec59374a158683c5a5ea9c603289953c7347b0cae07aa63"
+      "sha256": "6a53948a1b27a317878166d06bae838f87df178cf46171caf92cfec74548d9ff"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "66054b557b4ebff4b9cedd848b24e4c7f961c078a932370ce4c0e48049677b87"
+      "sha256": "fa235047a16dd9cb1787cecc43c50a4b421548e7dfe95181f8de05a48606219b"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
@@ -444,7 +444,7 @@
     {
       "path": "src/cept/reporting/sld.py",
       "source": "src/cept/reporting/sld.py",
-      "sha256": "4c17013593a1cbbf838928d3927ed8142a3f0859849a9b393d9a7d80389b66f8"
+      "sha256": "338598812064fb7276835417491d6d61da3e78722bd6941ae3e16308b7cb39ae"
     },
     {
       "path": "src/cept/reporting/sld_plan.py",
@@ -459,7 +459,7 @@
     {
       "path": "src/cept/reporting/sld_svg.py",
       "source": "src/cept/reporting/sld_svg.py",
-      "sha256": "55449e5e9dd19664b642ccce9a16842c01c499b2db1ec479484cc63f3acaef8a"
+      "sha256": "1dabee264c5a676a20f99d87c5f66126cd4440531bd178ed3ac595bd1ba6dcb3"
     },
     {
       "path": "src/cept/schema/__init__.py",
