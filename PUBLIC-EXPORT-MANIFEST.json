@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "cfd0bd439131269b93c52be6877d2de415e1b4c9",
+  "canonical_source_commit": "1dd2e07096b33c40db765cfae0ab3e62d1608b22",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -134,37 +134,37 @@
     {
       "path": "public/notebooks/00_environment.ipynb",
       "source": "public/notebooks/00_environment.ipynb",
-      "sha256": "953cc11d4e7cff44c01cd72de532a60d706810555bd6465eee63d1277b5519b2"
+      "sha256": "bf92e5507ddc44af5ccaaa9aa4dba457d326f60ffc497e92bd8e8200b9b6c8e2"
     },
     {
       "path": "public/notebooks/01_first_circuit_load_flow.ipynb",
       "source": "public/notebooks/01_first_circuit_load_flow.ipynb",
-      "sha256": "c79baa02cc081ad659c20a998f3bd734c8b934783f88bf3c7ce4f27fe7e178ed"
+      "sha256": "9751c6d75394650c3e882c790e04bc154cfa49d612fe6f0e5fd3f20777361a83"
     },
     {
       "path": "public/notebooks/02_ieee13_unbalanced.ipynb",
       "source": "public/notebooks/02_ieee13_unbalanced.ipynb",
-      "sha256": "46114b63b9ed65851a9409200bbf7985af4b510c04cc1faa5e999639bc967f4d"
+      "sha256": "e18a5df60417d6ac525cb613af25d2903d751dde69fda85cab27023bcba41184"
     },
     {
       "path": "public/notebooks/03_hosting_capacity.ipynb",
       "source": "public/notebooks/03_hosting_capacity.ipynb",
-      "sha256": "8359516d84d9681765f00f815b8527466bbd1431d8af9f65f5595ce71dbad3e5"
+      "sha256": "071a05e17f1fba15b8b2bc147e22531cdc97e83a6eda59e774f3049296f9ac9b"
     },
     {
       "path": "public/notebooks/04_fault_study.ipynb",
       "source": "public/notebooks/04_fault_study.ipynb",
-      "sha256": "ba8740e56e40b50e25c7344cfcad2d10818f12c111c8293690378b94aed76b4b"
+      "sha256": "1b649f8d9123f00043f3478866b451d3b61b0ae3329f179e7d971257c844b268"
     },
     {
       "path": "public/notebooks/05_validation_reproducibility.ipynb",
       "source": "public/notebooks/05_validation_reproducibility.ipynb",
-      "sha256": "09ac9ca241d20c14261f9b698829155cb1c6ee09d8034ddc7401b4b96c5cdee6"
+      "sha256": "5f20ee589ecb372fc2875241cb1e8429dd070827eb47cf65cd4e7fbaac3116e8"
     },
     {
       "path": "public/notebooks/06_colab_tui.ipynb",
       "source": "public/notebooks/06_colab_tui.ipynb",
-      "sha256": "5dae5b0946936044987b919035c6c23d5de6b5a9f9271bb170b01b225f883922"
+      "sha256": "20c433cc418fec492ca2c23700d380f28ca701294d0efea231e3743cc69a77c9"
     },
     {
       "path": "public/notebooks/README.md",
