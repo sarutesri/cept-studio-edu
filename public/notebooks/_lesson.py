@@ -165,6 +165,44 @@ def first_circuit_case():
         'study': {'type': 'load_flow'},
     }
 
+def ieee4_node_case():
+    """IEEE 4-Node Radial Distribution Test Feeder with step-down transformer and balanced load."""
+    return {
+        'meta': {
+            'name': 'ieee4_node_feeder',
+            'author': 'IEEE PES / CEPT',
+            'description': 'IEEE 4-Node Radial Distribution Test Feeder with step-down transformer and balanced load.',
+            'mode': 'demonstrator',
+        },
+        'network': {
+            'kind': 'inline',
+            'frequency_hz': 60,
+            'inline': {
+                'buses': [
+                    {'name': 'node1', 'kv': 12.47, 'phases': 3},
+                    {'name': 'node2', 'kv': 12.47, 'phases': 3},
+                    {'name': 'node3', 'kv': 4.16, 'phases': 3},
+                    {'name': 'node4', 'kv': 4.16, 'phases': 3},
+                ],
+                'external_grids': [
+                    {'name': 'utility', 'bus': 'node1', 'pu': 1.0, 'angle_deg': 0.0, 'sk3_mva': 1000.0, 'x_r_ratio': 10.0}
+                ],
+                'transformers': [
+                    {'name': 't1', 'hv_bus': 'node2', 'lv_bus': 'node3', 'hv_kv': 12.47, 'lv_kv': 4.16, 'mva': 6.0, 'uk_pct': 6.08, 'x_r_ratio': 6.0, 'vector_group': 'Dyn1'}
+                ],
+                'lines': [
+                    {'name': 'line12', 'from_bus': 'node1', 'to_bus': 'node2', 'length_km': 0.6096, 'r1_ohm_per_km': 0.249, 'x1_ohm_per_km': 0.373, 'r0_ohm_per_km': 0.536, 'x0_ohm_per_km': 1.118, 'b1_us_per_km': 0.0},
+                    {'name': 'line34', 'from_bus': 'node3', 'to_bus': 'node4', 'length_km': 0.7620, 'r1_ohm_per_km': 0.249, 'x1_ohm_per_km': 0.373, 'r0_ohm_per_km': 0.536, 'x0_ohm_per_km': 1.118, 'b1_us_per_km': 0.0},
+                ],
+                'loads': [
+                    {'id': 'load4', 'bus': 'node4', 'phases': 3, 'kw': 1800.0, 'pf': 0.9, 'model': 'constant_power'}
+                ],
+            },
+        },
+        'study': {'type': 'load_flow'},
+    }
+
+
 
 def ieee13_master():
     """Bundled IEEE13 master DSS path from the installed public wheel."""
@@ -219,7 +257,7 @@ def _compat_symbol(kind, x, y, label, detail, bus_y=None):
 
 
 def display_run_compat(run_dir):
-    """Render a persisted public result with stable edges and terminal symbols."""
+    """Render a persisted public result with expressive engineering SLD graphics."""
     import html as _html
     from IPython.display import HTML, display
 
@@ -229,43 +267,99 @@ def display_run_compat(run_dir):
     if not nodes:
         display(HTML("<p><strong>CEPT result:</strong> this run does not carry an SLD.</p>"))
         return
-    xs, ys = [float(n["x"]) for n in nodes], [float(n["y"]) for n in nodes]
+
+    # Filter virtual GridLink sources so they become grid infeed terminals instead of fake bus pills
+    grid_links = [e for e in edges if str(e.get("id", "")).casefold().startswith("gridlink.")]
+    virtual_ids = set()
+    for gl in grid_links:
+        s, d = str(gl.get("src", "")).lower(), str(gl.get("dst", "")).lower()
+        node_kinds = {str(n.get("id", "")).lower(): n.get("kind") for n in nodes}
+        if node_kinds.get(s) == "substation":
+            virtual_ids.add(s)
+        elif node_kinds.get(d) == "substation":
+            virtual_ids.add(d)
+        else:
+            virtual_ids.add(s)
+
+    physical_nodes = [n for n in nodes if str(n.get("id", "")).lower() not in virtual_ids]
+    if not physical_nodes:
+        physical_nodes = nodes
+        virtual_ids.clear()
+
+    physical_edges = [
+        e for e in edges
+        if not str(e.get("id", "")).casefold().startswith("gridlink.")
+        and str(e.get("src", "")).lower() not in virtual_ids
+        and str(e.get("dst", "")).lower() not in virtual_ids
+    ]
+
+    xs, ys = [float(n["x"]) for n in physical_nodes], [float(n["y"]) for n in physical_nodes]
     x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
     dx, dy = max(x1 - x0, 1.0), max(y1 - y0, 1.0)
 
-    def xy(node):
-        return 65 + (float(node["x"]) - x0) / dx * 870, 45 + (float(node["y"]) - y0) / dy * 420
+    left_margin = 150 if grid_links else 90
+    usable_w = 1000 - left_margin - 110
+    mid_y = 230.0 if dy <= 1e-9 else 60.0
 
-    pos = {str(n["id"]).lower(): xy(n) for n in nodes}
-    line_svg = []
-    for edge in edges:
+    def xy(node):
+        norm_x = (float(node["x"]) - x0) / dx if dx > 1e-9 else 0.5
+        norm_y = (float(node["y"]) - y0) / dy if dy > 1e-9 else 0.0
+        return left_margin + norm_x * usable_w, mid_y + norm_y * 360
+
+    pos = {str(n["id"]).lower(): xy(n) for n in physical_nodes}
+
+    svg_parts = []
+    # Grid infeed symbols
+    for gl in grid_links:
+        s, d = str(gl.get("src", "")).lower(), str(gl.get("dst", "")).lower()
+        target = d if d in pos else s if s in pos else None
+        if target:
+            bx, by = pos[target]
+            gx, gy = bx - 72, by
+            g_name = _html.escape(str(gl.get("id", "grid")).replace("GridLink.", "").upper())
+            svg_parts.append(f'<line x1="{gx+16:.1f}" y1="{gy:.1f}" x2="{bx-33:.1f}" y2="{gy:.1f}" stroke="#16a34a" stroke-width="2.5"/>')
+            svg_parts.append(f'<polygon points="{bx-33:.1f},{gy:.1f} {bx-41:.1f},{gy-5:.1f} {bx-41:.1f},{gy+5:.1f}" fill="#16a34a"/>')
+            svg_parts.append(f'<circle cx="{gx:.1f}" cy="{gy:.1f}" r="17" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.5"/>')
+            svg_parts.append(f'<path d="M {gx-7:.1f} {gy:.1f} Q {gx-3.5:.1f} {gy-6:.1f} {gx:.1f} {gy:.1f} T {gx+7:.1f} {gy:.1f}" fill="none" stroke="#16a34a" stroke-width="2"/>')
+            svg_parts.append(f'<text x="{gx:.1f}" y="{gy-23:.1f}" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a">{g_name}</text>')
+            svg_parts.append(f'<text x="{gx:.1f}" y="{gy+29:.1f}" text-anchor="middle" font-size="9.5" fill="#15803d">1.0 pu · Slack</text>')
+
+    # Branches
+    for edge in physical_edges:
         a = pos.get(str(edge.get("src", "")).lower())
         b = pos.get(str(edge.get("dst", "")).lower())
         if a is None or b is None:
             continue
+        edge_id = str(edge.get("id", "branch"))
+        kind = str(edge.get("kind", "")).lower()
+        is_tx = kind == "transformer" or edge_id.startswith("Transformer.")
+        mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
         dash = ' stroke-dasharray="8 6"' if edge.get("status") == "open" else ""
-        edge_label = _html.escape(str(edge.get("id", "branch")))
-        line_svg.append(
-            f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" '
-            f'stroke="#7a879a" stroke-width="3"{dash}><title>{edge_label}</title></line>'
-        )
 
-    symbol_svg = []
-    for node in nodes:
-        x, y = pos[str(node["id"]).lower()]
-        for index, generator in enumerate(node.get("gens") or []):
-            symbol_svg.append(_compat_symbol(generator.get("kind", "generator"), x, y - 42 - index * 26, generator.get("name", "generator"), f"{generator.get('kw', 0.0):.1f} kW", bus_y=y))
-        for index, load in enumerate(node.get("loads") or []):
-            symbol_svg.append(_compat_symbol("load", x, y + 42 + index * 26, load.get("name", "load"), f"{load.get('kw', 0.0):.1f} kW", bus_y=y))
-        for index, shunt in enumerate(node.get("shunts") or []):
-            symbol_svg.append(_compat_symbol(shunt.get("kind", "capacitor"), x, y + 42 + (len(node.get("loads") or []) + index) * 26, shunt.get("name", "shunt"), f"{shunt.get('kvar', 0.0):.1f} kvar", bus_y=y))
+        if is_tx:
+            r = 18
+            svg_parts.append(f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{mx-r+3:.1f}" y2="{my:.1f}" stroke="#334155" stroke-width="2.5"{dash}/>')
+            svg_parts.append(f'<line x1="{mx+r-3:.1f}" y1="{my:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="#334155" stroke-width="2.5"{dash}/>')
+            svg_parts.append(f'<circle cx="{mx-8:.1f}" cy="{my:.1f}" r="{r}" fill="#ffffff" stroke="#b45309" stroke-width="2.5"/>')
+            svg_parts.append(f'<circle cx="{mx+8:.1f}" cy="{my:.1f}" r="{r}" fill="none" stroke="#b45309" stroke-width="2.5"/>')
+            tx_label = _html.escape(edge_id.replace("Transformer.", ""))
+            svg_parts.append(f'<text x="{mx:.1f}" y="{my-24:.1f}" text-anchor="middle" font-size="11" font-weight="700" fill="#b45309">{tx_label}</text>')
+        else:
+            svg_parts.append(f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="#64748b" stroke-width="2.5"{dash}><title>{_html.escape(edge_id)}</title></line>')
+            name = _html.escape(edge_id.replace("Line.", ""))
+            svg_parts.append(f'<text x="{mx:.1f}" y="{my-11:.1f}" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">{name}</text>')
+            p_kw = edge.get("p_kw")
+            if p_kw:
+                svg_parts.append(f'<text x="{mx:.1f}" y="{my+17:.1f}" text-anchor="middle" font-size="10" fill="#0284c7">{p_kw:.1f} kW</text>')
 
+    # Buses & terminals
     vmin, vmax = float(sld.get("v_min_pu", .95)), float(sld.get("v_max_pu", 1.05))
-    bus_svg, rows = [], []
-    for node in nodes:
+    rows = []
+    for node in physical_nodes:
         volts = {int(k): float(v) for k, v in (node.get("v_pu") or {}).items()}
         angles = {int(k): float(v) for k, v in (node.get("angle_deg") or {}).items()}
         values = list(volts.values())
+        v_mean = sum(values) / len(values) if values else 1.0
         low, high = any(v < vmin for v in values), any(v > vmax for v in values)
         status = "NO DATA" if not values else "OUT" if low and high else "UNDER" if low else "OVER" if high else "OK"
         fill = {"OK": "#e8f5ec", "UNDER": "#fff3d9", "OVER": "#ffe7e1", "OUT": "#f7e7ff", "NO DATA": "#eef1f5"}[status]
@@ -275,8 +369,29 @@ def display_run_compat(run_dir):
         def phase(p):
             return "—" if p not in volts else f"{volts[p]:.4f} pu" + (f" @ {angles[p]:.2f}°" if p in angles else "")
 
-        tip = _html.escape("Bus " + str(node["id"]) + "\nStatus: " + status + "\n" + "\n".join(f"{label}: {phase(p)}" for p, label in [(1, "A"), (2, "B"), (3, "C")] if p in volts))
-        label = _html.escape(str(node["id"]))
-        bus_svg.append(f'<g tabindex="0"><title>{tip}</title><rect x="{x-31:.1f}" y="{y-11:.1f}" width="62" height="22" rx="5" fill="{fill}" stroke="{stroke}" stroke-width="2"/><text x="{x:.1f}" y="{y+4:.1f}" text-anchor="middle" font-size="12" font-weight="700">{label}</text></g>')
+        tip = _html.escape("Bus " + str(node["id"]) + "
+Status: " + status + "
+" + "
+".join(f"{label}: {phase(p)}" for p, label in [(1, "A"), (2, "B"), (3, "C")] if p in volts))
+        label = _html.escape(str(node["id"]).upper())
+        bw, bh = 66, 24
+        svg_parts.append(f'<g tabindex="0"><title>{tip}</title><rect x="{x-bw/2:.1f}" y="{y-bh/2:.1f}" width="{bw}" height="{bh}" rx="5" fill="{fill}" stroke="{stroke}" stroke-width="2.2"/><text x="{x:.1f}" y="{y+4:.1f}" text-anchor="middle" font-size="12" font-weight="750" fill="#0f172a">{label}</text></g>')
+        svg_parts.append(f'<text x="{x:.1f}" y="{y+26:.1f}" text-anchor="middle" font-size="10" font-weight="700" fill="{stroke}">{v_mean:.4f} pu</text>')
+
+        # Loads & generators
+        for index, ld in enumerate(node.get("loads") or []):
+            lx, ly = x, y + 40 + index * 32
+            svg_parts.append(f'<line x1="{x:.1f}" y1="{y+bh/2:.1f}" x2="{lx:.1f}" y2="{ly:.1f}" stroke="#0f172a" stroke-width="2"/>')
+            svg_parts.append(f'<polygon points="{lx-8:.1f},{ly:.1f} {lx+8:.1f},{ly:.1f} {lx:.1f},{ly+13:.1f}" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>')
+            svg_parts.append(f'<text x="{lx:.1f}" y="{ly+25:.1f}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#991b1b">{ld.get("kw", 0.0):.0f} kW</text>')
+        for index, gen in enumerate(node.get("gens") or []):
+            gx, gy = x, y - 40 - index * 32
+            svg_parts.append(_compat_symbol(gen.get("kind", "generator"), gx, gy, gen.get("name", "generator"), f"{gen.get('kw', 0.0):.1f} kW", bus_y=y))
+        for index, sh in enumerate(node.get("shunts") or []):
+            sx, sy = x, y + 40 + (len(node.get("loads") or []) + index) * 32
+            svg_parts.append(_compat_symbol(sh.get("kind", "capacitor"), sx, sy, sh.get("name", "shunt"), f"{sh.get('kvar', 0.0):.1f} kvar", bus_y=y))
+
         rows.append("<tr><th>" + label + "</th><td>" + phase(1) + "</td><td>" + phase(2) + "</td><td>" + phase(3) + "</td><td><strong>" + status + "</strong></td></tr>")
-    display(HTML('<div style="font-family:system-ui,sans-serif"><h3>Interactive CEPT SLD</h3><p style="color:#657187">Hover or focus a bus to inspect solver-returned values.</p><div style="overflow:hidden;border:1px solid #d9dee8;border-radius:10px"><svg viewBox="0 0 1000 510" style="width:100%;height:auto;display:block">' + "".join(line_svg) + "".join(symbol_svg) + "".join(bus_svg) + '</svg></div><div style="overflow-x:auto;margin-top:10px"><table style="border-collapse:collapse;width:100%;min-width:650px"><thead><tr><th>Bus</th><th>Phase A</th><th>Phase B</th><th>Phase C</th><th>Status</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table></div></div>"))
+
+    view_h = 510 if dy > 1e-9 else 380
+    display(HTML('<div style="font-family:system-ui,sans-serif"><h3>Interactive CEPT SLD</h3><p style="color:#657187">Hover or focus a bus to inspect solver-returned values.</p><div style="overflow:hidden;border:1px solid #d9dee8;border-radius:10px;background:#f8fafc"><svg viewBox="0 0 1000 ' + str(int(view_h)) + '" style="width:100%;height:auto;display:block">' + "".join(svg_parts) + '</svg></div><div style="overflow-x:auto;margin-top:10px"><table style="border-collapse:collapse;width:100%;min-width:650px"><thead><tr><th>Bus</th><th>Phase A</th><th>Phase B</th><th>Phase C</th><th>Status</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table></div></div>"))

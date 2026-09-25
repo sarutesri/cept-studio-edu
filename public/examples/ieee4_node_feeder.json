@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "name": "ieee4_node_feeder",
+    "author": "IEEE PES / CEPT",
+    "description": "IEEE 4-Node Radial Distribution Test Feeder with step-down transformer and balanced load.",
+    "mode": "demonstrator"
+  },
+  "network": {
+    "kind": "inline",
+    "frequency_hz": 60,
+    "inline": {
+      "buses": [
+        {
+          "name": "node1",
+          "kv": 12.47,
+          "phases": 3
+        },
+        {
+          "name": "node2",
+          "kv": 12.47,
+          "phases": 3
+        },
+        {
+          "name": "node3",
+          "kv": 4.16,
+          "phases": 3
+        },
+        {
+          "name": "node4",
+          "kv": 4.16,
+          "phases": 3
+        }
+      ],
+      "external_grids": [
+        {
+          "name": "utility",
+          "bus": "node1",
+          "pu": 1.0,
+          "angle_deg": 0.0,
+          "sk3_mva": 1000.0,
+          "x_r_ratio": 10.0
+        }
+      ],
+      "transformers": [
+        {
+          "name": "t1",
+          "hv_bus": "node2",
+          "lv_bus": "node3",
+          "hv_kv": 12.47,
+          "lv_kv": 4.16,
+          "mva": 6.0,
+          "uk_pct": 6.08,
+          "x_r_ratio": 6.0,
+          "vector_group": "Dyn1"
+        }
+      ],
+      "lines": [
+        {
+          "name": "line12",
+          "from_bus": "node1",
+          "to_bus": "node2",
+          "length_km": 0.6096,
+          "r1_ohm_per_km": 0.249,
+          "x1_ohm_per_km": 0.373,
+          "r0_ohm_per_km": 0.536,
+          "x0_ohm_per_km": 1.118,
+          "b1_us_per_km": 0.0
+        },
+        {
+          "name": "line34",
+          "from_bus": "node3",
+          "to_bus": "node4",
+          "length_km": 0.762,
+          "r1_ohm_per_km": 0.249,
+          "x1_ohm_per_km": 0.373,
+          "r0_ohm_per_km": 0.536,
+          "x0_ohm_per_km": 1.118,
+          "b1_us_per_km": 0.0
+        }
+      ],
+      "loads": [
+        {
+          "id": "load4",
+          "bus": "node4",
+          "phases": 3,
+          "kw": 1800.0,
+          "pf": 0.9,
+          "model": "constant_power"
+        }
+      ]
+    }
+  },
+  "study": {
+    "type": "load_flow"
+  }
+}
