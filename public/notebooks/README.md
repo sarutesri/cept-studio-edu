@@ -14,12 +14,14 @@ validation.
 | [`04_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb) | Single-line-to-ground fault |
 | [`05_validation_reproducibility.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb) | Fingerprints, artifacts, and verification |
 | [`06_colab_tui.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb) | Guided Case-information review, optional OpenCode help, and one bounded solver run |
+| [`07_pure_vs_cept.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_pure_vs_cept.ipynb) | Pure OpenDSS versus CEPT evidence workflow |
 
 Every lesson is terminal-first: run the setup cell, then use the same
 `cept <noun> <verb>` commands you would type in a normal terminal. Lessons
 01–04 now share one short learner rhythm: **Setup → Inputs → Run → Explore SLD
 → Engineering result → Verify → Interpret**. Direct OpenDSS/Python comparison
 cells are moved to the optional tail so they do not interrupt the main path.
+Lesson 07 runs the same Case through direct OpenDSS and CEPT so the difference is explicit: both return the numerical answer, while CEPT adds a Case fingerprint, canonical SLD, saved artifacts, and an independent verification receipt.
 The solved SLD stays inline, hovering/focusing a bus shows solver-returned phase
 values, and the engineering-result cell reads only persisted result fields.
 Time-domain results can use the same view layer for persisted solver traces when

@@ -85,6 +85,14 @@ LESSONS: tuple[dict[str, str], ...] = (
         "summary_en": "See how missing inputs remain visible and how strict, assisted, and exploratory policies change what can run.",
         "outcome_en": "Known, missing, default, and AI-selected information kept separate",
     },
+    {
+        "stem": "07_pure_vs_cept",
+        "number": "07",
+        "stage": "evidence",
+        "title_en": "Pure OpenDSS or CEPT?",
+        "summary_en": "Run the same Case twice and compare immediate solver output with CEPT's saved evidence trail.",
+        "outcome_en": "Same numerical answer, stronger traceability with CEPT",
+    },
 )
 LESSON_STAGES: tuple[tuple[str, str, str, str, str], ...] = (
     (
@@ -156,7 +164,7 @@ def _inline_markdown(value: str) -> str:
 
 
 def _render_markdown(source: str) -> str:
-    """Render the small Markdown vocabulary used by the seven lessons."""
+    """Render the small Markdown vocabulary used by the configured lessons."""
 
     lines = source.replace("\r\n", "\n").split("\n")
     blocks: list[str] = []
@@ -484,7 +492,7 @@ def _lesson_navigation(current_stem: str) -> str:
     return f"""
 <div class="lesson-sidebar">
   <details class="lesson-nav-disclosure" open>
-    <summary><span>Lesson contents</span><small>7 lessons</small></summary>
+    <summary><span>Lesson contents</span><small>{len(lessons)} lessons</small></summary>
     <nav class="lesson-toc" aria-labelledby="lesson-toc-heading">
       <div class="lesson-toc-heading">
         <div><div class="eyebrow">THE COURSE</div><h2 id="lesson-toc-heading">All lessons</h2></div>
@@ -602,7 +610,7 @@ def _index_page(
 <main id="content">
   <section class="hero shell">
     <div class="hero-copy">
-      <div class="eyebrow">OPEN DSS · 7 SHORT LESSONS · RUNNABLE IN COLAB</div>
+      <div class="eyebrow">OPEN DSS · 8 SHORT LESSONS · RUNNABLE IN COLAB</div>
       <h1>Run a small study.<br><em>See where it came from.</em></h1>
       <p class="hero-lead">Build a load flow, explore an unbalanced feeder, test PV hosting capacity, and run a ground fault. Each lesson shows the inputs, the OpenDSS result, and the boundary of what it proves.</p>
       <div class="hero-actions" aria-label="Start learning">
@@ -631,9 +639,20 @@ def _index_page(
       <article><span class="principle-index">03</span><h3>Know what it proves</h3><p><code>WORKFLOW_VALIDATED</code> supports workflow checks, not project approval, field validation, or a protection decision.</p></article>
     </div>
   </section>
+  <section class="comparison-band shell" aria-labelledby="comparison-heading">
+    <div class="section-heading">
+      <div><div class="eyebrow">WHY A WORKFLOW LAYER?</div><h2 id="comparison-heading">Pure speed. CEPT traceability.</h2></div>
+      <p class="section-note">Use the solver directly for exploration; add CEPT when the result must be repeated, inspected, and verified.</p>
+    </div>
+    <div class="principle-grid">
+      <article><span class="principle-index">01</span><h3>Pure OpenDSS</h3><p>Direct commands, immediate values, and a very short path from circuit text to load-flow answer.</p></article>
+      <article><span class="principle-index">02</span><h3>CEPT Studio</h3><p>Typed Case, canonical SLD, plots, fingerprints, manifests, and an independent verification receipt around the same solver.</p></article>
+      <article><span class="principle-index">03</span><h3>Choose deliberately</h3><p>Exploration does not always need orchestration. Reusable evidence does. <a href="lessons/07_pure_vs_cept.html">Compare both paths in Lesson 07 →</a></p></article>
+    </div>
+  </section>
   <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven short studies, one visible trail</h2></div>
+      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Eight short studies, one visible trail</h2></div>
       <p class="section-note">Choose a concrete question, inspect the example result, then run it in Colab.</p>
     </div>
     {"".join(course_stages)}
@@ -645,7 +664,7 @@ def _index_page(
       <p>Each lesson keeps declared inputs, solver output, interpretation, and verification in one reviewable path. Change one input and compare the next result.</p>
     </div>
     <dl class="proof-grid">
-      <div><dt>7</dt><dd>short lessons</dd></div>
+      <div><dt>8</dt><dd>short lessons</dd></div>
       <div><dt>OpenDSS</dt><dd>teaching runtime</dd></div>
       <div><dt>Python 3.10+</dt><dd>public runtime</dd></div>
       <div><dt>Workflow-level</dt><dd>verification checks</dd></div>
@@ -674,7 +693,7 @@ def _index_page(
         "Learning index",
         body,
         stylesheet="assets/education.css",
-        description="Run seven short OpenDSS power-system studies in Colab and inspect the inputs, results, and verification behind each answer.",
+        description="Run eight short OpenDSS power-system studies in Colab and inspect the inputs, results, and verification behind each answer.",
     )
 
 

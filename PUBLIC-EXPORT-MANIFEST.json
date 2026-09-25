@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "ad53ebf46f2973f964f1e1f8833f2027129a1aa7",
+  "canonical_source_commit": "8f61c33e648ed78e7bd7e1a162a4c746be0fcc68",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -99,7 +99,7 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "54486f6cbc6252213b9f23f8faae2ed8d01e73b97da7da19318fcf903011b483"
+      "sha256": "e06d6bcbf30b357536947fdb455c71c4e7f1c7bf4cfff2aa51a4dd560553b07e"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
@@ -177,9 +177,14 @@
       "sha256": "49feea80dbcaa8f505e7b35a7b570973d408a7a675264fe8868c42bb2ca30cdf"
     },
     {
+      "path": "public/notebooks/07_pure_vs_cept.ipynb",
+      "source": "public/notebooks/07_pure_vs_cept.ipynb",
+      "sha256": "d459d95b07ee2e28b2fc41816195b4d4c974539b90ff6e463517c20fadb0c0d9"
+    },
+    {
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
-      "sha256": "ff1e963da0c6df7ed831583f5012d9053437420b90fe8c7d9ef835a2bd6608b2"
+      "sha256": "ed3819ca2a5c6691fc6d19c2d0a9789b1c7014bca39a515746c9528cee7d60e4"
     },
     {
       "path": "public/notebooks/_lesson.py",
@@ -579,7 +584,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "43f80668f815cea7eca0fd63da4b52cbc7646b01be67802d28955daac995591d"
+      "sha256": "3c199a322cb959f677fc52ad4610a8f1f5afe82a6e09b1a6712211a682e42f6d"
     },
     {
       "path": "tools/run_public_notebooks.py",
