@@ -119,6 +119,9 @@ h4 { margin: 8px 0; font-size: 1.35rem; font-weight: 600; }
 .cell-markdown p { margin: 13px 0; }
 .cell-markdown ul { padding-left: 24px; }
 .cell-label { margin-bottom: 6px; color: var(--coral); font-size: .68rem; font-weight: 800; letter-spacing: .13em; }
+.cell-result { margin: -12px 0 28px; padding: 14px 16px; border: 1px solid var(--line); border-left: 3px solid var(--yellow); background: var(--paper-deep); }
+.cell-result .cell-label { margin-bottom: 9px; }
+.cell-result .output { margin-top: 0; }
 .code, .output { overflow-x: auto; margin: 0; padding: 19px 21px; border-radius: 2px; font-size: .84rem; line-height: 1.55; }
 .code { color: #e6f5e9; background: var(--code); }
 .output { margin-top: 10px; color: #e4eee8; background: #244139; }

@@ -248,8 +248,6 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
     code = html.escape(source_text, quote=False)
     title = _titled_cell_title(source_text)
     if title is not None:
-        # Setup/inputs cells carry a Colab title marker: keep one click away
-        # while outputs below stay fully visible, so results dominate the page.
         code_block = (
             '<details class="cell-code-setup"><summary>'
             f"{html.escape(title)}</summary>"
@@ -265,31 +263,35 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
                 rendered = _render_output(output)
                 if rendered:
                     rendered_outputs.append(rendered)
+    code_section = (
+        '<section class="cell cell-code">'
+        '<div class="cell-label">Code</div>'
+        + code_block
+        + "</section>"
+    )
     if rendered_outputs:
         return (
-            '<section class="cell cell-code">'
-            '<div class="cell-label">Code</div>' + code_block + "".join(rendered_outputs) + "</section>",
+            code_section
+            + '<section class="cell-result"><div class="cell-label">Result</div>'
+            + "".join(rendered_outputs)
+            + "</section>",
             False,
         )
     if isinstance(outputs, list) and outputs:
         return (
-            '<section class="cell cell-code">'
-            '<div class="cell-label">Code</div>'
-            + code_block
+            code_section
+            + '<section class="cell-result"><div class="cell-label">Result</div>'
             + '<p class="not-executed"><strong>This result cannot be displayed on this page.</strong> '
             + "Run the notebook in Colab to inspect the complete solver output."
-            + "</p>"
-            + "</section>",
+            + "</p></section>",
             False,
         )
     return (
-        '<section class="cell cell-code">'
-        '<div class="cell-label">Code</div>'
-        + code_block
+        code_section
+        + '<section class="cell-result"><div class="cell-label">Result</div>'
         + '<p class="not-executed"><strong>Result not generated yet.</strong> '
         + "Run this lesson in Colab to produce the solver-backed result."
-        + "</p>"
-        + "</section>",
+        + "</p></section>",
         True,
     )
 

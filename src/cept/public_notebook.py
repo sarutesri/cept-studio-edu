@@ -78,7 +78,14 @@ def _phase_text(node: SLDNode, phase: int) -> str:
 
 
 
-def _terminal_symbol(kind: str, x: float, y: float, label: str, detail: str) -> str:
+def _terminal_symbol(
+    kind: str,
+    x: float,
+    y: float,
+    label: str,
+    detail: str,
+    bus_y: float | None = None,
+) -> str:
     """Render one compact terminal symbol with a hover label."""
     normalized = str(kind or "generator").lower()
     symbol = {
@@ -111,11 +118,17 @@ def _terminal_symbol(kind: str, x: float, y: float, label: str, detail: str) -> 
     else:
         shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
         text = f'<text x="0" y="4" text-anchor="middle">{glyph}</text>'
+    lead = ""
+    if bus_y is not None:
+        lead = (
+            f'<line class="cept-terminal-lead" x1="0" y1="0" x2="0" '
+            f'y2="{bus_y - y:.1f}" stroke="#0f172a" stroke-width="2"/>'
+        )
     tooltip = f"{label}: {detail}"
     return (
         f'<g class="cept-terminal-symbol" data-symbol="{_esc(symbol)}" '
         f'transform="translate({x:.1f} {y:.1f})">'
-        f"<title>{_esc(tooltip)}</title>{shape}{text}</g>"
+        f"<title>{_esc(tooltip)}</title>{lead}{shape}{text}</g>"
     )
 
 
@@ -133,6 +146,7 @@ def _terminal_symbol_parts(
                     y - 42 - index * 26,
                     generator.name,
                     f"{generator.kw:.1f} kW",
+                    bus_y=y,
                 )
             )
         for index, load in enumerate(node.loads):
@@ -143,6 +157,7 @@ def _terminal_symbol_parts(
                     y + 42 + index * 26,
                     load.name,
                     f"{load.kw:.1f} kW",
+                    bus_y=y,
                 )
             )
         for index, shunt in enumerate(node.shunts):
@@ -153,6 +168,7 @@ def _terminal_symbol_parts(
                     y + 42 + (len(node.loads) + index) * 26,
                     shunt.name,
                     f"{shunt.kvar:.1f} kvar",
+                    bus_y=y,
                 )
             )
     return parts

@@ -174,7 +174,7 @@ def ieee13_master():
 print("Lesson helpers ready. Stage cells below run the same CEPT commands as a normal terminal.")
 
 
-def _compat_symbol(kind, x, y, label, detail):
+def _compat_symbol(kind, x, y, label, detail, bus_y=None):
     import html as _html
 
     normalized = str(kind or "generator").lower()
@@ -208,10 +208,13 @@ def _compat_symbol(kind, x, y, label, detail):
     else:
         shape = '<circle cx="0" cy="0" r="10" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>'
         text = f'<text x="0" y="4" text-anchor="middle">{glyph}</text>'
+    lead = ""
+    if bus_y is not None:
+        lead = f'<line x1="0" y1="0" x2="0" y2="{bus_y - y:.1f}" stroke="#0f172a" stroke-width="2"/>'
     return (
         f'<g class="compat-terminal-symbol" data-symbol="{_html.escape(symbol, quote=True)}" '
         f'transform="translate({x:.1f} {y:.1f})">'
-        f'<title>{_html.escape(f"{label}: {detail}")}</title>{shape}{text}</g>'
+        f'<title>{_html.escape(f"{label}: {detail}")}</title>{lead}{shape}{text}</g>'
     )
 
 
@@ -251,11 +254,11 @@ def display_run_compat(run_dir):
     for node in nodes:
         x, y = pos[str(node["id"]).lower()]
         for index, generator in enumerate(node.get("gens") or []):
-            symbol_svg.append(_compat_symbol(generator.get("kind", "generator"), x, y - 42 - index * 26, generator.get("name", "generator"), f"{generator.get('kw', 0.0):.1f} kW"))
+            symbol_svg.append(_compat_symbol(generator.get("kind", "generator"), x, y - 42 - index * 26, generator.get("name", "generator"), f"{generator.get('kw', 0.0):.1f} kW", bus_y=y))
         for index, load in enumerate(node.get("loads") or []):
-            symbol_svg.append(_compat_symbol("load", x, y + 42 + index * 26, load.get("name", "load"), f"{load.get('kw', 0.0):.1f} kW"))
+            symbol_svg.append(_compat_symbol("load", x, y + 42 + index * 26, load.get("name", "load"), f"{load.get('kw', 0.0):.1f} kW", bus_y=y))
         for index, shunt in enumerate(node.get("shunts") or []):
-            symbol_svg.append(_compat_symbol(shunt.get("kind", "capacitor"), x, y + 42 + (len(node.get("loads") or []) + index) * 26, shunt.get("name", "shunt"), f"{shunt.get('kvar', 0.0):.1f} kvar"))
+            symbol_svg.append(_compat_symbol(shunt.get("kind", "capacitor"), x, y + 42 + (len(node.get("loads") or []) + index) * 26, shunt.get("name", "shunt"), f"{shunt.get('kvar', 0.0):.1f} kvar", bus_y=y))
 
     vmin, vmax = float(sld.get("v_min_pu", .95)), float(sld.get("v_max_pu", 1.05))
     bus_svg, rows = [], []
