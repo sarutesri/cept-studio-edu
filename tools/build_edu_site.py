@@ -90,8 +90,8 @@ LESSONS: tuple[dict[str, str], ...] = (
         "number": "07",
         "stage": "evidence",
         "title_en": "Pure OpenDSS or CEPT?",
-        "summary_en": "Inject a bad source-bus reference, compare Pure OpenDSS's silent answer with CEPT's block, fix, and verify workflow.",
-        "outcome_en": "Same numerical answer, stronger traceability with CEPT",
+        "summary_en": "See an AI-written OpenDSS run converge to the wrong 0.316 pu result after missing the 4.16 kV voltage base, while CEPT returns 0.948 pu from the declared Case.",
+        "outcome_en": "Wrong pure result 0.316 pu versus CEPT result 0.948 pu",
     },
 )
 LESSON_STAGES: tuple[tuple[str, str, str, str, str], ...] = (
@@ -642,12 +642,12 @@ def _index_page(
   <section class="comparison-band shell" aria-labelledby="comparison-heading">
     <div class="section-heading">
       <div><div class="eyebrow">WHY A WORKFLOW LAYER?</div><h2 id="comparison-heading">Pure speed. CEPT traceability.</h2></div>
-      <p class="section-note">Use the solver directly for exploration; add CEPT when the result must be repeated, inspected, and verified.</p>
+      <p class="section-note">A solver can converge on a wrongly assembled model. CEPT preserves the declared engineering inputs and makes the resulting evidence reviewable.</p>
     </div>
     <div class="principle-grid">
-      <article><span class="principle-index">01</span><h3>Pure OpenDSS</h3><p>Direct commands, immediate values, and a very short path from circuit text to load-flow answer.</p></article>
-      <article><span class="principle-index">02</span><h3>CEPT Studio</h3><p>Typed Case, canonical SLD, plots, fingerprints, manifests, and an independent verification receipt around the same solver.</p></article>
-      <article><span class="principle-index">03</span><h3>Choose deliberately</h3><p>Exploration does not always need orchestration. Reusable evidence does. <a href="lessons/07_pure_vs_cept.html">Compare both paths in Lesson 07 →</a></p></article>
+      <article><span class="principle-index">01</span><h3>Pure OpenDSS can be wrong</h3><p>The AI omits the downstream voltage base. OpenDSS still converges and reports a plausible-looking 0.316 pu at Node 4.</p></article>
+      <article><span class="principle-index">02</span><h3>CEPT carries the Case</h3><p>The declared 4.16 kV bus reaches the adapter, so the same feeder returns 0.948 pu with SLD, plot, manifest, and receipt.</p></article>
+      <article><span class="principle-index">03</span><h3>See the useful failure</h3><p>Compare a silently wrong answer with a correct, reviewable result in <a href="lessons/07_pure_vs_cept.html">Lesson 07 →</a></p></article>
     </div>
   </section>
   <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">

@@ -21,7 +21,7 @@ Every lesson is terminal-first: run the setup cell, then use the same
 01–04 now share one short learner rhythm: **Setup → Inputs → Run → Explore SLD
 → Engineering result → Verify → Interpret**. Direct OpenDSS/Python comparison
 cells are moved to the optional tail so they do not interrupt the main path.
-Lesson 07 runs the same Case through direct OpenDSS and CEPT so the difference is explicit: both return the numerical answer, while CEPT adds a Case fingerprint, canonical SLD, saved artifacts, and an independent verification receipt.
+Lesson 07 lets an AI-written OpenDSS command converge to the wrong 0.316 pu result after omitting the 4.16 kV voltage base, then shows CEPT returning 0.948 pu from the declared Case with SLD, plot, fingerprint, artifacts, and a verification receipt.
 The solved SLD stays inline, hovering/focusing a bus shows solver-returned phase
 values, and the engineering-result cell reads only persisted result fields.
 Time-domain results can use the same view layer for persisted solver traces when
