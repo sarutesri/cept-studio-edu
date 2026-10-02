@@ -9,9 +9,8 @@ description: Eight public notebook lessons for learning CEPT through small, solv
 
 # CEPT education course map
 
-Start with a small calculation, inspect what the solver returns, then see how
-CEPT keeps setup and evidence connected. Each lesson is designed to be run,
-read, and questioned in Colab.
+Eight Colab notebooks: define a network, run OpenDSS, and inspect the evidence.
+Concise instructions and labelled step icons guide each study.
 
 The lessons use the bounded claim `WORKFLOW_VALIDATED`. They show a reproducible
 teaching workflow; they do not establish project validation, field validation,
@@ -26,86 +25,79 @@ or PowerFactory parity.
 
 ## Course path
 
-The course is ordered by how a learner should think, not by which study is
-easiest to implement. It opens on a wrong answer, then earns every later step.
-The learner-facing path is terminal-first: Colab shows the same
-`cept <noun> <verb>` commands used in a normal terminal, while direct
-OpenDSS/Python checks remain optional implementation detail.
+Follow five phases: model integrity, model construction, network conditions,
+applied studies, and evidence/reproducibility. Notebook cells use the same
+`cept <noun> <verb>` commands as a terminal.
 
 <div class="cept-course-path" markdown>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Prologue</span>
+<span class="cept-course-stage__index">Environment &amp; scope</span>
 
-### Set up the runtime and the claim boundary
+### Prepare the runtime
 
-**00 · Before you start** — confirm CEPT/OpenDSS identity and learn what a PASS
-can and cannot prove.
+**00 · Environment and study scope** — check CEPT/OpenDSS and claim limits.
 
-<span class="cept-course-stage__outcome">Outcome · Every later number has a known environment and a known ceiling.</span>
+<span class="cept-course-stage__outcome">Outcome · Identify the runtime and evidence scope.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 1 · The aha</span>
+<span class="cept-course-stage__index">Phase 1 · Model integrity</span>
 
-### See the failure before the theory
+### Inspect model assumptions
 
-**01 · Why solvers lie** — an AI-written OpenDSS script converges on a wrong
-model and reports 0.316 pu with no warning. The same feeder through CEPT returns
-0.948 pu. Convergence is not correctness.
+**01 · Convergence and model integrity** — compare recorded feeder outputs
+with omitted and declared downstream voltage bases: 0.316 pu versus 0.948 pu.
 
-<span class="cept-course-stage__outcome">Outcome · You can explain why a validating bridge exists at all.</span>
+<span class="cept-course-stage__outcome">Outcome · Distinguish convergence from correctness.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 2 · Build it</span>
+<span class="cept-course-stage__index">Phase 2 · Model construction</span>
 
-### Make your first system visible
+### Build a typed network
 
-**02 · Build your first circuit** — declare the IEEE 4-node feeder as a typed
-Case and get an interactive single-line diagram without drawing a single
-coordinate.
+**02 · Typed network modelling** — define the IEEE 4-node feeder and inspect
+its single-line diagram.
 
-<span class="cept-course-stage__outcome">Outcome · You can turn a Case into a run and a diagram.</span>
+<span class="cept-course-stage__outcome">Outcome · Connect a Case, run, and diagram.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 3 · Real network</span>
+<span class="cept-course-stage__index">Phase 3 · Network conditions</span>
 
-### Meet the messy distribution grid
+### Evaluate phases and input quality
 
-**03 · A feeder is never balanced** — inspect phase-specific voltage on the
-IEEE 13-node feeder instead of hiding imbalance inside one average.
+**03 · Unbalanced feeder analysis** — inspect each phase of IEEE13.
 
-**04 · When site data is incomplete** — review known, missing, default, and
-AI-assumption status before a separate bounded demo receipt.
+**04 · Incomplete engineering data** — separate source data, missing inputs,
+and approved resolutions from the bundled demonstrator.
 
-<span class="cept-course-stage__outcome">Outcome · You can read an unbalanced result and refuse to invent a missing one.</span>
+<span class="cept-course-stage__outcome">Outcome · Inspect unbalance without concealing missing inputs.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 4 · Active grid</span>
+<span class="cept-course-stage__index">Phase 4 · Applied studies</span>
 
-### Ask the modern engineering questions
+### Study solar integration and faults
 
-**05 · How much solar can it take?** — sweep PV against a declared voltage
-criterion until reverse power flow pushes the feeder past the limit.
+**05 · Solar hosting capacity** — sweep PV against a declared voltage limit.
 
-**06 · Short-circuit current** — apply a declared line-to-ground fault and read
-the solver-returned current, without mistaking it for a protection decision.
+**06 · Short-circuit analysis** — read solver-returned fault current, not a
+protection acceptance decision.
 
-<span class="cept-course-stage__outcome">Outcome · You can bound a renewable connection and read a fault result honestly.</span>
+<span class="cept-course-stage__outcome">Outcome · Interpret results against declared study criteria.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 5 · Trust</span>
+<span class="cept-course-stage__index">Phase 5 · Evidence &amp; reproducibility</span>
 
-### Prove the number afterwards
+### Review the run evidence
 
-**07 · The digital receipt** — run the identical Case twice and follow the
-fingerprint, artifact hashes, and verification receipt behind one exact result.
+**07 · Run evidence and reproducibility** — inspect Case fingerprints,
+artifact hashes, and verification checks.
 
-<span class="cept-course-stage__outcome">Outcome · You can distinguish a completed workflow from a validated physical project.</span>
+<span class="cept-course-stage__outcome">Outcome · Distinguish workflow evidence from project validation.</span>
 </div>
 
 </div>

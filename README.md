@@ -14,19 +14,21 @@ The candidate package contains an OpenDSS-first vertical slice for education:
   `--format json` output; and
 * the eight cold-start notebooks under `public/notebooks/`.
 
-The course runs in five phases after a setup prologue, so a learner meets the
-failure before the theory. Open each lesson directly in Google Colab:
+The course uses five formal phases after a setup prologue. Open each lesson
+directly in Google Colab:
 
 | Phase | Notebook | Link |
 | --- | --- | --- |
 | Prologue | `00_environment.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb) |
-| 1 · The aha | `01_why_solvers_lie.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_why_solvers_lie.ipynb) |
-| 2 · Build it | `02_first_circuit_sld.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_first_circuit_sld.ipynb) |
-| 3 · Real network | `03_unbalanced_feeder.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_unbalanced_feeder.ipynb) |
-| 3 · Real network | `04_incomplete_data.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_incomplete_data.ipynb) |
-| 4 · Active grid | `05_solar_hosting_capacity.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_solar_hosting_capacity.ipynb) |
-| 4 · Active grid | `06_fault_study.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_fault_study.ipynb) |
-| 5 · Trust | `07_digital_evidence.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_digital_evidence.ipynb) |
+| 1 · Model integrity | `01_why_solvers_lie.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_why_solvers_lie.ipynb) |
+| 2 · Model construction | `02_first_circuit_sld.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_first_circuit_sld.ipynb) |
+| 3 · Network conditions | `03_unbalanced_feeder.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_unbalanced_feeder.ipynb) |
+| 3 · Network conditions | `04_incomplete_data.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_incomplete_data.ipynb) |
+| 4 · Applied studies | `05_solar_hosting_capacity.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_solar_hosting_capacity.ipynb) |
+| 4 · Applied studies | `06_fault_study.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_fault_study.ipynb) |
+| 5 · Evidence & reproducibility | `07_digital_evidence.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_digital_evidence.ipynb) |
+
+Notebook steps use concise icons: **⚙ Setup · 🧩 Inputs · ▶ Run · 📊 Results · ✓ Verify · ◇ Interpret**.
 
 The desktop/CLI teaching path is qualified on Windows, and the notebooks are
 also exercised headlessly in a clean installed-product environment. Google
