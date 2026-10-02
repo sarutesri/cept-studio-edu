@@ -86,7 +86,7 @@ Use the same CLI commands as a normal terminal; optional OpenCode help stays on 
 
 </div>
 
-## Seven lessons
+## Eight lessons
 
 | Lesson | Focus | What stays visible |
 | --- | --- | --- |
@@ -97,6 +97,7 @@ Use the same CLI commands as a normal terminal; optional OpenCode help stays on 
 | **04 · Fault study** | single-line-to-ground fault | solver-returned fault current |
 | **05 · Reproducibility** | fingerprints and receipts | Case/result identity and checks |
 | **06 · Case information + OpenCode** | incomplete real-world starting data | source/derived/missing/default/AI assumption status |
+| **07 · Pure vs CEPT** | solver truth and model contracts | 0.316 pu error vs 0.948 pu CEPT result |
 
 ## Lesson 06: flexible input, strict truth
 
@@ -122,6 +123,16 @@ parameter. CEPT therefore does **not** solve that learner Case. The notebook
 runs a bundled IEEE13 load-flow demonstration at the end so the learner can
 still see a genuine OpenDSS run and verification receipt without laundering a
 missing input into a fake result.
+
+## Lesson 07: why solvers lie
+
+Lesson 07 demonstrates why an engineering contract bridge like CEPT is
+necessary when working with LLMs and automated solver scripts.
+An AI-written OpenDSS script omits `Set Voltagebases=[12.47 4.16]`. OpenDSS
+converges smoothly with zero errors, but evaluates secondary voltages on the
+wrong base, yielding a deceptive 0.316 pu. CEPT starts from an explicit typed
+Case, sets the exact voltage bases in the solver, and returns the verified
+0.948 pu solution.
 
 For the full Windows workflow with interactive SLD and report output, continue
 to [Getting started](getting-started.md). For mixed source data and Case

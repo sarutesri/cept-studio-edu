@@ -1,11 +1,11 @@
 ---
 title: Education course map
-description: Seven public notebook lessons for learning CEPT through small, solver-backed OpenDSS studies.
+description: Eight public notebook lessons for learning CEPT through small, solver-backed OpenDSS studies.
 ---
 
 <div class="cept-page-hero" markdown>
 
-<span class="cept-kicker">Learn · Seven small studies</span>
+<span class="cept-kicker">Learn · Eight small studies</span>
 
 # CEPT education course map
 
@@ -74,12 +74,16 @@ checks.
 **06 · Guided Case review** — review known, missing, default, and AI-assumption
 status before a separate bounded demo receipt.
 
+**07 · Pure OpenDSS vs CEPT** — see how an AI-written script that converged to
+the wrong 0.316 pu result is caught and corrected to 0.948 pu by CEPT's validated
+Case contract.
+
 <span class="cept-course-stage__outcome">Outcome · You can distinguish a completed workflow from a validated physical project.</span>
 </div>
 
 </div>
 
-## What changes in Lesson 06
+## Real-world data in Lesson 06
 
 The final lesson starts closer to real engineering work: the learner may have
 incomplete information rather than a ready-made Case. It introduces the Case
