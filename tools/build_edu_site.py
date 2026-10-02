@@ -417,7 +417,10 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str) 
 
 def _header(*, home_href: str, label: str | None = None) -> str:
     if label is None:
-        navigation = f'<a href="{home_href}" aria-current="page">Learning index</a>'
+        navigation = (
+            f'<a href="{home_href}" aria-current="page">Learning index</a>'
+            '<a href="#why-cept">Why CEPT</a><a href="#lessons">Explore lessons</a>'
+        )
     else:
         navigation = (
             f'<a href="{home_href}">Learning index</a>\n'
@@ -637,153 +640,127 @@ def _index_page(
     repository_url = f"https://github.com/{html.escape(repository, quote=True)}"
     body = f'''
 {_header(home_href="index.html")}
-<main id="content">
-  <section class="hero shell">
+<main id="content" class="edu-home">
+  <section class="hero shell" aria-labelledby="hero-heading">
     <div class="hero-copy">
-      <div class="eyebrow">OPEN DSS · 8 SHORT LESSONS · RUNNABLE IN COLAB</div>
-      <h1>Run a small study.<br><em>See where it came from.</em></h1>
-      <p class="hero-lead">Start from a wrong answer that looks perfect, then build a real feeder, meet an unbalanced grid, ask what solar and faults do to it, and finish able to prove the number. Each lesson shows the inputs, the OpenDSS result, and the boundary of what it proves.</p>
+      <div class="eyebrow">CEPT POWER STUDIO / EDUCATION</div>
+      <h1 id="hero-heading">Power-system studies.<br><em>Clear inputs.<br>Traceable results.</em></h1>
+      <p class="hero-lead">Connect engineering intent to an inspectable OpenDSS study. CEPT brings the network model, simulation results, diagrams, and verification evidence into one structured workflow.</p>
       <div class="hero-actions" aria-label="Start learning">
-        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with the wrong answer</a>
-        <a class="text-link" href="lessons/02_first_circuit_sld.html">Or build the first circuit <span aria-hidden="true">→</span></a>
+        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Discover the difference <span aria-hidden="true">→</span></a>
+        <a class="button button-secondary" href="#lessons">Explore the course</a>
       </div>
-      <p class="hero-scope">Public demonstrator workflows. They do not establish project approval, field validation, or PowerFactory parity.</p>
+      <ul class="hero-facts" aria-label="Course at a glance">
+        <li>7 lessons + setup</li><li>OpenDSS-backed</li><li>Colab notebooks</li>
+      </ul>
     </div>
-    <div class="hero-card" aria-label="The five learning phases">
-      <div class="hero-card-label">THE FIVE PHASES</div>
-      <ol>
-        <li><span>01</span><strong>The aha</strong><small>Why solvers lie.</small></li>
-        <li><span>02</span><strong>Build it</strong><small>Typed Case to SLD.</small></li>
-        <li><span>03</span><strong>Real network</strong><small>Unbalance, incomplete data.</small></li>
-        <li><span>04</span><strong>Active grid</strong><small>Solar, hosting, faults.</small></li>
-        <li><span>05</span><strong>Trust</strong><small>Receipts and reproducibility.</small></li>
-      </ol>
+    <figure class="study-preview">
+      <div class="preview-heading"><span class="preview-dot" aria-hidden="true"></span>FROM MODEL TO EVIDENCE <span class="preview-tag">Conceptual view</span></div>
+      <svg class="network-diagram" viewBox="0 0 520 260" role="img" aria-labelledby="network-title network-desc">
+        <title id="network-title">A network model made visible</title>
+        <desc id="network-desc">An illustrative single-line diagram connects a source through a transformer to two load branches and a photovoltaic branch. This is a concept illustration, not a simulated lesson circuit.</desc>
+        <defs><pattern id="network-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#dce8ee" stroke-width=".6"/></pattern></defs>
+        <rect width="520" height="260" rx="10" fill="url(#network-grid)"/>
+        <g fill="none" stroke="#23445a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="55" cy="110" r="21"/><path d="M42 110 Q48 95 55 110 T68 110 M76 110 H139 M175 110 H240 M240 76 V148 M240 110 H353 M353 76 V148 M353 110 H463 V175 M240 148 V175 M353 76 V43"/>
+          <circle cx="149" cy="110" r="17"/><circle cx="170" cy="110" r="17"/>
+          <path d="M228 175 H252 L240 196 Z M451 175 H475 L463 196 Z"/>
+          <rect x="336" y="19" width="34" height="24" rx="3"/><path d="M341 31 H365 M347 23 V39 M358 23 V39"/>
+        </g>
+        <g fill="#067d77"><circle cx="240" cy="110" r="5"/><circle cx="353" cy="110" r="5"/></g>
+        <g fill="#526777" font-family="Segoe UI, Arial, sans-serif" font-size="12" text-anchor="middle">
+          <text x="55" y="155">Source</text><text x="160" y="155">Transformer</text><text x="240" y="220">Load</text><text x="463" y="220">Load</text><text x="398" y="36">PV</text>
+          <text x="240" y="63">Bus A</text><text x="353" y="172">Bus B</text>
+        </g>
+      </svg>
+      <div class="preview-artifacts">
+        <div><span>01 / DEFINE</span><strong>Typed Case</strong><small>Topology · units · assumptions</small></div>
+        <div><span>02 / INSPECT</span><strong>Solver results</strong><small>Voltages · currents · plots</small></div>
+        <div><span>03 / REVIEW</span><strong>Run evidence</strong><small>Identity · artifacts · checks</small></div>
+      </div>
+      <figcaption>Illustrative network. The lessons below provide the actual declared models and solver outputs.</figcaption>
+    </figure>
+  </section>
+  <section id="why-cept" class="principles shell" aria-labelledby="principles-heading">
+    <div class="section-heading">
+      <div><div class="eyebrow">WHY CEPT</div><h2 id="principles-heading">More than a script.<br>A reviewable engineering workflow.</h2></div>
+      <p class="section-note">OpenDSS calculates the solution. CEPT adds structure around the inputs, execution, and evidence—so you can inspect more than the final number.</p>
+    </div>
+    <div class="benefit-grid">
+      <article><span class="principle-index">01 / MODEL CLARITY</span><h3>Make the inputs explicit</h3><p>Use a typed Case to keep topology, units, study settings, and input decisions together. Missing information stays visible rather than becoming an unrecorded assumption.</p><a href="lessons/04_incomplete_data.html">Explore input policies <span aria-hidden="true">→</span></a></article>
+      <article><span class="principle-index">02 / NETWORK VISIBILITY</span><h3>See the system you study</h3><p>Inspect single-line diagrams and phase-specific results alongside the model. Follow connectivity and voltage behaviour without manually placing every bus.</p><a href="lessons/02_first_circuit_sld.html">Build a visible circuit <span aria-hidden="true">→</span></a></article>
+      <article><span class="principle-index">03 / REPRODUCIBLE METHOD</span><h3>Keep a study worth revisiting</h3><p>Retain the declared Case and exact run artifacts. Compare changes against an identifiable baseline instead of relying on a prompt or a copied result.</p><a href="lessons/07_digital_evidence.html">Follow the evidence <span aria-hidden="true">→</span></a></article>
+      <article><span class="principle-index">04 / ENGINEERING LEARNING</span><h3>Connect the result to a question</h3><p>Study unbalance, solar integration, and faults through bounded examples. Inspect what changed, interpret why, and distinguish a workflow check from engineering acceptance.</p><a href="lessons/03_unbalanced_feeder.html">Inspect an unbalanced feeder <span aria-hidden="true">→</span></a></article>
     </div>
   </section>
-  <section class="principles shell" aria-labelledby="principles-heading">
-    <div class="section-heading">
-      <div><div class="eyebrow">A BOUNDED WAY TO LEARN</div><h2 id="principles-heading">See the method without losing the limits</h2></div>
-      <p class="section-note">Concrete studies, explicit inputs, and claims that stop where the evidence stops.</p>
-    </div>
-    <div class="principle-grid">
-      <article><span class="principle-index">01</span><h3>See the source of a result</h3><p>Numerical values stay tied to the declared OpenDSS run. Interpretation remains separate.</p></article>
-      <article><span class="principle-index">02</span><h3>Start from clear inputs</h3><p>Topology, units, study type, and assumptions stay visible before execution.</p></article>
-      <article><span class="principle-index">03</span><h3>Know what it proves</h3><p><code>WORKFLOW_VALIDATED</code> supports workflow checks, not project approval, field validation, or a protection decision.</p></article>
+  <section class="workflow-section" aria-labelledby="workflow-heading">
+    <div class="shell">
+      <div class="section-heading">
+        <div><div class="eyebrow">HOW IT WORKS</div><h2 id="workflow-heading">One Case. A visible path to the result.</h2></div>
+        <p class="section-note">AI may help express the question. It does not supply the numerical simulation result, and you can follow these lessons without an AI API key.</p>
+      </div>
+      <figure class="workflow-figure">
+        <ol class="workflow-diagram" aria-label="CEPT study workflow">
+          <li><span class="workflow-step">01</span><h3>Define</h3><strong>Typed Case</strong><p>Network, units, study, and input decisions.</p></li>
+          <li><span class="workflow-step">02</span><h3>Check</h3><strong>CEPT input checks</strong><p>Inspect readiness and unresolved required inputs.</p></li>
+          <li class="solver-step"><span class="workflow-step">03</span><h3>Solve</h3><strong>OpenDSS engine</strong><p>Execute the declared model; retain solver output.</p></li>
+          <li><span class="workflow-step">04</span><h3>Inspect</h3><strong>Diagrams &amp; results</strong><p>Explore topology, phase quantities, and study plots.</p></li>
+          <li><span class="workflow-step">05</span><h3>Verify</h3><strong>Run evidence</strong><p>Review identity, artifact integrity, and recorded checks.</p></li>
+        </ol>
+        <figcaption>Conceptual workflow—not a certification chain. Input checks cannot establish that a model represents the physical project.</figcaption>
+      </figure>
+      <div class="role-strip"><p><strong>Engineer</strong> owns the data and judgement.</p><p><strong>OpenDSS</strong> owns the numerical solution.</p><p><strong>CEPT</strong> structures the model and evidence.</p></div>
     </div>
   </section>
   <section class="comparison-band shell" aria-labelledby="comparison-heading">
     <div class="section-heading">
-      <div class="section-heading-text"><div class="eyebrow">WHY CEPT? BRIDGING AI &amp; SOLVERS</div><h2 id="comparison-heading">Pure speed. CEPT traceability.</h2></div>
-      <p class="section-note">Why not just ask an LLM (ChatGPT / Claude) to write OpenDSS scripts directly? Because numerical solvers and language models share a dangerous blind spot in electrical power engineering.</p>
+      <div><div class="eyebrow">THE FIRST DISCOVERY</div><h2 id="comparison-heading">Convergence is not correctness.</h2></div>
+      <p class="section-note">A successful solve can still hide an incorrect voltage base. Lesson 01 makes the distinction visible using a recorded feeder example.</p>
     </div>
-
-    <div class="bridge-flow-card">
-      <div class="flow-title">The Contrast: Direct AI Scripting vs. The CEPT Augmenting Bridge</div>
-      <div class="flow-diagram">
-<pre class="flow-code"><code><strong>Direct AI Scripting (The Silent Failure Trap):</strong>
-[Engineering Question] ──&gt; [LLM Generates Raw OpenDSS] ──&gt; [OpenDSS Solver] ──&gt; [Deceptive 0.316 pu Result]
-                                     ▲                            │
-                                     │ (Silent base mismatch)     │
-                                     └───── No sanity check ──────┘
-
-<strong>The CEPT Augmenting Bridge:</strong>
-[Engineering Question] ──&gt; [Typed Case Model] ──&gt; [CEPT Gate] ──&gt; [OpenDSS] ──&gt; [CEPT Verifier] ──&gt; [Verifiable 0.948 pu Evidence]
-                                                       │                     │
-                                               (Validates bases,      (Checks convergence,
-                                                windings &amp; topology)   hashes SHA-256 artifacts)</code></pre>
-      </div>
+    <div class="discovery-grid">
+      <article class="discovery-copy"><h3>Same feeder example.<br>Different voltage-base handling.</h3><p>The direct-script path omits the downstream voltage-base declaration. The CEPT path carries the declared bus voltage into the adapter.</p><p>The comparison shows why model preparation matters—not that every direct script is wrong, or that CEPT guarantees a correct physical model.</p><a class="text-link" href="lessons/01_why_solvers_lie.html">Inspect the code and recorded output <span aria-hidden="true">→</span></a></article>
+      <figure class="result-comparison">
+        <div class="result-row result-row--warning"><div><span>DIRECT SCRIPT / OMITTED BASE</span><strong>0.316 <small>pu</small></strong></div><p>Converged, but misleading per-unit readout.</p></div>
+        <div class="result-row"><div><span>CEPT / DECLARED BASE</span><strong>0.948 <small>pu</small></strong></div><p>Readout tied to the declared voltage base.</p></div>
+        <figcaption>Rounded Node 4 values from the recorded Lesson 01 OpenDSS outputs. Demonstrator evidence, not a measured operating point.</figcaption>
+      </figure>
     </div>
-
     <div class="comparison-table-wrapper">
       <table class="comparison-table">
-        <thead>
-          <tr>
-            <th style="width: 24%;">Engineering Dimension</th>
-            <th style="width: 38%;">Direct LLM + OpenDSS (Pure Scripting)</th>
-            <th style="width: 38%;">CEPT Augmenting Bridge</th>
-          </tr>
-        </thead>
+        <caption>What CEPT adds to a direct scripting workflow</caption>
+        <thead><tr><th scope="col">Engineering task</th><th scope="col">With direct scripts</th><th scope="col">With CEPT</th></tr></thead>
         <tbody>
-          <tr>
-            <td><strong>1. Voltage Base Integrity</strong></td>
-            <td>LLMs frequently confuse line-to-line ($kV_{{LL}}$) and line-to-neutral ($kV_{{LN}}$) bases. OpenDSS solves the network without warning (<code>Converged: True</code>), but downstream voltages drop to <strong>0.316 pu</strong>!</td>
-            <td><strong>Fail-Closed Gate (<code>cept case check</code>):</strong> CEPT validates bus nominal kV, transformer winding ratios, and per-unit bases before execution, returning the true <strong>0.948 pu</strong> solution.</td>
-          </tr>
-          <tr>
-            <td><strong>2. Hidden Default Parameters</strong></td>
-            <td>OpenDSS contains dozens of implicit defaults (grounding impedance, standard R/X ratios). Omitted fields are silently filled by the solver, creating phantom circuits.</td>
-            <td><strong>Explicit Typed Case Contract:</strong> Every engineering parameter is explicit in structured JSON. Missing values require explicit policy decisions rather than silent guesses.</td>
-          </tr>
-          <tr>
-            <td><strong>3. Determinism &amp; Reproducibility</strong></td>
-            <td>Prompts drift over time: asking an AI on different days produces different script syntax, object declarations, and bus naming styles, ruining reproducibility.</td>
-            <td><strong>Deterministic Case Model:</strong> Circuits are versioned Data Models. Compilation to solver instructions is bit-for-bit identical across runs, teams, and machines.</td>
-          </tr>
-          <tr>
-            <td><strong>4. Topology &amp; SLD Visualization</strong></td>
-            <td>OpenDSS has no native automatic diagram generator; engineers must manually specify (x, y) coordinates for every bus or hand-craft plotting scripts.</td>
-            <td><strong>Zero-Config Interactive SLD:</strong> CEPT includes an automatic layout engine that traces feeder connectivity and renders interactive SLDs directly in Colab without manual coordinates.</td>
-          </tr>
-          <tr>
-            <td><strong>5. Result Verification &amp; Trust</strong></td>
-            <td>Simulation results in raw CSV/Excel files can be manually altered or fabricated after the run with zero cryptographic evidence or audit trail.</td>
-            <td><strong>Cryptographic Artifact Hashing:</strong> Every run generates a tamper-evident receipt (<code>validation_report.json</code>) with SHA-256 digests proving results came from genuine solver convergence.</td>
-          </tr>
+          <tr><th scope="row">Model definition</th><td>Manage declarations and conventions in solver-specific code.</td><td>A typed Case keeps the network and study inputs in a structured model.</td></tr>
+          <tr><th scope="row">Missing information</th><td>Track omissions and chosen defaults yourself.</td><td>Input policies make unresolved values and approved resolutions visible.</td></tr>
+          <tr><th scope="row">Result inspection</th><td>Assemble plots and diagram tooling around the script.</td><td>Inspect model-linked SLDs and study-specific result views.</td></tr>
+          <tr><th scope="row">Evidence review</th><td>Implement your own run identity and integrity checks.</td><td>Review Case fingerprints, saved artifacts, and verification receipts.</td></tr>
         </tbody>
       </table>
     </div>
-
-    <div class="analogy-grid">
-      <div class="analogy-card">
-        <span class="analogy-icon">&#9874;</span>
-        <h4>OpenDSS Solver</h4>
-        <p>The <strong>powerful physics calculator</strong>. It solves heavy sparse nodal admittance equations with unmatched speed, but assumes all input bases and wiring are physically sound.</p>
-      </div>
-      <div class="analogy-card">
-        <span class="analogy-icon">&#128172;</span>
-        <h4>LLM Assistant</h4>
-        <p>The <strong>conversational interface</strong>. It speaks fluent human language and translates intent into code, but occasionally stumbles on transformer winding shifts and per-unit scales.</p>
-      </div>
-      <div class="analogy-card">
-        <span class="analogy-icon">&#128207;</span>
-        <h4>CEPT Bridge</h4>
-        <p>The <strong>engineering ruler &amp; quality-control system</strong>. It enforces model contracts, prevents silent errors, draws SLDs automatically, and certifies solver truth.</p>
-      </div>
-    </div>
-
-    <div class="principle-grid">
-      <article><span class="principle-index">01</span><h3>Pure OpenDSS can be wrong</h3><p>The AI omits the downstream voltage base. OpenDSS still converges and reports a plausible-looking 0.316 pu at Node 4.</p></article>
-      <article><span class="principle-index">02</span><h3>CEPT carries the Case</h3><p>The declared 4.16 kV bus reaches the adapter, so the same feeder returns 0.948 pu with SLD, plot, manifest, and receipt.</p></article>
-      <article><span class="principle-index">03</span><h3>See the useful failure</h3><p>Compare a silently wrong answer with a correct, reviewable result in <a href="lessons/01_why_solvers_lie.html">Lesson 01 →</a></p></article>
-    </div>
+    <p class="comparison-note">A well-engineered script can implement these practices too. CEPT’s advantage is bringing them into a consistent workflow, not replacing the solver or the engineer.</p>
   </section>
   <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven lessons, five phases, one visible trail</h2></div>
-      <p class="section-note">Follow the sequence from the wrong answer to the receipt, or jump to the engineering question you want to explore.</p>
+      <div><div class="eyebrow">THE LEARNING PATH</div><h2 id="lessons-heading">Learn the method.<br>Then apply it to a question.</h2></div>
+      <p class="section-note">Seven lessons across five phases, plus a setup prologue. Read the worked examples, open a notebook, and inspect the evidence yourself.</p>
     </div>
+    <div class="course-entry"><p><strong>New to CEPT?</strong> Begin with runtime setup, then follow Lessons 01–07.</p><a href="lessons/00_environment.html">Start with setup <span aria-hidden="true">→</span></a></div>
     {"".join(course_stages)}
   </section>
   <section class="trust-band shell" aria-labelledby="trust-heading">
     <div>
-      <div class="eyebrow">PUBLIC FACTS</div>
-      <h2 id="trust-heading">A result should come with a trail.</h2>
-      <p>Each lesson keeps declared inputs, solver output, interpretation, and verification in one reviewable path. Change one input and compare the next result.</p>
+      <div class="eyebrow">WHAT THE EVIDENCE MEANS</div>
+      <h2 id="trust-heading">Traceability supports review.<br>It does not replace validation.</h2>
+      <p>Verification checks help establish which Case and artifacts belong to a run, and whether recorded checks passed. Artifact hashes detect changes relative to a recorded digest; they do not prove physical correctness or independently authenticate a solver.</p>
     </div>
-    <dl class="proof-grid">
-      <div><dt>7 + 1</dt><dd>lessons plus a setup prologue</dd></div>
-      <div><dt>OpenDSS</dt><dd>teaching runtime</dd></div>
-      <div><dt>Python 3.10+</dt><dd>public runtime</dd></div>
-      <div><dt>Workflow-level</dt><dd>verification checks</dd></div>
-    </dl>
+    <div class="claim-card"><span class="claim-label">PUBLIC COURSE CLAIM CEILING</span><strong><code>WORKFLOW_VALIDATED</code></strong><p>Bounded workflow evidence for the declared examples.</p><hr><p><strong>Not established by this course:</strong> field validation, project approval, protection-setting acceptance, or PowerFactory agreement. Those require their own evidence and review.</p></div>
   </section>
   <section class="shell source-section" aria-labelledby="source-heading">
-    <div class="eyebrow">NEXT STEP</div>
-    <h2 id="source-heading">Not sure where to start?</h2>
-    <p>Begin with the wrong answer a solver happily returns, then build the same feeder correctly and see what changed.</p>
+    <div><div class="eyebrow">YOUR NEXT STUDY STARTS HERE</div><h2 id="source-heading">Understand the model.<br>Be ready to question the result.</h2><p>Start with the voltage-base example, or build your first typed circuit.</p></div>
     <div class="next-actions">
-      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with lesson 01</a>
-      <a class="text-link" href="{repository_url}">View the public source <span aria-hidden="true">↗</span></a>
+      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start lesson 01 <span aria-hidden="true">→</span></a>
+      <a class="button button-secondary" href="lessons/02_first_circuit_sld.html">Build the first circuit</a>
+      <a class="text-link" href="{repository_url}">Explore the public source <span aria-hidden="true">↗</span></a>
     </div>
   </section>
 </main>
@@ -800,7 +777,7 @@ def _index_page(
         "Learning index",
         body,
         stylesheet="assets/education.css",
-        description="Run eight short OpenDSS power-system studies in Colab and inspect the inputs, results, and verification behind each answer.",
+        description="Learn power-system studies with CEPT: explicit models, OpenDSS simulation, rendered diagrams, and traceable run evidence. Seven lessons plus setup.",
     )
 
 
