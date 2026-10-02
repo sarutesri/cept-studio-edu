@@ -11,13 +11,13 @@ education:
   status: candidate
   notebooks:
     - public/notebooks/00_environment.ipynb
-    - public/notebooks/01_first_circuit_load_flow.ipynb
-    - public/notebooks/02_ieee13_unbalanced.ipynb
-    - public/notebooks/03_hosting_capacity.ipynb
-    - public/notebooks/04_fault_study.ipynb
-    - public/notebooks/05_validation_reproducibility.ipynb
-    - public/notebooks/06_colab_tui.ipynb
-    - public/notebooks/07_pure_vs_cept.ipynb
+    - public/notebooks/01_why_solvers_lie.ipynb
+    - public/notebooks/02_first_circuit_sld.ipynb
+    - public/notebooks/03_unbalanced_feeder.ipynb
+    - public/notebooks/04_incomplete_data.ipynb
+    - public/notebooks/05_solar_hosting_capacity.ipynb
+    - public/notebooks/06_fault_study.ipynb
+    - public/notebooks/07_digital_evidence.ipynb
   runner: tools/run_public_notebooks.py
 
 source:

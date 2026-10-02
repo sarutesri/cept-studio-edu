@@ -26,66 +26,93 @@ or PowerFactory parity.
 
 ## Course path
 
-Every lesson is small enough to run, inspect, and question. The learner-facing
-path is terminal-first: Colab shows the same `cept <noun> <verb>` commands used
-in a normal terminal, while direct OpenDSS/Python checks remain optional
-implementation detail.
+The course is ordered by how a learner should think, not by which study is
+easiest to implement. It opens on a wrong answer, then earns every later step.
+The learner-facing path is terminal-first: Colab shows the same
+`cept <noun> <verb>` commands used in a normal terminal, while direct
+OpenDSS/Python checks remain optional implementation detail.
 
 <div class="cept-course-path" markdown>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">01 · Foundation</span>
+<span class="cept-course-stage__index">Prologue</span>
 
-### Make the runtime and network visible
+### Set up the runtime and the claim boundary
 
-**00 · Environment** — confirm CEPT/OpenDSS identity and learn what a PASS can
-prove.
+**00 · Before you start** — confirm CEPT/OpenDSS identity and learn what a PASS
+can and cannot prove.
 
-**01 · First circuit** — run a tiny load flow and inspect the load-bus voltage.
-
-**02 · IEEE13 unbalanced** — move to a real three-phase feeder and inspect
-phase-specific voltage.
-
-<span class="cept-course-stage__outcome">Outcome · You can run and read a bounded solver-backed study.</span>
+<span class="cept-course-stage__outcome">Outcome · Every later number has a known environment and a known ceiling.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">02 · Apply</span>
+<span class="cept-course-stage__index">Phase 1 · The aha</span>
 
-### Change the engineering question
+### See the failure before the theory
 
-**03 · Hosting capacity** — sweep PV against a declared voltage criterion and
-inspect the capacity bracket.
+**01 · Why solvers lie** — an AI-written OpenDSS script converges on a wrong
+model and reports 0.316 pu with no warning. The same feeder through CEPT returns
+0.948 pu. Convergence is not correctness.
 
-**04 · Fault study** — run a ground fault and inspect solver-returned fault
-current.
-
-<span class="cept-course-stage__outcome">Outcome · You can see how the study definition changes what evidence is produced.</span>
+<span class="cept-course-stage__outcome">Outcome · You can explain why a validating bridge exists at all.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">03 · Evidence</span>
+<span class="cept-course-stage__index">Phase 2 · Build it</span>
 
-### Keep the result connected to its trail
+### Make your first system visible
 
-**05 · Reproducibility** — inspect Case/result identity, fingerprints, and
-checks.
+**02 · Build your first circuit** — declare the IEEE 4-node feeder as a typed
+Case and get an interactive single-line diagram without drawing a single
+coordinate.
 
-**06 · Guided Case review** — review known, missing, default, and AI-assumption
-status before a separate bounded demo receipt.
+<span class="cept-course-stage__outcome">Outcome · You can turn a Case into a run and a diagram.</span>
+</div>
 
-**07 · Pure OpenDSS vs CEPT** — see how an AI-written script that converged to
-the wrong 0.316 pu result is caught and corrected to 0.948 pu by CEPT's validated
-Case contract.
+<div class="cept-course-stage" markdown>
+<span class="cept-course-stage__index">Phase 3 · Real network</span>
+
+### Meet the messy distribution grid
+
+**03 · A feeder is never balanced** — inspect phase-specific voltage on the
+IEEE 13-node feeder instead of hiding imbalance inside one average.
+
+**04 · When site data is incomplete** — review known, missing, default, and
+AI-assumption status before a separate bounded demo receipt.
+
+<span class="cept-course-stage__outcome">Outcome · You can read an unbalanced result and refuse to invent a missing one.</span>
+</div>
+
+<div class="cept-course-stage" markdown>
+<span class="cept-course-stage__index">Phase 4 · Active grid</span>
+
+### Ask the modern engineering questions
+
+**05 · How much solar can it take?** — sweep PV against a declared voltage
+criterion until reverse power flow pushes the feeder past the limit.
+
+**06 · Short-circuit current** — apply a declared line-to-ground fault and read
+the solver-returned current, without mistaking it for a protection decision.
+
+<span class="cept-course-stage__outcome">Outcome · You can bound a renewable connection and read a fault result honestly.</span>
+</div>
+
+<div class="cept-course-stage" markdown>
+<span class="cept-course-stage__index">Phase 5 · Trust</span>
+
+### Prove the number afterwards
+
+**07 · The digital receipt** — run the identical Case twice and follow the
+fingerprint, artifact hashes, and verification receipt behind one exact result.
 
 <span class="cept-course-stage__outcome">Outcome · You can distinguish a completed workflow from a validated physical project.</span>
 </div>
 
 </div>
 
-## Real-world data in Lesson 06
+## Real-world data in Lesson 04
 
-The final lesson starts closer to real engineering work: the learner may have
+Lesson 04 starts closer to real engineering work: the learner may have
 incomplete information rather than a ready-made Case. It introduces the Case
 information resolution ledger and three explicit policies:
 

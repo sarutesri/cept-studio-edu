@@ -32,89 +32,110 @@ LESSONS: tuple[dict[str, str], ...] = (
     {
         "stem": "00_environment",
         "number": "00",
-        "stage": "foundation",
-        "title_en": "Check the runtime",
-        "summary_en": "See which OpenDSS version is installed and what a passing workflow check does—and does not—prove.",
-        "outcome_en": "Runtime identity and a bounded readiness result",
+        "stage": "prologue",
+        "title_en": "Before you start",
+        "summary_en": "Confirm the OpenDSS runtime is real and learn what a green result is allowed to claim.",
+        "outcome_en": "Runtime identity and a bounded claim ceiling",
     },
     {
-        "stem": "01_first_circuit_load_flow",
+        "stem": "01_why_solvers_lie",
         "number": "01",
-        "stage": "foundation",
-        "title_en": "Run the IEEE 4-node feeder",
-        "summary_en": "Run the standard IEEE 4-node feeder with step-down transformer, then inspect voltages, losses, and SLD.",
+        "stage": "aha",
+        "title_en": "Why solvers lie",
+        "summary_en": "An AI-written OpenDSS script converges on a wrong model. See 0.316 pu, then 0.948 pu from the same feeder.",
+        "outcome_en": "Wrong pure result 0.316 pu versus CEPT result 0.948 pu",
+    },
+    {
+        "stem": "02_first_circuit_sld",
+        "number": "02",
+        "stage": "build",
+        "title_en": "Build your first circuit",
+        "summary_en": "Declare the IEEE 4-node feeder as a typed Case and get an interactive SLD with no manual coordinates.",
         "outcome_en": "Example: 0.9477 pu at Node 4 with step-down transformer",
     },
     {
-        "stem": "02_ieee13_unbalanced",
-        "number": "02",
-        "stage": "foundation",
-        "title_en": "Explore an unbalanced feeder",
-        "summary_en": "Inspect phase-specific voltage on the IEEE 13-node feeder instead of hiding the imbalance inside one average.",
+        "stem": "03_unbalanced_feeder",
+        "number": "03",
+        "stage": "real",
+        "title_en": "A feeder is never balanced",
+        "summary_en": "Inspect phase-specific voltage on the IEEE 13-node feeder instead of hiding imbalance in one average.",
         "outcome_en": "Phase A, B, and C voltage profiles",
     },
     {
-        "stem": "03_hosting_capacity",
-        "number": "03",
-        "stage": "apply",
-        "title_en": "Find a PV hosting-capacity bracket",
-        "summary_en": "Change the declared voltage criterion and see how the admissible PV range moves.",
-        "outcome_en": "A capacity bracket under one explicit criterion",
-    },
-    {
-        "stem": "04_fault_study",
+        "stem": "04_incomplete_data",
         "number": "04",
-        "stage": "apply",
-        "title_en": "Run a line-to-ground fault",
-        "summary_en": "Apply a declared fault and inspect the solver-returned current.",
-        "outcome_en": "Fault current for the declared study—not a protection decision",
-    },
-    {
-        "stem": "05_validation_reproducibility",
-        "number": "05",
-        "stage": "evidence",
-        "title_en": "Verify the saved run",
-        "summary_en": "Follow the Case fingerprint and verification receipt for one exact run.",
-        "outcome_en": "The Case, artifacts, and checks behind the result",
-    },
-    {
-        "stem": "06_colab_tui",
-        "number": "06",
-        "stage": "evidence",
-        "title_en": "Review incomplete Case information",
-        "summary_en": "See how missing inputs remain visible and how strict, assisted, and exploratory policies change what can run.",
+        "stage": "real",
+        "title_en": "When site data is incomplete",
+        "summary_en": "See how missing inputs stay visible and why strict, assisted, and exploratory policies change what can run.",
         "outcome_en": "Known, missing, default, and AI-selected information kept separate",
     },
     {
-        "stem": "07_pure_vs_cept",
+        "stem": "05_solar_hosting_capacity",
+        "number": "05",
+        "stage": "active",
+        "title_en": "How much solar can it take?",
+        "summary_en": "Sweep PV against a declared voltage criterion until reverse power flow pushes the feeder past the limit.",
+        "outcome_en": "A capacity bracket under one explicit criterion",
+    },
+    {
+        "stem": "06_fault_study",
+        "number": "06",
+        "stage": "active",
+        "title_en": "Short-circuit current",
+        "summary_en": "Apply a declared line-to-ground fault and read the solver-returned current.",
+        "outcome_en": "Fault current for the declared study—not a protection decision",
+    },
+    {
+        "stem": "07_digital_evidence",
         "number": "07",
-        "stage": "evidence",
-        "title_en": "Pure OpenDSS or CEPT?",
-        "summary_en": "See an AI-written OpenDSS run converge to the wrong 0.316 pu result after missing the 4.16 kV voltage base, while CEPT returns 0.948 pu from the declared Case.",
-        "outcome_en": "Wrong pure result 0.316 pu versus CEPT result 0.948 pu",
+        "stage": "professional",
+        "title_en": "The digital receipt",
+        "summary_en": "Run the identical Case twice and follow the fingerprint, artifact hashes, and verification receipt behind one exact result.",
+        "outcome_en": "The Case, artifacts, and checks behind the result",
     },
 )
 LESSON_STAGES: tuple[tuple[str, str, str, str, str], ...] = (
     (
-        "foundation",
+        "prologue",
+        "00",
+        "BEFORE YOU START",
+        "Set up the runtime and the claim boundary",
+        "One prologue so every later number has a known environment and a known ceiling.",
+    ),
+    (
+        "aha",
         "01",
-        "FOUNDATION",
-        "Start with the basics",
-        "Build the runtime and result-reading habits.",
+        "THE AHA",
+        "See the failure before the theory",
+        "Start with a wrong answer that looks successful, and learn why convergence is not correctness.",
     ),
     (
-        "apply",
+        "build",
         "02",
-        "APPLY",
-        "Try a different engineering question",
-        "Change one declared input and inspect the response.",
+        "BUILD IT",
+        "Make your first system visible",
+        "Declare a typed Case, run it, and get a single-line diagram without drawing coordinates.",
     ),
     (
-        "evidence",
+        "real",
         "03",
-        "EVIDENCE",
-        "Check what the result proves",
-        "Follow the saved run and the evidence behind it.",
+        "REAL NETWORK",
+        "Meet the messy distribution grid",
+        "Unbalanced phases, and the site data that never arrives complete.",
+    ),
+    (
+        "active",
+        "04",
+        "ACTIVE GRID",
+        "Ask the modern engineering questions",
+        "How much renewable can connect, and what current flows when a line faults?",
+    ),
+    (
+        "professional",
+        "05",
+        "TRUST",
+        "Prove the number afterwards",
+        "Identical inputs give identical answers, and a later edit breaks verification instead of hiding.",
     ),
 )
 
@@ -621,19 +642,21 @@ def _index_page(
     <div class="hero-copy">
       <div class="eyebrow">OPEN DSS · 8 SHORT LESSONS · RUNNABLE IN COLAB</div>
       <h1>Run a small study.<br><em>See where it came from.</em></h1>
-      <p class="hero-lead">Build a load flow, explore an unbalanced feeder, test PV hosting capacity, and run a ground fault. Each lesson shows the inputs, the OpenDSS result, and the boundary of what it proves.</p>
+      <p class="hero-lead">Start from a wrong answer that looks perfect, then build a real feeder, meet an unbalanced grid, ask what solar and faults do to it, and finish able to prove the number. Each lesson shows the inputs, the OpenDSS result, and the boundary of what it proves.</p>
       <div class="hero-actions" aria-label="Start learning">
-        <a class="button button-primary" href="lessons/01_first_circuit_load_flow.html">Start with load flow</a>
-        <a class="text-link" href="lessons/05_validation_reproducibility.html">See the evidence workflow <span aria-hidden="true">→</span></a>
+        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with the wrong answer</a>
+        <a class="text-link" href="lessons/02_first_circuit_sld.html">Or build the first circuit <span aria-hidden="true">→</span></a>
       </div>
       <p class="hero-scope">Public demonstrator workflows. They do not establish project approval, field validation, or PowerFactory parity.</p>
     </div>
-    <div class="hero-card" aria-label="The learning loop">
-      <div class="hero-card-label">THE LEARNING LOOP</div>
+    <div class="hero-card" aria-label="The five learning phases">
+      <div class="hero-card-label">THE FIVE PHASES</div>
       <ol>
-        <li><span>01</span><strong>Read</strong><small>Start with the inputs and assumptions.</small></li>
-        <li><span>02</span><strong>Run</strong><small>Execute the declared study in Colab.</small></li>
-        <li><span>03</span><strong>Inspect</strong><small>Compare the result with its saved evidence.</small></li>
+        <li><span>01</span><strong>The aha</strong><small>Why solvers lie.</small></li>
+        <li><span>02</span><strong>Build it</strong><small>Typed Case to SLD.</small></li>
+        <li><span>03</span><strong>Real network</strong><small>Unbalance, incomplete data.</small></li>
+        <li><span>04</span><strong>Active grid</strong><small>Solar, hosting, faults.</small></li>
+        <li><span>05</span><strong>Trust</strong><small>Receipts and reproducibility.</small></li>
       </ol>
     </div>
   </section>
@@ -650,7 +673,7 @@ def _index_page(
   </section>
   <section class="comparison-band shell" aria-labelledby="comparison-heading">
     <div class="section-heading">
-      <div><div><div class="eyebrow">WHY CEPT? BRIDGING AI &amp; SOLVERS</div><h2 id="comparison-heading">Pure speed. CEPT traceability.</h2></div>
+      <div class="section-heading-text"><div class="eyebrow">WHY CEPT? BRIDGING AI &amp; SOLVERS</div><h2 id="comparison-heading">Pure speed. CEPT traceability.</h2></div>
       <p class="section-note">Why not just ask an LLM (ChatGPT / Claude) to write OpenDSS scripts directly? Because numerical solvers and language models share a dangerous blind spot in electrical power engineering.</p>
     </div>
 
@@ -731,13 +754,13 @@ def _index_page(
     <div class="principle-grid">
       <article><span class="principle-index">01</span><h3>Pure OpenDSS can be wrong</h3><p>The AI omits the downstream voltage base. OpenDSS still converges and reports a plausible-looking 0.316 pu at Node 4.</p></article>
       <article><span class="principle-index">02</span><h3>CEPT carries the Case</h3><p>The declared 4.16 kV bus reaches the adapter, so the same feeder returns 0.948 pu with SLD, plot, manifest, and receipt.</p></article>
-      <article><span class="principle-index">03</span><h3>See the useful failure</h3><p>Compare a silently wrong answer with a correct, reviewable result in <a href="lessons/07_pure_vs_cept.html">Lesson 07 →</a></p></article>
+      <article><span class="principle-index">03</span><h3>See the useful failure</h3><p>Compare a silently wrong answer with a correct, reviewable result in <a href="lessons/01_why_solvers_lie.html">Lesson 01 →</a></p></article>
     </div>
   </section>
   <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Eight short studies, one visible trail</h2></div>
-      <p class="section-note">Choose a concrete question, inspect the example result, then run it in Colab.</p>
+      <div><div class="eyebrow">THE COURSE</div><h2 id="lessons-heading">Seven lessons, five phases, one visible trail</h2></div>
+      <p class="section-note">Follow the sequence from the wrong answer to the receipt, or jump to the engineering question you want to explore.</p>
     </div>
     {"".join(course_stages)}
   </section>
@@ -748,7 +771,7 @@ def _index_page(
       <p>Each lesson keeps declared inputs, solver output, interpretation, and verification in one reviewable path. Change one input and compare the next result.</p>
     </div>
     <dl class="proof-grid">
-      <div><dt>8</dt><dd>short lessons</dd></div>
+      <div><dt>7 + 1</dt><dd>lessons plus a setup prologue</dd></div>
       <div><dt>OpenDSS</dt><dd>teaching runtime</dd></div>
       <div><dt>Python 3.10+</dt><dd>public runtime</dd></div>
       <div><dt>Workflow-level</dt><dd>verification checks</dd></div>
@@ -756,10 +779,10 @@ def _index_page(
   </section>
   <section class="shell source-section" aria-labelledby="source-heading">
     <div class="eyebrow">NEXT STEP</div>
-    <h2 id="source-heading">Choose where to begin</h2>
-    <p>Not sure where to start? Begin with a two-bus load flow, then change one declared input and compare the result.</p>
+    <h2 id="source-heading">Not sure where to start?</h2>
+    <p>Begin with the wrong answer a solver happily returns, then build the same feeder correctly and see what changed.</p>
     <div class="next-actions">
-      <a class="button button-primary" href="lessons/01_first_circuit_load_flow.html">Start with lesson 01</a>
+      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with lesson 01</a>
       <a class="text-link" href="{repository_url}">View the public source <span aria-hidden="true">↗</span></a>
     </div>
   </section>

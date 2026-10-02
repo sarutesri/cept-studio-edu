@@ -291,3 +291,5 @@ details.cell-code-setup[open] > summary::before { content: "▾ "; }
   font-size: .88rem;
   line-height: 1.5;
 }
+
+.section-heading-text { min-width: 0; }
