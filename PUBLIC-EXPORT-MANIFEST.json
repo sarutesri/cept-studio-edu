@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "95302d0a91ab8b90a4ebba3775393b971242bb91",
+  "canonical_source_commit": "d5c1ba959b92a430ac03c6804bd3afaf6f4101f9",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -88,7 +88,7 @@
     {
       "path": "README.md",
       "source": "packaging/public/README.md",
-      "sha256": "b2ae95f742f656ad76a76e2ebca288042e8731be6892bf9d6b33b805ad439f34"
+      "sha256": "9584d122456fe5d6b8700d0fd691eb48cafc18a22b7bd21f9b63bb86587e9066"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -98,12 +98,12 @@
     {
       "path": "docs/site/colab.md",
       "source": "docs/site/colab.md",
-      "sha256": "632d1e4df8307d2ad8209cde572c5d86cd69da1d618d00115e692c9805a2ddd6"
+      "sha256": "435a17ae7c05a8e68767b1039c7cb6cb4c54b7bda64b510ac30a2cf20d79eb2f"
     },
     {
       "path": "docs/site/public-course.md",
       "source": "docs/site/public-course.md",
-      "sha256": "46339fb2e4e7880d7aba994a9db6b29bfcc9a2cf73ebc071afa43046627e7a4c"
+      "sha256": "f1be561dadaf6d28aae897fbfb08cb01779b4c282b423a83ba6ce03d5b52314f"
     },
     {
       "path": "public-release.yaml",
@@ -153,47 +153,47 @@
     {
       "path": "public/notebooks/00_environment.ipynb",
       "source": "public/notebooks/00_environment.ipynb",
-      "sha256": "dcda895121299f29a060dad04695e3b82187f4961127bc504878abfecc17088d"
+      "sha256": "f25b56eb72ef68a040557ba6ccc58243b721e95b933a1873a1391d614b85c47e"
     },
     {
       "path": "public/notebooks/01_why_solvers_lie.ipynb",
       "source": "public/notebooks/01_why_solvers_lie.ipynb",
-      "sha256": "5987798818dfd76fff642bf95bba6368887452939f1efa2c312e330449d010e3"
+      "sha256": "9de6993b279f8c2bdb6e675b13ef28f816cfb0e0d96ab3b14aab92cb99bf58bb"
     },
     {
       "path": "public/notebooks/02_first_circuit_sld.ipynb",
       "source": "public/notebooks/02_first_circuit_sld.ipynb",
-      "sha256": "7a734af18324ef89eaf618a96a0482ade743f7b3a290f15ae42c12da74db20ab"
+      "sha256": "8714490f692424d26ccf40e5b4cc2b8c86aacae765e90d09838495db04c0311c"
     },
     {
       "path": "public/notebooks/03_unbalanced_feeder.ipynb",
       "source": "public/notebooks/03_unbalanced_feeder.ipynb",
-      "sha256": "1691446a208d5742c46585774a5720c0d7afdce5e8be4583770a8d5c1fb5a040"
+      "sha256": "aa5d2c3a3b0503b3e208445c2f39677525c380e65a8a9c0717997669dbf4979d"
     },
     {
       "path": "public/notebooks/04_incomplete_data.ipynb",
       "source": "public/notebooks/04_incomplete_data.ipynb",
-      "sha256": "6609a1266f3f73171dec7eb6a92d3dea69789f1e6786a335527cb94eb1ee8efa"
+      "sha256": "470f3f24b90ded952edf6a82cd86b737e7a198860788a1d957fee6bef629830c"
     },
     {
       "path": "public/notebooks/05_solar_hosting_capacity.ipynb",
       "source": "public/notebooks/05_solar_hosting_capacity.ipynb",
-      "sha256": "fa31c5172dfa94377b09b536c4adb952ced106a0442f7882b6f7babedf249a4e"
+      "sha256": "69df3e27ad6c82cf864480c656ec8d716d55a85afed13be41230d1680527df47"
     },
     {
       "path": "public/notebooks/06_fault_study.ipynb",
       "source": "public/notebooks/06_fault_study.ipynb",
-      "sha256": "34ea284c005f329ecf850c1fc7639b14c586c107a5c4dab84e5fd9b176e1517a"
+      "sha256": "21d568d24e2531437c122101c42ba93f8f9bb3e6fc7a295adfc56bdab0886ec7"
     },
     {
       "path": "public/notebooks/07_digital_evidence.ipynb",
       "source": "public/notebooks/07_digital_evidence.ipynb",
-      "sha256": "1e8528e46a18a0c4a5c69c2ba7bc3ac79d4566cb653c05d4d1a9b9f7ef26f6af"
+      "sha256": "c0bd8daeec9a38f509b68e5c48f0c0f428c6adec4118ee303ae600857e10339e"
     },
     {
       "path": "public/notebooks/README.md",
       "source": "public/notebooks/README.md",
-      "sha256": "115ed909c5d7fd08e260823806c029ea3b3c3772c4ade158e9528673db5636a8"
+      "sha256": "d67bac9511ae1c4113ef781e5004376224fa6ddd7d876a53727e89d2d86f6a21"
     },
     {
       "path": "public/notebooks/_lesson.py",
@@ -203,7 +203,7 @@
     {
       "path": "public/site/education.css",
       "source": "public/site/education.css",
-      "sha256": "858ce33b5c76cf91156b9bf01bd881e27920108ea69fd2c08c7fb713efacd476"
+      "sha256": "1e8d204c6b717f022a362372e54401d85cd61086752f4c364b270a66d92958a7"
     },
     {
       "path": "pyproject.toml",
@@ -593,7 +593,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "ad77c4a3b629318a02e33c643fe77a855319ba1f0934d781ba041ba6f79c9986"
+      "sha256": "b1994090038659eb14a1b59d9e318790556e5fbfbda5ff45b5a5d7e2ef53322c"
     },
     {
       "path": "tools/run_public_notebooks.py",

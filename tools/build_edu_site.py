@@ -6,6 +6,13 @@ directory must contain the public notebook files, ``public/site/education.css``
 and the export manifest written by ``public_export.py``.  Notebook output is
 rendered only when it is present in the exported JSON; an unexecuted code cell
 gets an explicit notice instead of a guessed result.
+
+Design contract (see ``docs/cept/DEVELOPMENT_STATE.md``):
+
+* one short story on the homepage, with detail behind hover/focus/tap;
+* every lesson is the same compact shape: question, steps, takeaway;
+* plain words first; a precise term gets a short tooltip, not a paragraph;
+* every lesson states what its result does *not* show.
 """
 
 from __future__ import annotations
@@ -18,8 +25,9 @@ import json
 import re
 import shutil
 import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, NamedTuple
 from urllib.parse import quote
 
 
@@ -28,116 +36,122 @@ PUBLIC_BRANCH = "main"
 MANIFEST_NAME = "PUBLIC-EXPORT-MANIFEST.json"
 STYLESHEET = Path("public/site/education.css")
 
-LESSONS: tuple[dict[str, str], ...] = (
-    {
-        "stem": "00_environment",
-        "number": "00",
-        "stage": "prologue",
-        "title_en": "Environment and study scope",
-        "summary_en": "Check the runtime and the limits of workflow evidence.",
-        "outcome_en": "Runtime identity and claim scope",
-    },
-    {
-        "stem": "01_why_solvers_lie",
-        "number": "01",
-        "stage": "aha",
-        "title_en": "Convergence and model integrity",
-        "summary_en": "Compare two voltage-base paths in the same feeder example.",
-        "outcome_en": "Recorded example: 0.316 pu versus 0.948 pu",
-    },
-    {
-        "stem": "02_first_circuit_sld",
-        "number": "02",
-        "stage": "build",
-        "title_en": "Typed network modelling",
-        "summary_en": "Define the IEEE 4-node feeder and inspect its single-line diagram.",
-        "outcome_en": "Example: 0.9477 pu at Node 4 with step-down transformer",
-    },
-    {
-        "stem": "03_unbalanced_feeder",
-        "number": "03",
-        "stage": "real",
-        "title_en": "Unbalanced feeder analysis",
-        "summary_en": "Inspect each phase of the IEEE 13-node feeder.",
-        "outcome_en": "Phase A, B, and C voltage profiles",
-    },
-    {
-        "stem": "04_incomplete_data",
-        "number": "04",
-        "stage": "real",
-        "title_en": "Incomplete engineering data",
-        "summary_en": "Separate known inputs, missing data, and approved assumptions.",
-        "outcome_en": "Input status and resolution policies",
-    },
-    {
-        "stem": "05_solar_hosting_capacity",
-        "number": "05",
-        "stage": "active",
-        "title_en": "Solar hosting capacity",
-        "summary_en": "Sweep PV against a declared voltage limit.",
-        "outcome_en": "A capacity bracket under one explicit criterion",
-    },
-    {
-        "stem": "06_fault_study",
-        "number": "06",
-        "stage": "active",
-        "title_en": "Short-circuit analysis",
-        "summary_en": "Inspect the current from a declared line-to-ground fault.",
-        "outcome_en": "Fault current for the declared study—not a protection decision",
-    },
-    {
-        "stem": "07_digital_evidence",
-        "number": "07",
-        "stage": "professional",
-        "title_en": "Run evidence and reproducibility",
-        "summary_en": "Follow the Case fingerprint, saved artifacts, and verification checks.",
-        "outcome_en": "Run identity and artifact integrity",
-    },
+
+@dataclass(frozen=True)
+class Lesson:
+    """One lesson: the single source of truth for site copy about it."""
+
+    stem: str
+    number: str
+    track: str
+    title: str
+    question: str
+    sees: tuple[str, ...]
+    takeaway: str
+    limit: str
+    key_cell: str
+
+
+TRACKS: tuple[tuple[str, str, str], ...] = (
+    ("start", "Start", "Check your setup, then see why the voltage base matters."),
+    ("build", "Build", "Describe a network, then meet unbalance and missing data."),
+    ("apply", "Apply", "Ask two planning questions: how much solar, and what fault current."),
+    ("trust", "Trust", "Trace a result back to the inputs that produced it."),
 )
-LESSON_STAGES: tuple[tuple[str, str, str, str, str], ...] = (
-    (
-        "prologue",
-        "00",
-        "ENVIRONMENT & SCOPE",
-        "Prepare the runtime",
-        "Confirm the engine and claim scope.",
+
+LESSONS: tuple[Lesson, ...] = (
+    Lesson(
+        "00_environment", "00", "start", "Check your setup",
+        "Is the OpenDSS runtime ready here?",
+        ("Runtime check", "Course scope", "Claim level"),
+        "A passing check means the tools run here. It says nothing about a real network.",
+        "Not a test of any real network or project.",
+        "environment-headline",
     ),
-    (
-        "aha",
-        "01",
-        "MODEL INTEGRITY",
-        "Inspect model assumptions",
-        "Distinguish convergence from correctness.",
+    Lesson(
+        "01_why_solvers_lie", "01", "start", "Same feeder, two voltage bases",
+        "Can a solve converge and still mislead?",
+        ("Two runs", "One feeder", "Node 4 voltage"),
+        "Declaring the voltage base moved the Node 4 readout from about 0.32 to about 0.95 pu.",
+        "A teaching example, not a field measurement.",
+        "comparison-table",
     ),
-    (
-        "build",
-        "02",
-        "MODEL CONSTRUCTION",
-        "Build a typed network",
-        "Define a Case and inspect its SLD.",
+    Lesson(
+        "02_first_circuit_sld", "02", "build", "Build your first network",
+        "How do I describe a small feeder as data?",
+        ("Case file", "Automatic diagram", "Voltage plot"),
+        "One structured input drives the run, the diagram and the saved results.",
+        "One example feeder; not a real project.",
+        "first-circuit-visual",
     ),
-    (
-        "real",
-        "03",
-        "NETWORK CONDITIONS",
-        "Evaluate phases and input quality",
-        "Inspect unbalance and missing inputs.",
+    Lesson(
+        "03_unbalanced_feeder", "03", "build", "Unbalanced phases",
+        "Do all three phases see the same voltage?",
+        ("Phase A, B and C", "Voltage spread", "Bus 671"),
+        "Phases can differ. A single average would hide that.",
+        "One standard test feeder; not a statement about yours.",
+        "ieee13-result",
     ),
-    (
-        "active",
-        "04",
-        "APPLIED STUDIES",
-        "Study solar integration and faults",
-        "Use declared study criteria.",
+    Lesson(
+        "04_incomplete_data", "04", "build", "When data is missing",
+        "What happens when required inputs are missing?",
+        ("Known and missing", "Three input policies", "A blocked run"),
+        "Missing inputs stay visible. A default needs explicit approval and is never treated as measured.",
+        "The demo run is separate from your own intake.",
+        "resolution-validate",
     ),
-    (
-        "professional",
-        "05",
-        "EVIDENCE & REPRODUCIBILITY",
-        "Review the run evidence",
-        "Inspect identity and artifact integrity.",
+    Lesson(
+        "05_solar_hosting_capacity", "05", "apply", "Solar hosting capacity",
+        "How much solar can this feeder take under one limit?",
+        ("A PV sweep", "One voltage limit", "A capacity range"),
+        "The answer is a range under one stated criterion, not a universal limit.",
+        "Not an interconnection study.",
+        "hosting-result",
+    ),
+    Lesson(
+        "06_fault_study", "06", "apply", "Short-circuit current",
+        "What current flows for one declared fault?",
+        ("Fault location", "Current by phase", "A comparison plot"),
+        "A fault current for the declared case. It is not a protection setting.",
+        "Not a protection or coordination decision.",
+        "fault-result",
+    ),
+    Lesson(
+        "07_digital_evidence", "07", "trust", "Trace a result",
+        "Can I show which inputs produced a result?",
+        ("Two identical runs", "IDs and hashes", "An overlay plot"),
+        "IDs and hashes show a run is unchanged. They do not show it is physically right.",
+        "Hashes detect changes; they do not authenticate a solver.",
+        "receipt-table",
     ),
 )
+
+GLOSSARY: tuple[tuple[str, str], ...] = (
+    ("typed Case", "A structured input file: network, units and study settings."),
+    ("OpenDSS", "A free, open-source power-system simulator. It does the solving."),
+    ("voltage base", "The nominal voltage that per-unit values are measured against."),
+    ("per-unit", "Voltage as a fraction of its nominal value."),
+    ("pu", "Per-unit: voltage as a fraction of its nominal value."),
+    ("SLD", "Single-line diagram: a one-line schematic of the network."),
+    ("load flow", "A steady-state calculation of voltages and power flows."),
+    ("hosting capacity", "How much solar a feeder can take before a limit is reached."),
+    ("fingerprint", "A short ID computed from the exact input content."),
+    ("SHA-256", "A checksum that changes whenever the file changes."),
+    ("converged", "The solver's iterations settled on a solution."),
+    ("unbalance", "Phases carrying unequal voltage or load."),
+)
+
+_SKIP_TAGS = frozenset({"a", "button", "code", "pre", "summary", "script", "style", "h1", "h2", "h3", "h4", "h5", "h6"})
+_TIP_PATTERN = re.compile(
+    "|".join(
+        f"(?P<g{index}>(?<![\\w-]){re.escape(term)}(?![\\w-]))"
+        for index, (term, _) in enumerate(sorted(GLOSSARY, key=lambda item: -len(item[0])))
+    )
+)
+_TIP_ORDER = tuple(term for term, _ in sorted(GLOSSARY, key=lambda item: -len(item[0])))
+_TIP_TEXT = dict(GLOSSARY)
+
+_LESSON_BY_STEM = {lesson.stem: lesson for lesson in LESSONS}
 
 
 class SiteBuildError(ValueError):
@@ -156,9 +170,9 @@ def _read_json(path: Path) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise SiteBuildError(f"cannot read JSON artifact {path}: {exc}") from exc
+        raise SiteBuildError(f"cannot read JSON file {path}: {exc}") from exc
     if not isinstance(payload, dict):
-        raise SiteBuildError(f"JSON artifact must contain an object: {path}")
+        raise SiteBuildError(f"JSON file must contain an object: {path}")
     return payload
 
 
@@ -166,6 +180,66 @@ def _text(value: Any) -> str:
     if isinstance(value, list):
         return "".join(str(item) for item in value)
     return str(value) if value is not None else ""
+
+
+# ---------------------------------------------------------------------------
+# Tooltips and glossary
+# ---------------------------------------------------------------------------
+
+
+class _Tips:
+    """Per-page tooltip registry: unique ids and first-use-only glossary terms."""
+
+    def __init__(self) -> None:
+        self._count = 0
+        self._used: set[str] = set()
+
+    def tip(self, label: str, text: str, *, extra_class: str = "") -> str:
+        """Return a focusable term with a short hover/focus/tap explanation."""
+
+        self._count += 1
+        tip_id = f"tip-{self._count}"
+        classes = f"tip {extra_class}".strip()
+        return (
+            f'<span class="tipwrap"><button type="button" class="{classes}" '
+            f'aria-describedby="{tip_id}" aria-expanded="false">{label}</button>'
+            f'<span class="tip-body" role="tooltip" id="{tip_id}">{html.escape(text)}</span></span>'
+        )
+
+    def info(self, text: str, *, label: str = "More") -> str:
+        """A small ⓘ button for a detail that should stay out of the way."""
+
+        return self.tip(f'<span aria-hidden="true">i</span><span class="sr-only">{html.escape(label)}</span>', text, extra_class="tip-info")
+
+    def glossary(self, fragment: str) -> str:
+        """Wrap the first use of each glossary term outside code and links."""
+
+        parts = re.split(r"(<[^>]+>)", fragment)
+        depth = 0
+        for index, part in enumerate(parts):
+            if part.startswith("<"):
+                match = re.match(r"<(/?)([A-Za-z0-9]+)", part)
+                if match and match.group(2).lower() in _SKIP_TAGS and not part.endswith("/>"):
+                    depth += -1 if match.group(1) else 1
+                    depth = max(depth, 0)
+                continue
+            if depth or not part.strip():
+                continue
+
+            def replace(match: re.Match[str]) -> str:
+                term = _TIP_ORDER[int(match.lastgroup[1:])]  # type: ignore[index]
+                if term in self._used:
+                    return match.group(0)
+                self._used.add(term)
+                return self.tip(html.escape(match.group(0), quote=False), _TIP_TEXT[term], extra_class="tip-term")
+
+            parts[index] = _TIP_PATTERN.sub(replace, part)
+        return "".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Markdown and notebook output
+# ---------------------------------------------------------------------------
 
 
 def _inline_markdown(value: str) -> str:
@@ -184,13 +258,18 @@ def _inline_markdown(value: str) -> str:
     return re.sub(r"\[([^]]+)\]\(([^)]+)\)", link, escaped)
 
 
+def _table_cells(line: str) -> list[str]:
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
 def _render_markdown(source: str) -> str:
     """Render the small Markdown vocabulary used by the configured lessons."""
 
     lines = source.replace("\r\n", "\n").split("\n")
     blocks: list[str] = []
     paragraph: list[str] = []
-    list_items: list[str] = []
+    list_items: list[tuple[str, str]] = []
+    table_rows: list[list[str]] = []
 
     def flush_paragraph() -> None:
         if paragraph:
@@ -199,21 +278,49 @@ def _render_markdown(source: str) -> str:
 
     def flush_list() -> None:
         if list_items:
-            blocks.append("<ul>" + "".join(f"<li>{item}</li>" for item in list_items) + "</ul>")
+            blocks.append(
+                "<ul>" + "".join(f'<li class="{kind}">{item}</li>' if kind else f"<li>{item}</li>" for kind, item in list_items) + "</ul>"
+            )
             list_items.clear()
+
+    def flush_table() -> None:
+        if not table_rows:
+            return
+        head, *body = table_rows
+        blocks.append(
+            '<div class="table-scroll"><table><thead><tr>'
+            + "".join(f'<th scope="col">{_inline_markdown(cell)}</th>' for cell in head)
+            + "</tr></thead><tbody>"
+            + "".join("<tr>" + "".join(f"<td>{_inline_markdown(cell)}</td>" for cell in row) + "</tr>" for row in body)
+            + "</tbody></table></div>"
+        )
+        table_rows.clear()
 
     for line in lines:
         stripped = line.strip()
         heading = re.match(r"^(#{1,4})\s+(.+?)\s*#*$", stripped)
         bullet = re.match(r"^[-*+]\s+(.+)$", stripped)
+        if stripped.startswith("|") and stripped.endswith("|"):
+            flush_paragraph()
+            flush_list()
+            if not re.fullmatch(r"\|[\s:|-]+\|", stripped):
+                table_rows.append(_table_cells(stripped))
+            continue
+        flush_table()
         if heading:
             flush_paragraph()
             flush_list()
-            level = len(heading.group(1))
+            level = min(len(heading.group(1)) + 1, 5)
             blocks.append(f"<h{level}>{_inline_markdown(heading.group(2))}</h{level}>")
         elif bullet:
             flush_paragraph()
-            list_items.append(_inline_markdown(bullet.group(1)))
+            raw = bullet.group(1)
+            kind = ""
+            if raw.startswith("**Supports"):
+                kind = "pos"
+            elif re.match(r"\*\*(Does not|Boundary|Not )", raw):
+                kind = "neg"
+            list_items.append((kind, _inline_markdown(raw)))
         elif not stripped:
             flush_paragraph()
             flush_list()
@@ -222,6 +329,7 @@ def _render_markdown(source: str) -> str:
             paragraph.append(stripped)
     flush_paragraph()
     flush_list()
+    flush_table()
     return "\n".join(blocks)
 
 
@@ -258,7 +366,7 @@ def _render_output(output: dict[str, Any]) -> str:
     return ""
 
 
-def _titled_cell_title(source_text):
+def _titled_cell_title(source_text: str) -> str | None:
     """Return the Colab `#@title` cell title, if the cell declares one."""
     for line in source_text.splitlines():
         stripped = line.strip()
@@ -272,18 +380,33 @@ def _titled_cell_title(source_text):
     return None
 
 
+def _code_is_short(source_text: str) -> bool:
+    """Short terminal-style cells stay open; long scripts are folded."""
+
+    lines = [line for line in source_text.splitlines() if line.strip() and not line.strip().startswith("#")]
+    if len(lines) <= 4:
+        return True
+    return any(line.lstrip().startswith("!cept ") for line in lines) and len(lines) <= 10
+
+
 def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
+    """Render one code cell as folded/open code plus its saved output."""
+
     source_text = _text(cell.get("source"))
     code = html.escape(source_text, quote=False)
     title = _titled_cell_title(source_text)
+    line_count = len([line for line in source_text.splitlines() if line.strip()])
     if title is not None:
-        code_block = (
-            '<details class="cell-code-setup"><summary>'
-            f"{html.escape(title)}</summary>"
-            f'<pre class="code"><code>{code}</code></pre></details>'
-        )
+        summary = re.sub(r"^\d+\.\s*", "", title)
+        is_open = False
     else:
-        code_block = f'<pre class="code"><code>{code}</code></pre>'
+        summary = f"{line_count} line{'s' if line_count != 1 else ''}"
+        is_open = _code_is_short(source_text)
+    open_attr = " open" if is_open else ""
+    code_block = (
+        f'<details class="code"{open_attr}><summary><span class="code-tag">Code</span> {html.escape(summary)}</summary>'
+        f'<pre class="code-body"><code>{code}</code></pre></details>'
+    )
     outputs = cell.get("outputs")
     rendered_outputs: list[str] = []
     if isinstance(outputs, list):
@@ -292,60 +415,149 @@ def _render_code_cell(cell: dict[str, Any]) -> tuple[str, bool]:
                 rendered = _render_output(output)
                 if rendered:
                     rendered_outputs.append(rendered)
-    code_section = (
-        '<section class="cell cell-code"><div class="cell-label">Code</div>' + code_block + "</section>"
-    )
+
+    def result(inner: str) -> str:
+        return f'<div class="result"><div class="result-label">Saved output</div>{inner}</div>'
+
     if rendered_outputs:
-        return (
-            code_section
-            + '<section class="cell-result"><div class="cell-label">Result</div>'
-            + "".join(rendered_outputs)
-            + "</section>",
-            False,
-        )
+        return code_block + result('<div class="out" tabindex="0" role="region" aria-label="Saved output">' + "".join(rendered_outputs) + "</div>"), False
     if isinstance(outputs, list) and outputs:
         return (
-            code_section
-            + '<section class="cell-result"><div class="cell-label">Result</div>'
-            + '<p class="not-executed"><strong>This result cannot be displayed on this page.</strong> '
-            + "Run the notebook in Colab to inspect the complete solver output."
-            + "</p></section>",
+            code_block
+            + result('<p class="not-executed"><strong>This output cannot be displayed here.</strong> Run the notebook in Colab to see it.</p>'),
             False,
         )
     return (
-        code_section
-        + '<section class="cell-result"><div class="cell-label">Result</div>'
-        + '<p class="not-executed"><strong>Result not generated yet.</strong> '
-        + "Run this lesson in Colab to produce the solver-backed result."
-        + "</p></section>",
+        code_block
+        + result('<p class="not-executed"><strong>No saved output yet.</strong> Run this lesson in Colab to generate it.</p>'),
         True,
     )
 
 
-def _render_notebook(notebook: dict[str, Any]) -> tuple[str, int, int]:
+# ---------------------------------------------------------------------------
+# Lesson body: notebook cells -> compact steps
+# ---------------------------------------------------------------------------
+
+_HEADING = re.compile(r"^(#{2,3})\s+(.*)$")
+
+
+def _split_label(heading: str) -> tuple[str, str]:
+    """Split ``⚙ Run — load flow`` into ``("Run", "load flow")``."""
+
+    text = re.sub(r"^[^\w\s#]+\s*", "", heading.strip())
+    parts = re.split(r"\s+[—–-]\s+", text, maxsplit=1)
+    verb = parts[0].strip()
+    detail = parts[1].strip() if len(parts) > 1 else ""
+    return verb, detail
+
+
+def _sentence(value: str) -> str:
+    return value[:1].upper() + value[1:] if value else value
+
+
+class _LessonBody(NamedTuple):
+    about: str
+    steps: str
+    interpret: str
+    optional: str
+    code_count: int
+    missing_count: int
+
+
+def _render_lesson_body(notebook: dict[str, Any], lesson: Lesson, tips: _Tips) -> _LessonBody:
+    """Turn notebook cells into compact steps, a takeaway extra, and optional sections."""
+
     cells = notebook.get("cells")
     if not isinstance(cells, list):
         raise SiteBuildError("notebook has no valid cells array")
-    rendered: list[str] = []
+
+    about: list[str] = []
+    interpret: list[str] = []
+    blocks: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
     code_count = 0
-    missing_output_count = 0
+    missing_count = 0
     first_markdown = True
-    for raw_cell in cells:
-        if not isinstance(raw_cell, dict):
+    key_found = False
+
+    for raw in cells:
+        if not isinstance(raw, dict):
             continue
-        cell_type = raw_cell.get("cell_type")
+        cell_type = raw.get("cell_type")
         if cell_type == "markdown":
-            source = _text(raw_cell.get("source"))
+            source = _text(raw.get("source"))
             if first_markdown:
-                source = re.sub(r"^\s*#\s+[^\n]+\n?", "", source, count=1)
                 first_markdown = False
-            rendered.append(f'<section class="cell cell-markdown">{_render_markdown(source)}</section>')
+                about.append(_render_markdown(re.sub(r"^\s*#\s+[^\n]+\n?", "", source, count=1)))
+                continue
+            first_line, _, rest = source.strip().partition("\n")
+            match = _HEADING.match(first_line.strip())
+            if match and len(match.group(1)) == 2:
+                verb, detail = _split_label(match.group(2))
+                lowered = verb.lower()
+                if lowered.startswith("interpret"):
+                    current = None
+                    interpret.append(_render_markdown(rest))
+                    continue
+                kind = "optional" if lowered.startswith("optional") else "setup" if lowered in {"setup", "runtime"} else "step"
+                current = {"kind": kind, "verb": verb, "detail": detail, "body": [_render_markdown(rest)], "cells": []}
+                blocks.append(current)
+            else:
+                body = _render_markdown(source)
+                if current is None:
+                    about.append(body)
+                else:
+                    current["body"].append(body)
         elif cell_type == "code":
             code_count += 1
-            content, missing = _render_code_cell(raw_cell)
-            missing_output_count += int(missing)
-            rendered.append(content)
-    return "\n".join(rendered), code_count, missing_output_count
+            if current is None:
+                current = {"kind": "step", "verb": "Run", "detail": "", "body": [], "cells": []}
+                blocks.append(current)
+            content, missing = _render_code_cell(raw)
+            missing_count += int(missing)
+            cell_id = _text(raw.get("id"))
+            if cell_id == lesson.key_cell:
+                key_found = True
+                content = f'<div class="key-result" id="key-result">{content}</div>'
+            current["cells"].append(content)
+
+    if not key_found:
+        raise SiteBuildError(f"lesson {lesson.stem} has no key result cell {lesson.key_cell!r}")
+
+    rendered: list[str] = []
+    optional: list[str] = []
+    number = 0
+    for block in blocks:
+        inner = "".join(tips.glossary(part) for part in block["body"]) + "".join(block["cells"])
+        if block["kind"] == "setup":
+            title = block["detail"] or block["verb"]
+            rendered.append(
+                f'<details class="step step-setup"><summary><span class="step-verb">{html.escape(block["verb"])}</span> '
+                f"{html.escape(_sentence(title))}</summary><div class=\"step-inner\">{inner}</div></details>"
+            )
+        elif block["kind"] == "optional":
+            title = block["detail"] or block["verb"]
+            optional.append(
+                f'<details class="step step-optional"><summary><span class="step-verb">Optional</span> '
+                f"{html.escape(_sentence(title))}</summary><div class=\"step-inner\">{inner}</div></details>"
+            )
+        else:
+            number += 1
+            title = block["detail"] or block["verb"]
+            rendered.append(
+                f'<section class="step"><header class="step-head"><span class="step-num" aria-hidden="true">{number}</span>'
+                f'<div><span class="step-verb">{html.escape(block["verb"])}</span>'
+                f"<h3>{html.escape(_sentence(title))}</h3></div></header>"
+                f'<div class="step-inner">{inner}</div></section>'
+            )
+    about_html = "".join(tips.glossary(part) for part in about)
+    interpret_html = "".join(tips.glossary(part) for part in interpret)
+    return _LessonBody(about_html, "\n".join(rendered), interpret_html, "\n".join(optional), code_count, missing_count)
+
+
+# ---------------------------------------------------------------------------
+# Export plumbing
+# ---------------------------------------------------------------------------
 
 
 def _source_revision(stage_root: Path) -> tuple[str, str]:
@@ -359,8 +571,7 @@ def _source_revision(stage_root: Path) -> tuple[str, str]:
     return revision.strip(), _sha256(manifest_path)
 
 
-def _notebook_paths(stage_root: Path) -> list[tuple[dict[str, str], Path]]:
-    configured = {item["stem"]: item for item in LESSONS}
+def _notebook_paths(stage_root: Path) -> list[tuple[Lesson, Path]]:
     manifest = _read_json(stage_root / MANIFEST_NAME)
     paths = manifest.get("files")
     if not isinstance(paths, list):
@@ -370,9 +581,9 @@ def _notebook_paths(stage_root: Path) -> list[tuple[dict[str, str], Path]]:
         for item in paths
         if isinstance(item, dict) and isinstance(item.get("path"), str)
     }
-    selected: list[tuple[dict[str, str], Path]] = []
+    selected: list[tuple[Lesson, Path]] = []
     for lesson in LESSONS:
-        relative = Path("public/notebooks") / f"{lesson['stem']}.ipynb"
+        relative = Path("public/notebooks") / f"{lesson.stem}.ipynb"
         path = stage_root / relative
         if not path.is_file():
             raise SiteBuildError(f"staging root is missing lesson notebook: {relative.as_posix()}")
@@ -380,7 +591,7 @@ def _notebook_paths(stage_root: Path) -> list[tuple[dict[str, str], Path]]:
             raise SiteBuildError(f"lesson notebook is not recorded in export manifest: {relative.as_posix()}")
         selected.append((lesson, path))
     extras = sorted(
-        path.name for path in (stage_root / "public/notebooks").glob("*.ipynb") if path.stem not in configured
+        path.name for path in (stage_root / "public/notebooks").glob("*.ipynb") if path.stem not in _LESSON_BY_STEM
     )
     if extras:
         raise SiteBuildError("unexpected notebook files in public stage: " + ", ".join(extras))
@@ -392,6 +603,55 @@ def _urls(repository: str, relative: str) -> tuple[str, str]:
     base = f"https://github.com/{repository}/blob/{PUBLIC_BRANCH}/{encoded}"
     colab = f"https://colab.research.google.com/github/{repository}/blob/{PUBLIC_BRANCH}/{encoded}"
     return base, colab
+
+
+# ---------------------------------------------------------------------------
+# Page chrome
+# ---------------------------------------------------------------------------
+
+_SCRIPT = """
+(function () {
+  var tips = Array.prototype.slice.call(document.querySelectorAll('.tip'));
+  function closeAll(except) {
+    tips.forEach(function (t) { if (t !== except) { t.setAttribute('aria-expanded', 'false'); } });
+  }
+  tips.forEach(function (t) {
+    t.addEventListener('click', function (e) {
+      var open = t.getAttribute('aria-expanded') === 'true';
+      closeAll(t);
+      t.removeAttribute('data-dismissed');
+      t.setAttribute('aria-expanded', open ? 'false' : 'true');
+      e.stopPropagation();
+    });
+    var wrap = t.parentNode;
+    ['pointerover', 'focusin'].forEach(function (name) {
+      wrap.addEventListener(name, function () { t.removeAttribute('data-dismissed'); });
+    });
+  });
+  document.addEventListener('click', function () { closeAll(null); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      tips.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); t.setAttribute('data-dismissed', ''); });
+    }
+  });
+  function place(t) {
+    var body = t.nextElementSibling;
+    if (!body) { return; }
+    body.style.transform = '';
+    var r = body.getBoundingClientRect();
+    var vw = document.documentElement.clientWidth;
+    var dx = 0;
+    if (r.right > vw - 8) { dx = vw - 8 - r.right; }
+    if (r.left + dx < 8) { dx = 8 - r.left; }
+    if (dx) { body.style.transform = 'translateX(' + dx + 'px)'; }
+  }
+  function placeAll() { tips.forEach(place); }
+  placeAll();
+  window.addEventListener('resize', placeAll);
+  var rail = document.querySelector('.rail');
+  if (rail && window.matchMedia('(max-width: 900px)').matches) { rail.open = false; }
+})();
+"""
 
 
 def _page_document(title: str, body: str, *, stylesheet: str, description: str) -> str:
@@ -410,360 +670,364 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str) 
 <body>
   <a class="skip-link" href="#content">Skip to content</a>
   {body}
+  <script>{_SCRIPT}</script>
 </body>
 </html>
 '''
 
 
-def _header(*, home_href: str, label: str | None = None) -> str:
-    if label is None:
-        navigation = (
-            f'<a href="{home_href}" aria-current="page">Learning index</a>'
-            '<a href="#why-cept">Why CEPT</a><a href="#lessons">Explore lessons</a>'
-        )
+def _header(*, home_href: str, repository_url: str, home: bool) -> str:
+    if home:
+        links = '<a href="#how">How it works</a><a href="#course">Course</a><a href="#limits">Limits</a>'
     else:
-        navigation = (
-            f'<a href="{home_href}">Learning index</a>\n'
-            f'      <span class="nav-current" aria-current="page">{html.escape(label)}</span>'
-        )
+        links = f'<a href="{home_href}#course">Course</a>'
     return f'''
 <header class="site-header">
   <div class="shell header-inner">
     <a class="brand" href="{home_href}" aria-label="CEPT Education home">
       <span class="brand-mark" aria-hidden="true">C</span>
-      <span><strong>CEPT</strong><small>POWER EDUCATION</small></span>
+      <span class="brand-text"><strong>CEPT</strong><small>Education</small></span>
     </a>
-    <nav aria-label="Primary navigation">
-      {navigation}
-    </nav>
+    <nav aria-label="Primary">{links}<a class="nav-source" href="{html.escape(repository_url, quote=True)}">Source</a></nav>
   </div>
 </header>
 '''
 
 
-def _lesson_card(
-    lesson: dict[str, str],
-    *,
-    missing_count: int,
-    repository: str,
-) -> str:
-    notebook_path = f"public/notebooks/{lesson['stem']}.ipynb"
-    read_url, colab_url = _urls(repository, notebook_path)
-    output_label = "Run to generate" if missing_count else "Result included"
+def _footer(repository_url: str) -> str:
     return f'''
-<article class="lesson-card">
-  <div class="card-number">{html.escape(lesson["number"])}</div>
-  <div class="card-content">
-    <h4><a href="lessons/{html.escape(lesson["stem"])}.html">{html.escape(lesson["title_en"])}</a></h4>
-    <p class="lesson-outcome">{html.escape(lesson["outcome_en"])}</p>
-    <div class="card-status"><span class="status-dot" aria-hidden="true"></span>{html.escape(output_label)}</div>
-    <div class="card-links">
-      <a href="lessons/{html.escape(lesson["stem"])}.html">View lesson</a>
-      <a href="{html.escape(colab_url, quote=True)}">Run in Colab<span class="sr-only">: {html.escape(lesson["title_en"])}</span></a>
-      <a href="{html.escape(read_url, quote=True)}">Notebook source<span class="sr-only">: {html.escape(lesson["title_en"])}</span></a>
-    </div>
+<footer class="site-footer"><div class="shell">
+  <span>CEPT Education · Apache-2.0</span>
+  <span class="footer-note">Demonstration results; not field validation.</span>
+  <span class="footer-links"><a href="{html.escape(repository_url, quote=True)}">Source</a><a href="{html.escape(repository_url, quote=True)}/blob/main/LICENSE">License</a></span>
+</div></footer>
+'''
+
+
+def _track_label(track: str) -> str:
+    return next(label for key, label, _ in TRACKS if key == track)
+
+
+# ---------------------------------------------------------------------------
+# Lesson page
+# ---------------------------------------------------------------------------
+
+
+def _lesson_rail(current: Lesson) -> str:
+    groups: list[str] = []
+    for key, label, _ in TRACKS:
+        items = []
+        for lesson in LESSONS:
+            if lesson.track != key:
+                continue
+            if lesson.stem == current.stem:
+                items.append(
+                    f'<li><a class="rail-link" href="{lesson.stem}.html" aria-current="page">'
+                    f'<span class="rail-num">{lesson.number}</span>{html.escape(lesson.title)}</a></li>'
+                )
+            else:
+                items.append(
+                    f'<li><a class="rail-link" href="{lesson.stem}.html">'
+                    f'<span class="rail-num">{lesson.number}</span>{html.escape(lesson.title)}</a></li>'
+                )
+        groups.append(f'<div class="rail-group"><div class="rail-track">{html.escape(label)}</div><ol>{"".join(items)}</ol></div>')
+    return (
+        '<aside class="lesson-aside" aria-label="Course">'
+        '<details class="rail" open><summary><span>Course</span><small>8 lessons</small></summary>'
+        f'<nav aria-label="Lessons">{"".join(groups)}</nav></details></aside>'
+    )
+
+
+def _lesson_pagination(current: Lesson) -> str:
+    index = LESSONS.index(current)
+    items: list[str] = []
+    if index > 0:
+        prev = LESSONS[index - 1]
+        items.append(
+            f'<a class="page-link page-prev" rel="prev" href="{prev.stem}.html"><small>Previous</small>'
+            f"<strong>{html.escape(prev.title)}</strong></a>"
+        )
+    if index < len(LESSONS) - 1:
+        nxt = LESSONS[index + 1]
+        items.append(
+            f'<a class="page-link page-next" rel="next" href="{nxt.stem}.html"><small>Next</small>'
+            f"<strong>{html.escape(nxt.title)}</strong></a>"
+        )
+    return f'<nav class="pagination" aria-label="Lesson pagination">{"".join(items)}</nav>'
+
+
+def _lesson_page(
+    lesson: Lesson,
+    notebook_path: str,
+    notebook: dict[str, Any],
+    repository: str,
+) -> tuple[str, int, int]:
+    tips = _Tips()
+    body_parts = _render_lesson_body(notebook, lesson, tips)
+    about, steps, interpret, optional = body_parts.about, body_parts.steps, body_parts.interpret, body_parts.optional
+    code_count, missing_count = body_parts.code_count, body_parts.missing_count
+    read_url, colab_url = _urls(repository, notebook_path)
+    repository_url = f"https://github.com/{repository}"
+    status = "results to generate in Colab" if missing_count else "saved results shown"
+    chips = "".join(f"<li>{html.escape(item)}</li>" for item in lesson.sees)
+    about_block = (
+        f'<details class="about"><summary>About this lesson</summary><div class="about-body">{about}</div></details>'
+        if about.strip()
+        else ""
+    )
+    interpret_block = (
+        f'<details class="about"><summary>Full interpretation</summary><div class="about-body">{interpret}</div></details>'
+        if interpret.strip()
+        else ""
+    )
+    optional_block = f'<div class="optional">{optional}</div>' if optional.strip() else ""
+    body = f'''
+{_header(home_href="../index.html", repository_url=repository_url, home=False)}
+<main id="content" class="shell lesson-page">
+  <div class="lesson-layout">
+    {_lesson_rail(lesson)}
+    <article class="lesson-main">
+      <header class="lesson-hero">
+        <p class="kicker"><span>Lesson {html.escape(lesson.number)}</span> · {html.escape(_track_label(lesson.track))}</p>
+        <h1>{html.escape(lesson.title)}</h1>
+        <p class="question">{html.escape(lesson.question)}</p>
+        <ul class="sees" aria-label="You will see">{chips}</ul>
+        <div class="lesson-actions">
+          <a class="button button-primary" href="{html.escape(colab_url, quote=True)}">Open in Colab</a>
+          <a class="button button-quiet" href="#key-result">Jump to key result</a>
+          <a class="text-link" href="{html.escape(read_url, quote=True)}">Notebook source</a>
+        </div>
+        <p class="lesson-meta">{code_count} code cells · {html.escape(status)}</p>
+      </header>
+      {about_block}
+      <div class="steps">{steps}</div>
+      <section class="takeaway" aria-labelledby="takeaway-heading">
+        <h2 id="takeaway-heading">Takeaway</h2>
+        <p class="takeaway-main">{html.escape(lesson.takeaway)}</p>
+        <p class="takeaway-limit"><span>Not shown</span> {html.escape(lesson.limit)}</p>
+        {interpret_block}
+      </section>
+      {optional_block}
+      {_lesson_pagination(lesson)}
+    </article>
   </div>
+</main>
+{_footer(repository_url)}
+'''
+    page = _page_document(lesson.title, body, stylesheet="../assets/education.css", description=lesson.question)
+    return page, code_count, missing_count
+
+
+# ---------------------------------------------------------------------------
+# Homepage
+# ---------------------------------------------------------------------------
+
+_ICONS = {
+    "inputs": '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',
+    "network": '<circle cx="6" cy="6" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="12" cy="18" r="2"/><path d="M8 6l8 2M7 8l4 8M17 10l-4 6"/>',
+    "repeat": '<path d="M4 12a8 8 0 0 1 14-5M20 4v4h-4M20 12a8 8 0 0 1-14 5M4 20v-4h4"/>',
+    "limits": '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+}
+
+
+def _icon(name: str) -> str:
+    return (
+        '<svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" '
+        f'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{_ICONS[name]}</svg>'
+    )
+
+
+def _hero_terminal() -> str:
+    return '''
+<figure class="terminal" aria-label="Example CEPT commands and output">
+  <div class="terminal-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+<pre><code><span class="t-cmd">cept case check</span> &lt;case&gt;.json
+<span class="t-out">Readiness: PASS · Engine: opendss</span>
+<span class="t-cmd">cept study run</span> &lt;case&gt;.json
+<span class="t-out">Status   PASSED</span>
+<span class="t-cmd">cept study verify</span> &lt;run&gt;
+<span class="t-ok">[PASS]</span> <span class="t-out">Case identity</span>
+<span class="t-ok">[PASS]</span> <span class="t-out">Solver result</span>
+<span class="t-ok">[PASS]</span> <span class="t-out">Saved evidence</span></code></pre>
+  <figcaption>Output as saved in Lesson 01. Paths shortened.</figcaption>
+</figure>
+'''
+
+
+def _comparison_chart() -> str:
+    scale = 380.0
+    left = 170
+    direct = round(0.315818 * scale)
+    declared = round(0.947691 * scale)
+    tick = left + round(scale)
+    return f'''
+<figure class="compare">
+  <svg viewBox="0 0 580 170" role="img" aria-labelledby="cmp-t cmp-d">
+    <title id="cmp-t">Node 4 voltage with and without a declared voltage base</title>
+    <desc id="cmp-d">Bar chart in per-unit. The direct script that omits the downstream voltage base reads about 0.316. The CEPT run with the declared base reads about 0.948. A dashed line marks 1.0.</desc>
+    <g class="cmp-grid"><line x1="{left}" y1="24" x2="{left}" y2="124"/><line class="cmp-ref" x1="{tick}" y1="24" x2="{tick}" y2="124"/></g>
+    <text class="cmp-lbl" x="{left - 12}" y="58" text-anchor="end">Direct script</text>
+    <text class="cmp-sub" x="{left - 12}" y="76" text-anchor="end">base omitted</text>
+    <rect class="cmp-bar cmp-bar--direct" x="{left}" y="40" width="{direct}" height="36" rx="3"/>
+    <text class="cmp-val" x="{left + direct + 10}" y="64">0.316 pu</text>
+    <text class="cmp-lbl" x="{left - 12}" y="108" text-anchor="end">With CEPT</text>
+    <text class="cmp-sub" x="{left - 12}" y="126" text-anchor="end">base declared</text>
+    <rect class="cmp-bar cmp-bar--declared" x="{left}" y="90" width="{declared}" height="36" rx="3"/>
+    <text class="cmp-val" x="{left + declared - 10}" y="114" text-anchor="end">0.948 pu</text>
+    <text class="cmp-axis" x="{tick}" y="146" text-anchor="middle">1.0 pu</text>
+    <text class="cmp-axis" x="{left}" y="146" text-anchor="middle">0</text>
+  </svg>
+</figure>
+'''
+
+
+def _course_card(lesson: Lesson, *, tips: _Tips, code_count: int, missing_count: int, repository: str) -> str:
+    _, colab_url = _urls(repository, f"public/notebooks/{lesson.stem}.ipynb")
+    status = "Run to generate" if missing_count else "Saved results"
+    start = '<span class="badge">Start here</span>' if lesson.stem == "01_why_solvers_lie" else ""
+    return f'''
+<article class="course-card" data-lesson="{lesson.stem}">
+  <div class="cc-top"><span class="cc-num">{lesson.number}</span>{start}{tips.info(lesson.takeaway, label=f"Takeaway for lesson {lesson.number}")}</div>
+  <h4><a href="lessons/{lesson.stem}.html">{html.escape(lesson.title)}</a></h4>
+  <p class="cc-q">{html.escape(lesson.question)}</p>
+  <p class="cc-meta"><span>{code_count} code cells</span><span>{status}</span><a href="{html.escape(colab_url, quote=True)}">Colab<span class="sr-only"> for lesson {lesson.number}</span></a></p>
 </article>
 '''
 
 
-def _disclosure(_revision: str, _manifest_hash: str) -> str:
-    return """
-<aside class="disclosure" aria-label="Learning note">
-  <strong>Read → Run → Inspect</strong>
-  <span>Open Colab, run the cells, then review the saved results. Demonstrator evidence is not project validation.</span>
-</aside>
-"""
-
-
-def _lesson_navigation(current_stem: str) -> tuple[str, str]:
-    lessons = list(LESSONS)
-    current_index = next(index for index, item in enumerate(lessons) if item["stem"] == current_stem)
-    stage_by_key = {stage[0]: stage[2].title() for stage in LESSON_STAGES}
-    toc_items: list[str] = []
-    for item in lessons:
-        is_current = item["stem"] == current_stem
-        current_class = " is-current" if is_current else ""
-        current_attr = ' aria-current="page"' if is_current else ""
-        stem = html.escape(item["stem"], quote=True)
-        number = html.escape(item["number"])
-        title = html.escape(item["title_en"])
-        stage = html.escape(stage_by_key[item["stage"]])
-        toc_items.append(
-            f'<li><a class="lesson-toc-link{current_class}" href="{stem}.html"{current_attr}>'
-            f'<span class="lesson-toc-number">{number}</span>'
-            f"<span><strong>{title}</strong><small>{stage}</small></span></a></li>"
-        )
-
-    pagination_items: list[str] = []
-    prev_item = lessons[current_index - 1] if current_index else None
-    next_item = lessons[current_index + 1] if current_index < len(lessons) - 1 else None
-
-    if prev_item is not None:
-        stem = html.escape(prev_item["stem"], quote=True)
-        title = html.escape(prev_item["title_en"])
-        pagination_items.append(
-            f'<a class="lesson-page-link lesson-page-link--prev" rel="prev" href="{stem}.html">'
-            f"<small>&larr; Previous lesson</small><strong>{title}</strong></a>"
-        )
-    elif next_item is not None:
-        pagination_items.append('<div class="lesson-page-link-spacer" aria-hidden="true"></div>')
-
-    if next_item is not None:
-        stem = html.escape(next_item["stem"], quote=True)
-        title = html.escape(next_item["title_en"])
-        pagination_items.append(
-            f'<a class="lesson-page-link lesson-page-link--next" rel="next" href="{stem}.html">'
-            f"<small>Next lesson &rarr;</small><strong>{title}</strong></a>"
-        )
-
-    sidebar_html = f"""
-<div class="lesson-sidebar">
-  <details class="lesson-nav-disclosure" open>
-    <summary><span>Lesson contents</span><small>{len(lessons)} lessons</small></summary>
-    <nav class="lesson-toc" aria-labelledby="lesson-toc-heading">
-      <div class="lesson-toc-heading">
-        <div><div class="eyebrow">THE COURSE</div><h2 id="lesson-toc-heading">All lessons</h2></div>
-        <a href="../index.html">Back to index</a>
-      </div>
-      <p class="lesson-toc-note">Follow the sequence or jump to the question you want to explore.</p>
-      <ol class="lesson-toc-list">{"".join(toc_items)}</ol>
-    </nav>
-  </details>
-  <script>
-    if (window.matchMedia("(max-width: 820px)").matches) {{
-      document.querySelector(".lesson-nav-disclosure").open = false;
-    }}
-  </script>
- </div>
-"""
-    pagination_html = f'<nav class="lesson-pagination" aria-label="Lesson pagination">{"".join(pagination_items)}</nav>'
-    return sidebar_html, pagination_html
-
-
-def _lesson_page(
-    lesson: dict[str, str],
-    notebook_path: str,
-    notebook_html: str,
-    code_count: int,
-    missing_output_count: int,
-    revision: str,
-    manifest_hash: str,
-    repository: str,
-) -> str:
-    read_url, colab_url = _urls(repository, notebook_path)
-    status = (
-        f"{missing_output_count} result cell(s) can be generated in Colab."
-        if missing_output_count
-        else "Solver-backed results are shown below."
-    )
-    lesson_label = f"Lesson {lesson['number']}"
-    lesson_sidebar, lesson_pagination = _lesson_navigation(lesson["stem"])
-    body = f'''
-{_header(home_href="../index.html", label=lesson_label)}
-<main id="content" class="shell lesson-page">
-  <div class="lesson-layout">
-    {lesson_sidebar}
-    <div class="lesson-main">
-      <div class="lesson-kicker">LESSON {html.escape(lesson["number"])}</div>
-      <div class="lesson-heading">
-        <div>
-          <h1>{html.escape(lesson["title_en"])}</h1>
-        </div>
-        <div class="lesson-actions" aria-label="Lesson links">
-          <a class="button button-primary" href="{html.escape(colab_url, quote=True)}">Run in Colab</a>
-          <a class="button button-secondary" href="{html.escape(read_url, quote=True)}">Read notebook source</a>
-        </div>
-      </div>
-      <p class="lead">{html.escape(lesson["summary_en"])}</p>
-      <div class="lesson-meta">
-        <span>{code_count} code cell(s)</span>
-        <span>{html.escape(status)}</span>
-      </div>
-      {_disclosure(revision, manifest_hash)}
-      <section class="notebook" aria-labelledby="notebook-heading">
-        <div class="section-heading">
-          <div>
-            <div class="eyebrow">NOTEBOOK RENDER</div>
-            <h2 id="notebook-heading">Read the lesson</h2>
-          </div>
-          <p class="section-note">Read the lesson, then run it in Colab to generate solver-backed results.</p>
-        </div>
-        {notebook_html}
-      </section>
-      {lesson_pagination}
-    </div>
-  </div>
-</main>
-<footer class="site-footer"><div class="shell"><span>CEPT Education</span><span>Workflow evidence is not project validation.</span></div></footer>
-'''
-    return _page_document(
-        lesson["title_en"], body, stylesheet="../assets/education.css", description=lesson["summary_en"]
-    )
-
-
-def _index_page(
-    lessons: Iterable[dict[str, str]],
-    statuses: dict[str, tuple[int, int]],
-    revision: str,
-    manifest_hash: str,
-    repository: str,
-) -> str:
-    lessons_by_stage: dict[str, list[dict[str, str]]] = {stage[0]: [] for stage in LESSON_STAGES}
-    for lesson in lessons:
-        lessons_by_stage[lesson["stage"]].append(lesson)
-
-    course_stages: list[str] = []
-    for stage_key, number, label, title, note in LESSON_STAGES:
-        stage_lessons = lessons_by_stage[stage_key]
+def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
+    tips = _Tips()
+    repository_url = f"https://github.com/{repository}"
+    tracks_html: list[str] = []
+    for key, label, note in TRACKS:
         cards = "".join(
-            _lesson_card(
-                lesson,
-                missing_count=statuses[lesson["stem"]][1],
-                repository=repository,
-            )
-            for lesson in stage_lessons
+            _course_card(lesson, tips=tips, code_count=statuses[lesson.stem][0], missing_count=statuses[lesson.stem][1], repository=repository)
+            for lesson in LESSONS
+            if lesson.track == key
         )
-        heading_id = f"stage-{stage_key}"
-        course_stages.append(f'''
-<section class="course-stage" aria-labelledby="{heading_id}">
-  <div class="course-stage-heading">
-    <div class="eyebrow">{html.escape(number)} · {html.escape(label)}</div>
-    <div>
-      <h3 id="{heading_id}">{title}</h3>
-    </div>
-  </div>
-  <div class="lesson-grid" data-count="{len(stage_lessons)}">{cards}</div>
-</section>
-''')
+        tracks_html.append(
+            f'<section class="track" aria-labelledby="track-{key}"><div class="track-head"><h3 id="track-{key}">{label}</h3>'
+            f"<p>{html.escape(note)}</p></div><div class=\"cards\">{cards}</div></section>"
+        )
 
-    repository_url = f"https://github.com/{html.escape(repository, quote=True)}"
+    benefits = (
+        ("inputs", "Clear inputs", "One structured file holds the network, units and settings.",
+         "Missing data stays flagged instead of being filled in silently."),
+        ("network", "A visible network", "Get a one-line diagram and per-phase results from the same model.",
+         "Diagrams are drawn from the model, not placed by hand."),
+        ("repeat", "Repeatable runs", "Each run keeps its inputs, outputs and checks together.",
+         "Re-run the same inputs and compare. Hashes detect changes to saved files."),
+        ("limits", "Stated limits", "Every lesson says what its result does not show.",
+         "Course results are demonstrations, not field validation."),
+    )
+    benefit_html = "".join(
+        f'<li class="benefit">{_icon(icon)}<div><h3>{title}</h3><p>{line}</p></div>{tips.info(detail, label=f"More about {title}")}</li>'
+        for icon, title, line, detail in benefits
+    )
+    steps = (
+        ("Define", "Describe the network and study.", "Network, units and study settings go in one typed Case."),
+        ("Check", "See what is missing.", "CEPT reports unresolved required inputs before it runs anything."),
+        ("Solve", "OpenDSS does the solving.", "CEPT hands the model to OpenDSS and keeps the raw output."),
+        ("Inspect", "Read diagrams and results.", "Single-line diagram, phase voltages and study plots."),
+        ("Verify", "Check the saved run.", "Checks run identity and file integrity. They do not check physical correctness."),
+    )
+    step_html = "".join(
+        f'<li class="flow-step{" flow-solve" if name == "Solve" else ""}"><span class="flow-num" aria-hidden="true">{index}</span>'
+        f"<h3>{name}</h3><p>{line}</p>{tips.info(detail, label=f'More about {name}')}</li>"
+        for index, (name, line, detail) in enumerate(steps, start=1)
+    )
+    chips = (
+        tips.tip("OpenDSS solver", "A free, open-source power-system simulator. CEPT calls it; it does not replace it."),
+        tips.tip("Opens in Colab", "Each lesson is a notebook that opens in Google Colab."),
+        tips.tip("Saved results", "Every lesson page shows real solver output saved from a run."),
+    )
+    shows = ("Worked OpenDSS examples with saved outputs.", "How inputs, results and checks stay linked.", "Where assumptions enter a study.")
+    not_shows = (
+        "Field validation or project approval.",
+        "Protection-setting or planning decisions.",
+        "Agreement with other tools, for example PowerFactory.",
+    )
     body = f'''
-{_header(home_href="index.html")}
-<main id="content" class="edu-home">
+{_header(home_href="index.html", repository_url=repository_url, home=True)}
+<main id="content" class="home">
   <section class="hero shell" aria-labelledby="hero-heading">
     <div class="hero-copy">
-      <div class="eyebrow">CEPT POWER STUDIO / EDUCATION</div>
-      <h1 id="hero-heading">Power-system studies.<br><em>Clear inputs.<br>Traceable results.</em></h1>
-      <p class="hero-lead">Model the network. Run OpenDSS. Inspect diagrams, results, and evidence in one CEPT workflow.</p>
-      <div class="hero-actions" aria-label="Start learning">
-        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Discover the difference <span aria-hidden="true">→</span></a>
-        <a class="button button-secondary" href="#lessons">Explore the course</a>
+      <p class="kicker">Power-system studies with CEPT</p>
+      <h1 id="hero-heading">Run power-system studies you can check.</h1>
+      <p class="hero-lead">CEPT organises the inputs, runs OpenDSS, and keeps the evidence together. Eight short lessons in Google Colab.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with Lesson 1 <span aria-hidden="true">→</span></a>
+        <a class="button button-quiet" href="#how">See how it works</a>
       </div>
-      <ul class="hero-facts" aria-label="Course at a glance">
-        <li>7 lessons + setup</li><li>OpenDSS-backed</li><li>Colab notebooks</li>
-      </ul>
+      <ul class="chips">{"".join(f"<li>{chip}</li>" for chip in chips)}</ul>
     </div>
-    <figure class="study-preview">
-      <div class="preview-heading"><span class="preview-dot" aria-hidden="true"></span>FROM MODEL TO EVIDENCE <span class="preview-tag">Conceptual view</span></div>
-      <svg class="network-diagram" viewBox="0 0 520 260" role="img" aria-labelledby="network-title network-desc">
-        <title id="network-title">A network model made visible</title>
-        <desc id="network-desc">An illustrative single-line diagram connects a source through a transformer to two load branches and a photovoltaic branch. This is a concept illustration, not a simulated lesson circuit.</desc>
-        <defs><pattern id="network-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#dce8ee" stroke-width=".6"/></pattern></defs>
-        <rect width="520" height="260" rx="10" fill="url(#network-grid)"/>
-        <g fill="none" stroke="#23445a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="55" cy="110" r="21"/><path d="M42 110 Q48 95 55 110 T68 110 M76 110 H139 M175 110 H240 M240 76 V148 M240 110 H353 M353 76 V148 M353 110 H463 V175 M240 148 V175 M353 76 V43"/>
-          <circle cx="149" cy="110" r="17"/><circle cx="170" cy="110" r="17"/>
-          <path d="M228 175 H252 L240 196 Z M451 175 H475 L463 196 Z"/>
-          <rect x="336" y="19" width="34" height="24" rx="3"/><path d="M341 31 H365 M347 23 V39 M358 23 V39"/>
-        </g>
-        <g fill="#067d77"><circle cx="240" cy="110" r="5"/><circle cx="353" cy="110" r="5"/></g>
-        <g fill="#526777" font-family="Segoe UI, Arial, sans-serif" font-size="12" text-anchor="middle">
-          <text x="55" y="155">Source</text><text x="160" y="155">Transformer</text><text x="240" y="220">Load</text><text x="463" y="220">Load</text><text x="398" y="36">PV</text>
-          <text x="240" y="63">Bus A</text><text x="353" y="172">Bus B</text>
-        </g>
-      </svg>
-      <div class="preview-artifacts">
-        <div><span>01 / DEFINE</span><strong>Typed Case</strong><small>Topology · units · assumptions</small></div>
-        <div><span>02 / INSPECT</span><strong>Solver results</strong><small>Voltages · currents · plots</small></div>
-        <div><span>03 / REVIEW</span><strong>Run evidence</strong><small>Identity · artifacts · checks</small></div>
-      </div>
-      <figcaption>Illustrative network—not a simulated lesson circuit.</figcaption>
-    </figure>
+    {_hero_terminal()}
   </section>
-  <section id="why-cept" class="principles shell" aria-labelledby="principles-heading">
-    <div class="section-heading">
-      <div><div class="eyebrow">WHY CEPT</div><h2 id="principles-heading">Four practical advantages.</h2></div>
-      <p class="section-note">OpenDSS solves the model. CEPT makes the study easier to inspect.</p>
-    </div>
-    <div class="benefit-grid">
-      <article><span class="principle-index">01</span><h3>Explicit inputs</h3><p>Keep topology, units, and input decisions in one typed Case.</p><a href="lessons/04_incomplete_data.html">Input policies <span aria-hidden="true">→</span></a></article>
-      <article><span class="principle-index">02</span><h3>Visible networks</h3><p>Inspect SLDs and phase results without manually placing every bus.</p><a href="lessons/02_first_circuit_sld.html">Network modelling <span aria-hidden="true">→</span></a></article>
-      <article><span class="principle-index">03</span><h3>Traceable studies</h3><p>Retain the Case, run artifacts, and checks behind each result.</p><a href="lessons/07_digital_evidence.html">Run evidence <span aria-hidden="true">→</span></a></article>
-      <article><span class="principle-index">04</span><h3>Applied learning</h3><p>Explore unbalance, solar integration, and faults through bounded examples.</p><a href="#lessons">Explore studies <span aria-hidden="true">→</span></a></article>
-    </div>
-  </section>
-  <section class="workflow-section" aria-labelledby="workflow-heading">
+
+  <section class="band band-benefits" aria-labelledby="why-heading">
     <div class="shell">
-      <div class="section-heading">
-        <div><div class="eyebrow">STUDY WORKFLOW</div><h2 id="workflow-heading">One Case. Five clear steps.</h2></div>
-        <p class="section-note">No AI API key required.</p>
+      <h2 id="why-heading">What CEPT adds</h2>
+      <ul class="benefits">{benefit_html}</ul>
+    </div>
+  </section>
+
+  <section class="shell compare-section" aria-labelledby="cmp-heading">
+    <div class="compare-copy">
+      <p class="kicker">One example</p>
+      <h2 id="cmp-heading">Same feeder. One declared voltage base.</h2>
+      <p>Both runs converge. Only one reads the downstream voltage base the Case declares.</p>
+      <a class="text-link" href="lessons/01_why_solvers_lie.html">Inspect the runs in Lesson 1 <span aria-hidden="true">→</span></a>
+    </div>
+    {_comparison_chart()}
+    <p class="compare-note">Node 4 voltage from Lesson 01's saved OpenDSS output. A teaching example, not a field measurement.</p>
+  </section>
+
+  <section id="how" class="band band-flow" aria-labelledby="how-heading">
+    <div class="shell">
+      <h2 id="how-heading">One Case. Five steps.</h2>
+      <ol class="flow">{step_html}</ol>
+      <p class="flow-note">CEPT organises the study, OpenDSS solves it, and the engineering judgement stays with you.</p>
+    </div>
+  </section>
+
+  <section id="course" class="shell course" aria-labelledby="course-heading">
+    <h2 id="course-heading">Choose where to start</h2>
+    <p class="section-sub">Eight lessons in four stages. Each opens in Colab and shows its saved results here.</p>
+    {"".join(tracks_html)}
+  </section>
+
+  <section id="limits" class="band band-limits" aria-labelledby="limits-heading">
+    <div class="shell limits">
+      <h2 id="limits-heading">What this course does and does not show</h2>
+      <div class="limits-grid">
+        <div class="limit limit-yes"><h3>It shows</h3><ul>{"".join(f"<li>{item}</li>" for item in shows)}</ul></div>
+        <div class="limit limit-no"><h3>It does not show</h3><ul>{"".join(f"<li>{item}</li>" for item in not_shows)}</ul></div>
       </div>
-      <figure class="workflow-figure">
-        <ol class="workflow-diagram" aria-label="CEPT study workflow">
-          <li><span class="workflow-step">01</span><h3>Define</h3><p>Network &amp; study inputs</p></li>
-          <li><span class="workflow-step">02</span><h3>Check</h3><p>Readiness &amp; missing data</p></li>
-          <li class="solver-step"><span class="workflow-step">03</span><h3>Solve</h3><p>OpenDSS execution</p></li>
-          <li><span class="workflow-step">04</span><h3>Inspect</h3><p>SLD &amp; phase results</p></li>
-          <li><span class="workflow-step">05</span><h3>Verify</h3><p>Run identity &amp; integrity</p></li>
-        </ol>
-        <figcaption>CEPT structures the study; OpenDSS supplies the numerical solution. Engineering judgement remains yours.</figcaption>
-      </figure>
+      <p class="limits-claim">Course claim level: {tips.tip("WORKFLOW_VALIDATED", "The workflow ran and its recorded checks passed for these examples. Nothing stronger is claimed.", extra_class="tip-code")}</p>
     </div>
   </section>
-  <section class="comparison-band shell" aria-labelledby="comparison-heading">
-    <div class="section-heading">
-      <div><div class="eyebrow">MODEL INTEGRITY</div><h2 id="comparison-heading">Converged ≠ correct.</h2></div>
-      <p class="section-note">An omitted voltage base can mislead the per-unit readout.</p>
-    </div>
-    <div class="discovery-grid">
-      <article class="discovery-copy"><h3>One feeder.<br>Two voltage-base paths.</h3><p>The direct example omits the downstream base. CEPT carries the declared bus voltage into the adapter.</p><a class="text-link" href="lessons/01_why_solvers_lie.html">Inspect lesson 01 <span aria-hidden="true">→</span></a></article>
-      <figure class="result-comparison">
-        <div class="result-row result-row--warning"><div><span>DIRECT SCRIPT / OMITTED BASE</span><strong>0.316 <small>pu</small></strong></div><p>Converged, but misleading per-unit readout.</p></div>
-        <div class="result-row"><div><span>CEPT / DECLARED BASE</span><strong>0.948 <small>pu</small></strong></div><p>Readout tied to the declared voltage base.</p></div>
-        <figcaption>Rounded Node 4 outputs from Lesson 01. Demonstrator values—not field measurements.</figcaption>
-      </figure>
-    </div>
-  </section>
-  <section id="lessons" class="lesson-section shell" aria-labelledby="lessons-heading">
-    <div class="section-heading">
-      <div><div class="eyebrow">COURSE</div><h2 id="lessons-heading">Choose your next study.</h2></div>
-      <p class="section-note">Seven lessons + setup. Read, run, and inspect.</p>
-    </div>
-    <div class="course-entry"><p><strong>New to CEPT?</strong> Start with runtime setup.</p><a href="lessons/00_environment.html">Start here <span aria-hidden="true">→</span></a></div>
-    {"".join(course_stages)}
-  </section>
-  <section class="trust-band shell" aria-labelledby="trust-heading">
-    <div>
-      <div class="eyebrow">EVIDENCE LIMITS</div>
-      <h2 id="trust-heading">Traceable.<br>Not project validated.</h2>
-      <p>Verification checks run identity and artifact integrity—not physical correctness.</p>
-    </div>
-    <div class="claim-card"><span class="claim-label">COURSE CLAIM CEILING</span><strong><code>WORKFLOW_VALIDATED</code></strong><p>Workflow checks for the declared examples.</p><details class="claim-details"><summary>What this does not establish</summary><p>Field validation, project approval, protection acceptance, or PowerFactory agreement. Each needs separate evidence and review. Hashes detect artifact changes; they do not authenticate a solver.</p></details></div>
-  </section>
-  <section class="shell source-section" aria-labelledby="source-heading">
-    <div><div class="eyebrow">GET STARTED</div><h2 id="source-heading">Build. Inspect. Understand.</h2></div>
-    <div class="next-actions">
-      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start lesson 01 <span aria-hidden="true">→</span></a>
-      <a class="button button-secondary" href="lessons/02_first_circuit_sld.html">Build the first circuit</a>
+
+  <section class="shell final-cta">
+    <h2>Ready to try it?</h2>
+    <div class="hero-actions">
+      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with Lesson 1 <span aria-hidden="true">→</span></a>
+      <a class="text-link" href="{html.escape(repository_url, quote=True)}">View the source <span aria-hidden="true">↗</span></a>
     </div>
   </section>
 </main>
-<footer class="site-footer"><div class="shell">
-  <span>CEPT Education · Apache-2.0</span>
-  <div class="footer-links">
-    <a href="{repository_url}">Source</a>
-    <a href="{repository_url}/releases/tag/v0.2.0-edu.1">Release</a>
-    <a href="{repository_url}/blob/main/LICENSE">License</a>
-  </div>
-</div></footer>
+{_footer(repository_url)}
 '''
     return _page_document(
-        "Learning index",
+        "Learn power-system studies",
         body,
         stylesheet="assets/education.css",
-        description="Learn power-system studies with CEPT: explicit models, OpenDSS simulation, rendered diagrams, and traceable run evidence. Seven lessons plus setup.",
+        description="Eight short Colab lessons on running power-system studies with CEPT and OpenDSS, with inputs, results and checks kept together.",
     )
+
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
 
 
 def build_site(
@@ -801,34 +1065,22 @@ def build_site(
     (output_dir / "assets" / "education.css").chmod(0o644)
 
     statuses: dict[str, tuple[int, int]] = {}
+    lesson_dir = output_dir / "lessons"
+    lesson_dir.mkdir(exist_ok=True)
     for lesson, path in lessons:
         notebook = _read_json(path)
-        notebook_html, code_count, missing_count = _render_notebook(notebook)
-        statuses[lesson["stem"]] = (code_count, missing_count)
-        relative = f"public/notebooks/{lesson['stem']}.ipynb"
-        lesson_dir = output_dir / "lessons"
-        lesson_dir.mkdir(exist_ok=True)
-        page = _lesson_page(
-            lesson,
-            relative,
-            notebook_html,
-            code_count,
-            missing_count,
-            revision,
-            manifest_hash,
-            repository,
-        )
-        (lesson_dir / f"{lesson['stem']}.html").write_text(page, encoding="utf-8", newline="\n")
+        page, code_count, missing_count = _lesson_page(lesson, f"public/notebooks/{lesson.stem}.ipynb", notebook, repository)
+        statuses[lesson.stem] = (code_count, missing_count)
+        (lesson_dir / f"{lesson.stem}.html").write_text(page, encoding="utf-8", newline="\n")
 
-    index = _index_page((lesson for lesson, _ in lessons), statuses, revision, manifest_hash, repository)
-    (output_dir / "index.html").write_text(index, encoding="utf-8", newline="\n")
+    (output_dir / "index.html").write_text(_index_page(statuses, repository), encoding="utf-8", newline="\n")
     return {
         "schema": "cept-education-site-v1",
         "source_revision": revision,
         "export_manifest_sha256": manifest_hash,
         "repository": repository,
         "branch": PUBLIC_BRANCH,
-        "lessons": [lesson["stem"] for lesson, _ in lessons],
+        "lessons": [lesson.stem for lesson, _ in lessons],
         "output_dir": str(output_dir),
     }
 

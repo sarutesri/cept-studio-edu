@@ -45,34 +45,34 @@ flowchart LR
 <div class="cept-card" markdown>
 <span class="cept-status">Start</span>
 
-### 00 · Environment and study scope
-Check the runtime and the limits of workflow evidence.
+### 00 · Check your setup
+Check that the runtime is ready and what a passing check may claim.
 
 <a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Open in Colab</span></a>
 </div>
 
 <div class="cept-card" markdown>
-<span class="cept-status">Phase 1</span>
+<span class="cept-status">Start</span>
 
-### 01 · Convergence and model integrity
-Compare recorded feeder outputs with omitted and declared voltage bases.
+### 01 · Same feeder, two voltage bases
+Compare recorded feeder outputs from an omitted and a declared voltage base.
 
-<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_why_solvers_lie.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Inspect model integrity</span></a>
+<a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_why_solvers_lie.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Open Lesson 01</span></a>
 </div>
 
 <div class="cept-card" markdown>
-<span class="cept-status">Phases 2–5</span>
+<span class="cept-status">Build to Trust</span>
 
 ### 02–07 · Modelling, analysis, and evidence
-Inspect typed networks, phase results, applied studies, and verification checks.
+Build a typed network, meet unbalance, ask planning questions, and trace a result.
 
 [See all lessons](public-course.md){ .md-button }
 </div>
 
 <div class="cept-card" markdown>
-<span class="cept-status">Apply</span>
+<span class="cept-status">Build</span>
 
-### 04 · Incomplete engineering data
+### 04 · When data is missing
 Review missing inputs and approved resolutions; inspect a separate bundled demo.
 
 <a class="cept-colab-link cept-colab-link--labelled" href="https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_incomplete_data.ipynb" target="_blank" rel="noopener"><span class="cept-colab-mark" aria-hidden="true"></span><span>Open guided intake</span></a>
@@ -92,20 +92,20 @@ Every lesson runs literal `cept <noun> <verb>` commands, exactly as in a normal 
 
 </div>
 
-## The five phases
+## The four stages
 
-| Phase | Lesson | Focus | What stays visible |
+| Stage | Lesson | Focus | What stays visible |
 | --- | --- | --- | --- |
-| Setup | **00 · Environment and study scope** | runtime and claim scope | CEPT/OpenDSS identity |
-| 1 · Model integrity | **01 · Convergence and model integrity** | voltage-base handling | recorded 0.316 / 0.948 pu example |
-| 2 · Model construction | **02 · Typed network modelling** | Case to SLD | topology and voltage |
-| 3 · Network conditions | **03 · Unbalanced feeder analysis** | IEEE13 phases | phase-specific voltage |
-| 3 · Network conditions | **04 · Incomplete engineering data** | input policies | missing data and approved resolutions |
-| 4 · Applied studies | **05 · Solar hosting capacity** | PV sweep | declared voltage criterion |
-| 4 · Applied studies | **06 · Short-circuit analysis** | line-to-ground fault | solver-returned current |
-| 5 · Evidence & reproducibility | **07 · Run evidence and reproducibility** | run verification | identity and integrity |
+| Start | **00 · Check your setup** | runtime and claim scope | CEPT/OpenDSS identity |
+| Start | **01 · Same feeder, two voltage bases** | voltage-base handling | recorded 0.316 / 0.948 pu example |
+| Build | **02 · Build your first network** | Case to SLD | topology and voltage |
+| Build | **03 · Unbalanced phases** | IEEE13 phases | phase-specific voltage |
+| Build | **04 · When data is missing** | input policies | missing data and approved resolutions |
+| Apply | **05 · Solar hosting capacity** | PV sweep | declared voltage criterion |
+| Apply | **06 · Short-circuit current** | line-to-ground fault | solver-returned current |
+| Trust | **07 · Trace a result** | run verification | identity and integrity |
 
-## Phase 1: model integrity
+## Lesson 01: same feeder, two voltage bases
 
 The direct example omits the downstream voltage base. The CEPT path carries
 the declared bus voltage into the adapter. The recorded outputs illustrate why
@@ -136,7 +136,7 @@ runs a bundled IEEE13 load-flow demonstration at the end so the learner can
 still see a genuine OpenDSS run and verification receipt without laundering a
 missing input into a fake result.
 
-## Lesson 07: run evidence and reproducibility
+## Lesson 07: trace a result
 
 Run the same Case twice. Compare identity and artifacts, then observe verification
 after an artifact is changed. Hashes support integrity checks, not physical

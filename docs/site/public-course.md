@@ -25,79 +25,63 @@ or PowerFactory parity.
 
 ## Course path
 
-Follow five phases: model integrity, model construction, network conditions,
-applied studies, and evidence/reproducibility. Notebook cells use the same
+Follow four stages: start, build, apply, and trust. Notebook cells use the same
 `cept <noun> <verb>` commands as a terminal.
 
 <div class="cept-course-path" markdown>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Environment &amp; scope</span>
+<span class="cept-course-stage__index">Start</span>
 
-### Prepare the runtime
+### Check your setup, then see why the voltage base matters
 
-**00 · Environment and study scope** — check CEPT/OpenDSS and claim limits.
+**00 · Check your setup** — is the OpenDSS runtime ready, and what may a passing
+check claim?
 
-<span class="cept-course-stage__outcome">Outcome · Identify the runtime and evidence scope.</span>
+**01 · Same feeder, two voltage bases** — compare recorded outputs from an
+omitted and a declared downstream voltage base: 0.316 pu versus 0.948 pu.
+
+<span class="cept-course-stage__outcome">Outcome · See that a converged solve can still read a different voltage base.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 1 · Model integrity</span>
+<span class="cept-course-stage__index">Build</span>
 
-### Inspect model assumptions
+### Describe a network, then meet unbalance and missing data
 
-**01 · Convergence and model integrity** — compare recorded feeder outputs
-with omitted and declared downstream voltage bases: 0.316 pu versus 0.948 pu.
-
-<span class="cept-course-stage__outcome">Outcome · Distinguish convergence from correctness.</span>
-</div>
-
-<div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 2 · Model construction</span>
-
-### Build a typed network
-
-**02 · Typed network modelling** — define the IEEE 4-node feeder and inspect
+**02 · Build your first network** — define the IEEE 4-node feeder and inspect
 its single-line diagram.
 
-<span class="cept-course-stage__outcome">Outcome · Connect a Case, run, and diagram.</span>
+**03 · Unbalanced phases** — inspect each phase of IEEE13.
+
+**04 · When data is missing** — separate source data, missing inputs, and
+approved resolutions from the bundled demonstrator.
+
+<span class="cept-course-stage__outcome">Outcome · Describe a network as data and keep missing inputs visible.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 3 · Network conditions</span>
+<span class="cept-course-stage__index">Apply</span>
 
-### Evaluate phases and input quality
-
-**03 · Unbalanced feeder analysis** — inspect each phase of IEEE13.
-
-**04 · Incomplete engineering data** — separate source data, missing inputs,
-and approved resolutions from the bundled demonstrator.
-
-<span class="cept-course-stage__outcome">Outcome · Inspect unbalance without concealing missing inputs.</span>
-</div>
-
-<div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 4 · Applied studies</span>
-
-### Study solar integration and faults
+### Ask two planning questions
 
 **05 · Solar hosting capacity** — sweep PV against a declared voltage limit.
 
-**06 · Short-circuit analysis** — read solver-returned fault current, not a
+**06 · Short-circuit current** — read solver-returned fault current, not a
 protection acceptance decision.
 
-<span class="cept-course-stage__outcome">Outcome · Interpret results against declared study criteria.</span>
+<span class="cept-course-stage__outcome">Outcome · Read results against declared study criteria.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Phase 5 · Evidence &amp; reproducibility</span>
+<span class="cept-course-stage__index">Trust</span>
 
-### Review the run evidence
+### Trace a result back to its inputs
 
-**07 · Run evidence and reproducibility** — inspect Case fingerprints,
-artifact hashes, and verification checks.
+**07 · Trace a result** — inspect Case fingerprints, artifact hashes, and
+verification checks.
 
-<span class="cept-course-stage__outcome">Outcome · Distinguish workflow evidence from project validation.</span>
+<span class="cept-course-stage__outcome">Outcome · Tell workflow evidence apart from project validation.</span>
 </div>
 
 </div>

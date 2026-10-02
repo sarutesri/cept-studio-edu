@@ -1,23 +1,19 @@
 # CEPT Public candidate notebooks
 
-The course uses five formal phases after a setup prologue. Each notebook keeps
+The course has four stages: start, build, apply, and trust. Each notebook keeps
 solver output separate from teaching text and makes the evidence boundary
 visible. The lessons are concise, icon-led, and designed for Colab.
 
-Phase 0 establishes scope. Phase 1 examines model integrity. Phase 2 constructs
-a typed network. Phase 3 evaluates network conditions. Phase 4 applies studies.
-Phase 5 reviews evidence and reproducibility.
-
-| Phase | Notebook | Topic |
+| Stage | Notebook | Topic |
 | --- | --- | --- |
-| Prologue | [`00_environment.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb) | Environment and study scope |
-| 1 · Model integrity | [`01_why_solvers_lie.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_why_solvers_lie.ipynb) | Convergence, voltage-base handling, and model assumptions |
-| 2 · Model construction | [`02_first_circuit_sld.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_first_circuit_sld.ipynb) | Typed Case and single-line diagram |
-| 3 · Network conditions | [`03_unbalanced_feeder.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_unbalanced_feeder.ipynb) | IEEE 13-node phase results |
-| 3 · Network conditions | [`04_incomplete_data.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_incomplete_data.ipynb) | Input status and approved resolution policies |
-| 4 · Applied studies | [`05_solar_hosting_capacity.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_solar_hosting_capacity.ipynb) | Solar hosting capacity under one criterion |
-| 4 · Applied studies | [`06_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_fault_study.ipynb) | Declared short-circuit current |
-| 5 · Evidence & reproducibility | [`07_digital_evidence.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_digital_evidence.ipynb) | Run identity and artifact integrity |
+| Start | [`00_environment.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/00_environment.ipynb) | Check your setup |
+| Start | [`01_why_solvers_lie.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/01_why_solvers_lie.ipynb) | Same feeder, two voltage bases |
+| Build | [`02_first_circuit_sld.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/02_first_circuit_sld.ipynb) | Build your first network |
+| Build | [`03_unbalanced_feeder.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/03_unbalanced_feeder.ipynb) | Unbalanced phases |
+| Build | [`04_incomplete_data.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_incomplete_data.ipynb) | When data is missing |
+| Apply | [`05_solar_hosting_capacity.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_solar_hosting_capacity.ipynb) | Solar hosting capacity under one criterion |
+| Apply | [`06_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_fault_study.ipynb) | Short-circuit current for one declared fault |
+| Trust | [`07_digital_evidence.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_digital_evidence.ipynb) | Trace a result |
 
 
 Every notebook uses the same `cept <noun> <verb>` commands as a terminal.
