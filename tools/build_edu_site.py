@@ -625,7 +625,7 @@ _SCRIPT = """
     });
     var wrap = t.parentNode;
     ['pointerover', 'focusin'].forEach(function (name) {
-      wrap.addEventListener(name, function () { t.removeAttribute('data-dismissed'); });
+      wrap.addEventListener(name, function () { t.removeAttribute('data-dismissed'); place(t); });
     });
   });
   document.addEventListener('click', function () { closeAll(null); });
@@ -648,6 +648,8 @@ _SCRIPT = """
   function placeAll() { tips.forEach(place); }
   placeAll();
   window.addEventListener('resize', placeAll);
+  window.addEventListener('load', placeAll);
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(placeAll); }
   var rail = document.querySelector('.rail');
   if (rail && window.matchMedia('(max-width: 900px)').matches) { rail.open = false; }
 })();
@@ -953,8 +955,8 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
   <section class="hero shell" aria-labelledby="hero-heading">
     <div class="hero-copy">
       <p class="kicker">Power-system studies with CEPT</p>
-      <h1 id="hero-heading">Run power-system studies you can check.</h1>
-      <p class="hero-lead">CEPT organises the inputs, runs OpenDSS, and keeps the evidence together. Eight short lessons in Google Colab.</p>
+      <h1 id="hero-heading">See exactly what produced each result.</h1>
+      <p class="hero-lead">CEPT keeps the inputs, the OpenDSS run, the diagram and the checks together, so you can trace a number back to its Case and re-run it. Eight short lessons in Google Colab.</p>
       <div class="hero-actions">
         <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with Lesson 1 <span aria-hidden="true">→</span></a>
         <a class="button button-quiet" href="#how">See how it works</a>

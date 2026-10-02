@@ -26,10 +26,11 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; overflow-x: clip; }
 body {
   margin: 0;
   background: var(--bg);
+  overflow-x: clip;
   color: var(--body);
   font: 1.0625rem/1.6 var(--font);
 }
