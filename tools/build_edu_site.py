@@ -621,11 +621,12 @@ _SCRIPT = """
       closeAll(t);
       t.removeAttribute('data-dismissed');
       t.setAttribute('aria-expanded', open ? 'false' : 'true');
+      requestAnimationFrame(function () { place(t); });
       e.stopPropagation();
     });
     var wrap = t.parentNode;
     ['pointerover', 'focusin'].forEach(function (name) {
-      wrap.addEventListener(name, function () { t.removeAttribute('data-dismissed'); place(t); });
+      wrap.addEventListener(name, function () { t.removeAttribute('data-dismissed'); requestAnimationFrame(function () { place(t); }); });
     });
   });
   document.addEventListener('click', function () { closeAll(null); });
@@ -637,19 +638,19 @@ _SCRIPT = """
   function place(t) {
     var body = t.nextElementSibling;
     if (!body) { return; }
-    body.style.transform = '';
+    body.style.left = '';
+    body.style.right = '';
     var r = body.getBoundingClientRect();
     var vw = document.documentElement.clientWidth;
     var dx = 0;
     if (r.right > vw - 8) { dx = vw - 8 - r.right; }
     if (r.left + dx < 8) { dx = 8 - r.left; }
-    if (dx) { body.style.transform = 'translateX(' + dx + 'px)'; }
+    if (dx) {
+      var origin = body.parentNode.getBoundingClientRect().left;
+      body.style.right = 'auto';
+      body.style.left = (r.left - origin + dx) + 'px';
+    }
   }
-  function placeAll() { tips.forEach(place); }
-  placeAll();
-  window.addEventListener('resize', placeAll);
-  window.addEventListener('load', placeAll);
-  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(placeAll); }
   var rail = document.querySelector('.rail');
   if (rail && window.matchMedia('(max-width: 900px)').matches) { rail.open = false; }
 })();
