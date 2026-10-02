@@ -12,9 +12,9 @@ The candidate package contains an OpenDSS-first vertical slice for education:
 * the `cept environment check`, `cept capability show`, and `cept study ...`
   noun+verb CLI with shared human-readable `--format text` and machine
   `--format json` output; and
-* the eight cold-start notebooks under `public/notebooks/`.
+* the nine cold-start notebooks under `public/notebooks/`.
 
-The course has four stages: start, build, apply, and trust. Open each lesson
+The course has five stages: start, build, apply, trust, and assist. Open each lesson
 directly in Google Colab:
 
 | Stage | Notebook | Link |
@@ -27,6 +27,7 @@ directly in Google Colab:
 | Apply | `05_solar_hosting_capacity.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_solar_hosting_capacity.ipynb) |
 | Apply | `06_fault_study.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_fault_study.ipynb) |
 | Trust | `07_digital_evidence.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_digital_evidence.ipynb) |
+| Assist | `08_ask_in_plain_words.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/08_ask_in_plain_words.ipynb) |
 
 Notebook steps use concise icons: **⚙ Setup · 🧩 Inputs · ▶ Run · 📊 Results · ✓ Verify · ◇ Interpret**.
 
@@ -42,7 +43,7 @@ captures the solver-returned result, and records the solver identity. The
 candidate's receipt is bounded to `WORKFLOW_VALIDATED`; it is not a claim of
 project validation, field-evidence acceptance, or PowerFactory agreement.
 
-The eight notebooks pin the published teaching wheel by URL and SHA-256. For a
+The eight notebooks that run CEPT pin the published teaching wheel by URL and SHA-256. Lesson 08 replays a saved agent session and installs nothing. For a
 local install, download the wheel from
 [`v0.2.0-edu.1`](https://github.com/sarutesri/cept-studio-edu/releases/tag/v0.2.0-edu.1),
 verify SHA-256

@@ -10,12 +10,12 @@ This optional lesson shows an agent invoking the same installed CEPT Public CLI 
 4. Run:
 
 ```text
-opencode run --command cept --format json --model opencode/muse-spark-1.3-contributor-free --variant xhigh "Run the bounded IEEE 13-node load-flow demonstration and explain only verified artifacts."
+opencode run --command cept --format json --model <provider/model> "Run the bounded IEEE 13-node load-flow demonstration and explain only verified artifacts."
 ```
 
 In the OpenCode TUI this is the short `/cept` command, so learners always see which command the agent is driving.
 
-The model identifier above is a convenience for the free teaching route, not part of CEPT's engineering evidence. Provider availability can change. If it is unavailable, select an authenticated model explicitly; do not silently substitute one in a recorded comparison.
+The committed replay was recorded with `opencode/muse-spark-1.3-contributor-free`. Do not copy that choice without reading its terms: OpenCode's privacy page says that model is discounted "in exchange for permission to use your prompts and completions to train future Meta models" (https://opencode.ai/docs/zen/#privacy). Pick a model whose data policy you accept. The same page documents `space-bunny-free` and `longcat-2.5-preview-free` as zero-retention and not used for training, but both are free for a limited time, so check the page before relying on them. Whatever you choose, the agent can send your prompts and the files in the workspace to that provider: do not use confidential data. Provider availability changes; if a model is unavailable, select another explicitly and do not silently substitute one in a recorded comparison.
 
 ## Credential safety
 

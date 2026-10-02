@@ -1,15 +1,15 @@
 ---
 title: Education course map
-description: Eight public notebook lessons for learning CEPT through small, solver-backed OpenDSS studies.
+description: Nine public notebook lessons for learning CEPT through small, solver-backed OpenDSS studies and a recorded AI-assisted session.
 ---
 
 <div class="cept-page-hero" markdown>
 
-<span class="cept-kicker">Learn · Eight small studies</span>
+<span class="cept-kicker">Learn · Nine small studies</span>
 
 # CEPT education course map
 
-Eight Colab notebooks: define a network, run OpenDSS, and inspect the evidence.
+Nine Colab notebooks: eight define a network, run OpenDSS, and inspect the evidence; the ninth replays a recorded AI session.
 Concise instructions and labelled step icons guide each study.
 
 The lessons use the bounded claim `WORKFLOW_VALIDATED`. They show a reproducible
@@ -25,8 +25,8 @@ or PowerFactory parity.
 
 ## Course path
 
-Follow four stages: start, build, apply, and trust. Notebook cells use the same
-`cept <noun> <verb>` commands as a terminal.
+Follow five stages: start, build, apply, trust, and assist. Cells in the first
+eight lessons use the same `cept <noun> <verb>` commands as a terminal.
 
 <div class="cept-course-path" markdown>
 
@@ -82,6 +82,17 @@ protection acceptance decision.
 verification checks.
 
 <span class="cept-course-stage__outcome">Outcome · Tell workflow evidence apart from project validation.</span>
+</div>
+
+<div class="cept-course-stage" markdown>
+<span class="cept-course-stage__index">Assist</span>
+
+### Let an AI drive the commands, and see what still decides
+
+**08 · Ask in plain words** — replay a saved OpenCode session in which an agent
+issues `cept` commands, is refused once, and recovers. No model is called.
+
+<span class="cept-course-stage__outcome">Outcome · Separate what an agent says from what CEPT's checks establish.</span>
 </div>
 
 </div>

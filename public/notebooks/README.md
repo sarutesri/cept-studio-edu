@@ -1,6 +1,6 @@
 # CEPT Public candidate notebooks
 
-The course has four stages: start, build, apply, and trust. Each notebook keeps
+The course has five stages: start, build, apply, trust, and assist. Each notebook keeps
 solver output separate from teaching text and makes the evidence boundary
 visible. The lessons are concise, icon-led, and designed for Colab.
 
@@ -14,9 +14,10 @@ visible. The lessons are concise, icon-led, and designed for Colab.
 | Apply | [`05_solar_hosting_capacity.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_solar_hosting_capacity.ipynb) | Solar hosting capacity under one criterion |
 | Apply | [`06_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_fault_study.ipynb) | Short-circuit current for one declared fault |
 | Trust | [`07_digital_evidence.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_digital_evidence.ipynb) | Trace a result |
+| Assist | [`08_ask_in_plain_words.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/08_ask_in_plain_words.ipynb) | Ask in plain words (a recorded AI session) |
 
 
-Every notebook uses the same `cept <noun> <verb>` commands as a terminal.
+Notebooks 00-07 use the same `cept <noun> <verb>` commands as a terminal; notebook 08 replays a recorded session and runs none.
 Step icons support scanning: **⚙ Setup · 🧩 Inputs · ▶ Run · 📊 Results · ✓ Verify · ◇ Interpret**.
 Direct OpenDSS/Python comparison cells remain optional; the main path stays
 focused on the declared Case and saved evidence.

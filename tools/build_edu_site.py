@@ -57,6 +57,7 @@ TRACKS: tuple[tuple[str, str, str], ...] = (
     ("build", "Build", "Describe a network, then meet unbalance and missing data."),
     ("apply", "Apply", "Ask two planning questions: how much solar, and what fault current."),
     ("trust", "Trust", "Trace a result back to the inputs that produced it."),
+    ("assist", "Assist", "Let an AI drive the commands, and see what still decides."),
 )
 
 LESSONS: tuple[Lesson, ...] = (
@@ -124,6 +125,14 @@ LESSONS: tuple[Lesson, ...] = (
         "Hashes detect changes; they do not authenticate a solver.",
         "receipt-table",
     ),
+    Lesson(
+        "08_ask_in_plain_words", "08", "assist", "Ask in plain words",
+        "Can an AI drive CEPT without deciding the result?",
+        ("Saved agent session", "A blocked command", "The checks that decide"),
+        "An AI can issue the same commands you would. The checks, not the transcript, decide.",
+        "A recorded session; not a live or repeatable model run.",
+        "assist-verdict",
+    ),
 )
 
 GLOSSARY: tuple[tuple[str, str], ...] = (
@@ -139,7 +148,14 @@ GLOSSARY: tuple[tuple[str, str], ...] = (
     ("SHA-256", "A checksum that changes whenever the file changes."),
     ("converged", "The solver's iterations settled on a solution."),
     ("unbalance", "Phases carrying unequal voltage or load."),
+    ("recipe", "A fixed, versioned list of CEPT operations with declared inputs and outputs."),
+    ("Dyn1", "A transformer winding connection: delta primary, wye secondary with neutral."),
+    ("bus", "A junction point where network elements connect."),
 )
+
+_NUMBER_WORDS = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve"}
+_LESSON_WORD = _NUMBER_WORDS[len(LESSONS)]
+_TRACK_WORD = _NUMBER_WORDS[len(TRACKS)]
 
 _SKIP_TAGS = frozenset({"a", "button", "code", "pre", "summary", "script", "style", "h1", "h2", "h3", "h4", "h5", "h6"})
 _TIP_PATTERN = re.compile(
@@ -296,8 +312,22 @@ def _render_markdown(source: str) -> str:
         )
         table_rows.clear()
 
+    fence: list[str] | None = None
     for line in lines:
         stripped = line.strip()
+        if stripped.startswith("```") and (fence is None or stripped == "```"):
+            if fence is None:
+                flush_paragraph()
+                flush_list()
+                flush_table()
+                fence = []
+            else:
+                blocks.append('<pre class="code-body fenced"><code>' + html.escape("\n".join(fence)) + "</code></pre>")
+                fence = None
+            continue
+        if fence is not None:
+            fence.append(line.rstrip())
+            continue
         heading = re.match(r"^(#{1,4})\s+(.+?)\s*#*$", stripped)
         bullet = re.match(r"^[-*+]\s+(.+)$", stripped)
         if stripped.startswith("|") and stripped.endswith("|"):
@@ -310,7 +340,7 @@ def _render_markdown(source: str) -> str:
         if heading:
             flush_paragraph()
             flush_list()
-            level = min(len(heading.group(1)) + 1, 5)
+            level = min(max(len(heading.group(1)), 2), 5)  # steps own the h2 level; sub-headings start at h3
             blocks.append(f"<h{level}>{_inline_markdown(heading.group(2))}</h{level}>")
         elif bullet:
             flush_paragraph()
@@ -327,6 +357,8 @@ def _render_markdown(source: str) -> str:
         else:
             flush_list()
             paragraph.append(stripped)
+    if fence is not None:  # an unterminated fence keeps its text instead of dropping it
+        blocks.append('<pre class="code-body fenced"><code>' + html.escape("\n".join(fence)) + "</code></pre>")
     flush_paragraph()
     flush_list()
     flush_table()
@@ -547,7 +579,7 @@ def _render_lesson_body(notebook: dict[str, Any], lesson: Lesson, tips: _Tips) -
             rendered.append(
                 f'<section class="step"><header class="step-head"><span class="step-num" aria-hidden="true">{number}</span>'
                 f'<div><span class="step-verb">{html.escape(block["verb"])}</span>'
-                f"<h3>{html.escape(_sentence(title))}</h3></div></header>"
+                f"<h2>{html.escape(_sentence(title))}</h2></div></header>"
                 f'<div class="step-inner">{inner}</div></section>'
             )
     about_html = "".join(tips.glossary(part) for part in about)
@@ -681,7 +713,7 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str) 
 
 def _header(*, home_href: str, repository_url: str, home: bool) -> str:
     if home:
-        links = '<a href="#how">How it works</a><a href="#course">Course</a><a href="#limits">Limits</a>'
+        links = '<a href="#how">How it works</a><a href="#assist">AI + recipes</a><a href="#course">Course</a><a href="#limits">Limits</a>'
     else:
         links = f'<a href="{home_href}#course">Course</a>'
     return f'''
@@ -736,7 +768,7 @@ def _lesson_rail(current: Lesson) -> str:
         groups.append(f'<div class="rail-group"><div class="rail-track">{html.escape(label)}</div><ol>{"".join(items)}</ol></div>')
     return (
         '<aside class="lesson-aside" aria-label="Course">'
-        '<details class="rail" open><summary><span>Course</span><small>8 lessons</small></summary>'
+        f'<details class="rail" open><summary><span>Course</span><small>{len(LESSONS)} lessons</small></summary>'
         f'<nav aria-label="Lessons">{"".join(groups)}</nav></details></aside>'
     )
 
@@ -884,7 +916,7 @@ def _comparison_chart() -> str:
 '''
 
 
-def _course_card(lesson: Lesson, *, tips: _Tips, code_count: int, missing_count: int, repository: str) -> str:
+def _course_card(lesson: Lesson, *, tips: _Tips, missing_count: int, repository: str) -> str:
     _, colab_url = _urls(repository, f"public/notebooks/{lesson.stem}.ipynb")
     status = "Run to generate" if missing_count else "Saved results"
     start = '<span class="badge">Start here</span>' if lesson.stem == "01_why_solvers_lie" else ""
@@ -893,7 +925,7 @@ def _course_card(lesson: Lesson, *, tips: _Tips, code_count: int, missing_count:
   <div class="cc-top"><span class="cc-num">{lesson.number}</span>{start}{tips.info(lesson.takeaway, label=f"Takeaway for lesson {lesson.number}")}</div>
   <h4><a href="lessons/{lesson.stem}.html">{html.escape(lesson.title)}</a></h4>
   <p class="cc-q">{html.escape(lesson.question)}</p>
-  <p class="cc-meta"><span>{code_count} code cells</span><span>{status}</span><a href="{html.escape(colab_url, quote=True)}">Colab<span class="sr-only"> for lesson {lesson.number}</span></a></p>
+  <p class="cc-meta"><span>{status}</span><a href="{html.escape(colab_url, quote=True)}">Colab<span class="sr-only"> for lesson {lesson.number}</span></a></p>
 </article>
 '''
 
@@ -904,13 +936,13 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
     tracks_html: list[str] = []
     for key, label, note in TRACKS:
         cards = "".join(
-            _course_card(lesson, tips=tips, code_count=statuses[lesson.stem][0], missing_count=statuses[lesson.stem][1], repository=repository)
+            _course_card(lesson, tips=tips, missing_count=statuses[lesson.stem][1], repository=repository)
             for lesson in LESSONS
             if lesson.track == key
         )
         tracks_html.append(
             f'<section class="track" aria-labelledby="track-{key}"><div class="track-head"><h3 id="track-{key}">{label}</h3>'
-            f"<p>{html.escape(note)}</p></div><div class=\"cards\">{cards}</div></section>"
+            f"{tips.info(note, label=f'About the {label} stage')}</div><div class=\"cards\">{cards}</div></section>"
         )
 
     benefits = (
@@ -956,8 +988,8 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
   <section class="hero shell" aria-labelledby="hero-heading">
     <div class="hero-copy">
       <p class="kicker">Power-system studies with CEPT</p>
-      <h1 id="hero-heading">See exactly what produced each result.</h1>
-      <p class="hero-lead">CEPT keeps the inputs, the OpenDSS run, the diagram and the checks together, so you can trace a number back to its Case and re-run it. Eight short lessons in Google Colab.</p>
+      <h1 id="hero-heading">Your OpenDSS run converged. Did it use the {tips.tip("voltage base", "The nominal voltage that per-unit values are measured against.", extra_class="tip-term")} you meant?</h1>
+      <p class="hero-lead">CEPT ties inputs, checks and results to one Case, so you can see what the solver was given. {_LESSON_WORD} short Colab lessons, one replaying an AI-assisted session.</p>
       <div class="hero-actions">
         <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with Lesson 1 <span aria-hidden="true">→</span></a>
         <a class="button button-quiet" href="#how">See how it works</a>
@@ -993,9 +1025,31 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
     </div>
   </section>
 
+  <section id="assist" class="band band-assist" aria-labelledby="assist-heading">
+    <div class="shell assist">
+      <div class="assist-copy">
+        <p class="kicker">AI assist and recipes</p>
+        <h2 id="assist-heading">Let an AI drive. Let the checks decide.</h2>
+        <p>An agent can type the same short <code>cept</code> commands you would. A refused command stays on record; only CEPT's checks and solver output count.</p>
+        <p>A {tips.tip("recipe", "A fixed, versioned list of CEPT operations with declared inputs and outputs. It decides nothing itself.", extra_class="tip-term")} fixes the path for every run.</p>
+        <p class="assist-status"><span class="badge badge-soft">Preview</span> The recipe runtime is not in the public wheel yet.</p>
+        <a class="button button-primary" href="lessons/08_ask_in_plain_words.html">See the recorded session <span aria-hidden="true">→</span></a>
+      </div>
+      <figure class="agent-flow">
+        <ol>
+          <li><span class="af-num" aria-hidden="true">1</span><div><strong>You ask</strong><small>in plain words</small></div></li>
+          <li><span class="af-num" aria-hidden="true">2</span><div><strong>The agent runs</strong><small>short <code>cept</code> commands</small></div></li>
+          <li class="af-gate"><span class="af-num" aria-hidden="true">3</span><div><strong>CEPT checks</strong><small>and may refuse</small></div></li>
+          <li><span class="af-num" aria-hidden="true">4</span><div><strong>You verify</strong><small>the saved artifacts</small></div></li>
+        </ol>
+        <figcaption>Replayed from a saved session. No model is called here.</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <section id="course" class="shell course" aria-labelledby="course-heading">
     <h2 id="course-heading">Choose where to start</h2>
-    <p class="section-sub">Eight lessons in four stages. Each opens in Colab and shows its saved results here.</p>
+    <p class="section-sub">{_LESSON_WORD} lessons, {_TRACK_WORD.lower()} stages. Each opens in Colab.</p>
     {"".join(tracks_html)}
   </section>
 
@@ -1024,7 +1078,7 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
         "Learn power-system studies",
         body,
         stylesheet="assets/education.css",
-        description="Eight short Colab lessons on running power-system studies with CEPT and OpenDSS, with inputs, results and checks kept together.",
+        description=f"{_LESSON_WORD} short Colab lessons on running power-system studies with CEPT and OpenDSS, with inputs, results and checks kept together.",
     )
 
 

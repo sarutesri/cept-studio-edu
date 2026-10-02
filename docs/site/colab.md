@@ -1,6 +1,6 @@
 ---
 title: Notebook course
-description: Learn CEPT through eight small OpenDSS lessons in Google Colab, including guided Case-information review.
+description: Learn CEPT through eight small OpenDSS lessons in Google Colab, including guided Case-information review, plus a recorded AI-assisted session.
 ---
 
 <div class="cept-hero cept-hero--colab" markdown>
@@ -9,8 +9,8 @@ description: Learn CEPT through eight small OpenDSS lessons in Google Colab, inc
 
 ## Start small. Keep the evidence visible.
 
-Eight notebooks with concise instructions, labelled step icons, and visible
-`cept <noun> <verb>` commands.
+Nine notebooks with concise instructions and labelled step icons. Eight run
+visible `cept <noun> <verb>` commands; Lesson 08 replays a recorded session.
 
 **⚙ Setup → 🧩 Inputs → ▶ Run → 📊 Results → ✓ Verify → ◇ Interpret**
 
@@ -61,10 +61,10 @@ Compare recorded feeder outputs from an omitted and a declared voltage base.
 </div>
 
 <div class="cept-card" markdown>
-<span class="cept-status">Build to Trust</span>
+<span class="cept-status">Build to Assist</span>
 
-### 02–07 · Modelling, analysis, and evidence
-Build a typed network, meet unbalance, ask planning questions, and trace a result.
+### 02–08 · Modelling, analysis, evidence, and an AI-assisted replay
+Build a typed network, meet unbalance, ask planning questions, trace a result, and replay a recorded agent session.
 
 [See all lessons](public-course.md){ .md-button }
 </div>
@@ -87,12 +87,12 @@ Review missing inputs and approved resolutions; inspect a separate bundled demo.
 <span class="cept-status">Terminal-first</span>
 
 ### The same commands, in a notebook
-Every lesson runs literal `cept <noun> <verb>` commands, exactly as in a normal terminal. Optional OpenCode help stays on the single researcher-facing `/cept` surface.
+Eight lessons run literal `cept <noun> <verb>` commands, exactly as in a normal terminal. Lesson 08 only replays a recorded session. Optional OpenCode help stays on the single researcher-facing `/cept` surface.
 </div>
 
 </div>
 
-## The four stages
+## The five stages
 
 | Stage | Lesson | Focus | What stays visible |
 | --- | --- | --- | --- |
@@ -104,6 +104,7 @@ Every lesson runs literal `cept <noun> <verb>` commands, exactly as in a normal 
 | Apply | **05 · Solar hosting capacity** | PV sweep | declared voltage criterion |
 | Apply | **06 · Short-circuit current** | line-to-ground fault | solver-returned current |
 | Trust | **07 · Trace a result** | run verification | identity and integrity |
+| Assist | **08 · Ask in plain words** | a recorded AI session | what the agent did, and what the checks decide |
 
 ## Lesson 01: same feeder, two voltage bases
 
@@ -141,6 +142,15 @@ missing input into a fake result.
 Run the same Case twice. Compare identity and artifacts, then observe verification
 after an artifact is changed. Hashes support integrity checks, not physical
 correctness.
+
+## Lesson 08: ask in plain words
+
+Lesson 08 replays a saved OpenCode session in which an agent issues short `cept`
+commands, is refused once, and recovers. No model is called and no key is
+needed. The transcript is a narrated observation; the saved verification files
+decide. Running an agent live is opt-in and needs a provider you sign in to
+yourself: never paste a key into a notebook. A short sketch of the workflow
+recipe format is shown, but the recipe runtime is not part of the public wheel yet.
 
 For the full Windows workflow with interactive SLD and report output, continue
 to [Getting started](getting-started.md). For mixed source data and Case
