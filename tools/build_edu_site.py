@@ -650,9 +650,84 @@ def _index_page(
   </section>
   <section class="comparison-band shell" aria-labelledby="comparison-heading">
     <div class="section-heading">
-      <div><div class="eyebrow">WHY A WORKFLOW LAYER?</div><h2 id="comparison-heading">Pure speed. CEPT traceability.</h2></div>
-      <p class="section-note">A solver can converge on a wrongly assembled model. CEPT preserves the declared engineering inputs and makes the resulting evidence reviewable.</p>
+      <div><div><div class="eyebrow">WHY CEPT? BRIDGING AI &amp; SOLVERS</div><h2 id="comparison-heading">Pure speed. CEPT traceability.</h2></div>
+      <p class="section-note">Why not just ask an LLM (ChatGPT / Claude) to write OpenDSS scripts directly? Because numerical solvers and language models share a dangerous blind spot in electrical power engineering.</p>
     </div>
+
+    <div class="bridge-flow-card">
+      <div class="flow-title">The Contrast: Direct AI Scripting vs. The CEPT Augmenting Bridge</div>
+      <div class="flow-diagram">
+<pre class="flow-code"><code><strong>Direct AI Scripting (The Silent Failure Trap):</strong>
+[Engineering Question] ──&gt; [LLM Generates Raw OpenDSS] ──&gt; [OpenDSS Solver] ──&gt; [Deceptive 0.316 pu Result]
+                                     ▲                            │
+                                     │ (Silent base mismatch)     │
+                                     └───── No sanity check ──────┘
+
+<strong>The CEPT Augmenting Bridge:</strong>
+[Engineering Question] ──&gt; [Typed Case Model] ──&gt; [CEPT Gate] ──&gt; [OpenDSS] ──&gt; [CEPT Verifier] ──&gt; [Verifiable 0.948 pu Evidence]
+                                                       │                     │
+                                               (Validates bases,      (Checks convergence,
+                                                windings &amp; topology)   hashes SHA-256 artifacts)</code></pre>
+      </div>
+    </div>
+
+    <div class="comparison-table-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th style="width: 24%;">Engineering Dimension</th>
+            <th style="width: 38%;">Direct LLM + OpenDSS (Pure Scripting)</th>
+            <th style="width: 38%;">CEPT Augmenting Bridge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Voltage Base Integrity</strong></td>
+            <td>LLMs frequently confuse line-to-line ($kV_{{LL}}$) and line-to-neutral ($kV_{{LN}}$) bases. OpenDSS solves the network without warning (<code>Converged: True</code>), but downstream voltages drop to <strong>0.316 pu</strong>!</td>
+            <td><strong>Fail-Closed Gate (<code>cept case check</code>):</strong> CEPT validates bus nominal kV, transformer winding ratios, and per-unit bases before execution, returning the true <strong>0.948 pu</strong> solution.</td>
+          </tr>
+          <tr>
+            <td><strong>2. Hidden Default Parameters</strong></td>
+            <td>OpenDSS contains dozens of implicit defaults (grounding impedance, standard R/X ratios). Omitted fields are silently filled by the solver, creating phantom circuits.</td>
+            <td><strong>Explicit Typed Case Contract:</strong> Every engineering parameter is explicit in structured JSON. Missing values require explicit policy decisions rather than silent guesses.</td>
+          </tr>
+          <tr>
+            <td><strong>3. Determinism &amp; Reproducibility</strong></td>
+            <td>Prompts drift over time: asking an AI on different days produces different script syntax, object declarations, and bus naming styles, ruining reproducibility.</td>
+            <td><strong>Deterministic Case Model:</strong> Circuits are versioned Data Models. Compilation to solver instructions is bit-for-bit identical across runs, teams, and machines.</td>
+          </tr>
+          <tr>
+            <td><strong>4. Topology &amp; SLD Visualization</strong></td>
+            <td>OpenDSS has no native automatic diagram generator; engineers must manually specify (x, y) coordinates for every bus or hand-craft plotting scripts.</td>
+            <td><strong>Zero-Config Interactive SLD:</strong> CEPT includes an automatic layout engine that traces feeder connectivity and renders interactive SLDs directly in Colab without manual coordinates.</td>
+          </tr>
+          <tr>
+            <td><strong>5. Result Verification &amp; Trust</strong></td>
+            <td>Simulation results in raw CSV/Excel files can be manually altered or fabricated after the run with zero cryptographic evidence or audit trail.</td>
+            <td><strong>Cryptographic Artifact Hashing:</strong> Every run generates a tamper-evident receipt (<code>validation_report.json</code>) with SHA-256 digests proving results came from genuine solver convergence.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <span class="analogy-icon">&#9874;</span>
+        <h4>OpenDSS Solver</h4>
+        <p>The <strong>powerful physics calculator</strong>. It solves heavy sparse nodal admittance equations with unmatched speed, but assumes all input bases and wiring are physically sound.</p>
+      </div>
+      <div class="analogy-card">
+        <span class="analogy-icon">&#128172;</span>
+        <h4>LLM Assistant</h4>
+        <p>The <strong>conversational interface</strong>. It speaks fluent human language and translates intent into code, but occasionally stumbles on transformer winding shifts and per-unit scales.</p>
+      </div>
+      <div class="analogy-card">
+        <span class="analogy-icon">&#128207;</span>
+        <h4>CEPT Bridge</h4>
+        <p>The <strong>engineering ruler &amp; quality-control system</strong>. It enforces model contracts, prevents silent errors, draws SLDs automatically, and certifies solver truth.</p>
+      </div>
+    </div>
+
     <div class="principle-grid">
       <article><span class="principle-index">01</span><h3>Pure OpenDSS can be wrong</h3><p>The AI omits the downstream voltage base. OpenDSS still converges and reports a plausible-looking 0.316 pu at Node 4.</p></article>
       <article><span class="principle-index">02</span><h3>CEPT carries the Case</h3><p>The declared 4.16 kV bus reaches the adapter, so the same feeder returns 0.948 pu with SLD, plot, manifest, and receipt.</p></article>

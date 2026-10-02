@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "2c7fe5e2d79ec596eebada2f80b05320cc61c04e",
+  "canonical_source_commit": "a94b076b8c2e8597bdd85d8796f2db2ff1c3c209",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -203,7 +203,7 @@
     {
       "path": "public/site/education.css",
       "source": "public/site/education.css",
-      "sha256": "6310d824440c92cb86a27a80d59fb1240f59dc8aff8492d00d491422fec3fce7"
+      "sha256": "59f9dd2a64a27a7a7ee7b9a0da22cd7585a134c322269b91b55439616f255d24"
     },
     {
       "path": "pyproject.toml",
@@ -593,7 +593,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "e7e1840e1911b9f7eface1a77f94c425295464ffb4e2db40b4f9d12db8524ced"
+      "sha256": "9b6b659f703ab23edc791e506b3908debef90600ee88e04ddd80e32059125c6f"
     },
     {
       "path": "tools/run_public_notebooks.py",
