@@ -1,6 +1,6 @@
 ---
 title: Notebook course
-description: Learn CEPT through seven small OpenDSS lessons in Google Colab, including guided Case-information review.
+description: Learn CEPT through eight small OpenDSS lessons in Google Colab, including guided Case-information review.
 ---
 
 <div class="cept-hero cept-hero--colab" markdown>

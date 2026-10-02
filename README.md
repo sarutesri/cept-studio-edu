@@ -12,7 +12,7 @@ The candidate package contains an OpenDSS-first vertical slice for education:
 * the `cept environment check`, `cept capability show`, and `cept study ...`
   noun+verb CLI with shared human-readable `--format text` and machine
   `--format json` output; and
-* the seven cold-start notebooks under `public/notebooks/`.
+* the eight cold-start notebooks under `public/notebooks/`.
 
 Open each lesson directly in Google Colab:
 
@@ -25,6 +25,7 @@ Open each lesson directly in Google Colab:
 | `04_fault_study.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/04_fault_study.ipynb) |
 | `05_validation_reproducibility.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/05_validation_reproducibility.ipynb) |
 | `06_colab_tui.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_colab_tui.ipynb) |
+| `07_pure_vs_cept.ipynb` | [Open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_pure_vs_cept.ipynb) |
 
 The desktop/CLI teaching path is qualified on Windows, and the notebooks are
 also exercised headlessly in a clean installed-product environment. Google
@@ -38,7 +39,7 @@ captures the solver-returned result, and records the solver identity. The
 candidate's receipt is bounded to `WORKFLOW_VALIDATED`; it is not a claim of
 project validation, field-evidence acceptance, or PowerFactory agreement.
 
-The seven notebooks pin the published teaching wheel by URL and SHA-256. For a
+The eight notebooks pin the published teaching wheel by URL and SHA-256. For a
 local install, download the wheel from
 [`v0.2.0-edu.1`](https://github.com/sarutesri/cept-studio-edu/releases/tag/v0.2.0-edu.1),
 verify SHA-256
