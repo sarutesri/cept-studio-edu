@@ -455,7 +455,7 @@ def _disclosure(_revision: str, _manifest_hash: str) -> str:
 """
 
 
-def _lesson_navigation(current_stem: str) -> str:
+def _lesson_navigation(current_stem: str) -> tuple[str, str]:
     lessons = list(LESSONS)
     current_index = next(index for index, item in enumerate(lessons) if item["stem"] == current_stem)
     stage_by_key = {stage[0]: stage[2].title() for stage in LESSON_STAGES}
@@ -475,21 +475,28 @@ def _lesson_navigation(current_stem: str) -> str:
         )
 
     pagination_items: list[str] = []
-    for relation, item in (
-        ("prev", lessons[current_index - 1] if current_index else None),
-        ("next", lessons[current_index + 1] if current_index < len(lessons) - 1 else None),
-    ):
-        if item is None:
-            continue
-        stem = html.escape(item["stem"], quote=True)
-        title = html.escape(item["title_en"])
-        direction = "Previous lesson" if relation == "prev" else "Next lesson"
+    prev_item = lessons[current_index - 1] if current_index else None
+    next_item = lessons[current_index + 1] if current_index < len(lessons) - 1 else None
+
+    if prev_item is not None:
+        stem = html.escape(prev_item["stem"], quote=True)
+        title = html.escape(prev_item["title_en"])
         pagination_items.append(
-            f'<a class="lesson-page-link" rel="{relation}" href="{stem}.html">'
-            f"<small>{direction}</small><strong>{title}</strong></a>"
+            f'<a class="lesson-page-link lesson-page-link--prev" rel="prev" href="{stem}.html">'
+            f"<small>&larr; Previous lesson</small><strong>{title}</strong></a>"
+        )
+    elif next_item is not None:
+        pagination_items.append('<div class="lesson-page-link-spacer" aria-hidden="true"></div>')
+
+    if next_item is not None:
+        stem = html.escape(next_item["stem"], quote=True)
+        title = html.escape(next_item["title_en"])
+        pagination_items.append(
+            f'<a class="lesson-page-link lesson-page-link--next" rel="next" href="{stem}.html">'
+            f"<small>Next lesson &rarr;</small><strong>{title}</strong></a>"
         )
 
-    return f"""
+    sidebar_html = f"""
 <div class="lesson-sidebar">
   <details class="lesson-nav-disclosure" open>
     <summary><span>Lesson contents</span><small>{len(lessons)} lessons</small></summary>
@@ -502,9 +509,10 @@ def _lesson_navigation(current_stem: str) -> str:
       <ol class="lesson-toc-list">{"".join(toc_items)}</ol>
     </nav>
   </details>
-  <nav class="lesson-pagination" aria-label="Lesson pagination">{"".join(pagination_items)}</nav>
 </div>
 """
+    pagination_html = f'<nav class="lesson-pagination" aria-label="Lesson pagination">{"".join(pagination_items)}</nav>'
+    return sidebar_html, pagination_html
 
 
 def _lesson_page(
@@ -524,12 +532,12 @@ def _lesson_page(
         else "Solver-backed results are shown below."
     )
     lesson_label = f"Lesson {lesson['number']}"
-    lesson_navigation = _lesson_navigation(lesson["stem"])
+    lesson_sidebar, lesson_pagination = _lesson_navigation(lesson["stem"])
     body = f'''
 {_header(home_href="../index.html", label=lesson_label)}
 <main id="content" class="shell lesson-page">
   <div class="lesson-layout">
-    {lesson_navigation}
+    {lesson_sidebar}
     <div class="lesson-main">
       <div class="lesson-kicker">LESSON {html.escape(lesson["number"])}</div>
       <div class="lesson-heading">
@@ -557,6 +565,7 @@ def _lesson_page(
         </div>
         {notebook_html}
       </section>
+      {lesson_pagination}
     </div>
   </div>
 </main>

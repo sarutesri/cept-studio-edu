@@ -126,12 +126,14 @@ h4 { margin: 8px 0; font-size: 1.35rem; font-weight: 600; }
 .lesson-toc-link strong, .lesson-toc-link small { display: block; }
 .lesson-toc-link strong { font-family: Georgia, serif; font-size: .9rem; line-height: 1.2; }
 .lesson-toc-link small { margin-top: 3px; color: var(--muted); font-size: .66rem; }
-.lesson-pagination { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; }
-.lesson-page-link { display: block; padding: 13px 14px; border: 1px solid var(--line); background: var(--paper-deep); text-decoration: none; }
+.lesson-pagination { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); }
+.lesson-page-link { display: block; padding: 16px 18px; border: 1px solid var(--line); background: var(--paper-deep); text-decoration: none; }
 .lesson-page-link:hover { border-color: var(--coral); background: #f0ecdf; }
 .lesson-page-link small, .lesson-page-link strong { display: block; }
 .lesson-page-link small { color: var(--coral); font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .lesson-page-link strong { margin-top: 4px; color: var(--ink); font-family: Georgia, serif; font-size: .95rem; line-height: 1.2; }
+.lesson-page-link--next { text-align: right; }
+.lesson-page-link-spacer { display: block; }
 .lesson-main { grid-column: 2; grid-row: 1; min-width: 0; }
 .lesson-heading { display: flex; justify-content: space-between; gap: 50px; align-items: end; margin-top: 15px; }
 .lesson-heading h1 { max-width: 650px; margin: 10px 0 6px; font-size: clamp(2.7rem, 5vw, 4.8rem); }
