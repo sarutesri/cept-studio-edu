@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "a763ed5fd9a5d8762f290b0f8c12d10b0e1b3d3a",
+  "canonical_source_commit": "b5d4152f809e3c0d05deb5f4cdbe816362552ea1",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
