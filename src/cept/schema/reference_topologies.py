@@ -3,7 +3,7 @@
 An LLM agent can fabricate a plausible-looking but wrong topology for a
 famous benchmark system (e.g. IEEE 9-bus) purely from training-data memory,
 without ever reading the actual source figure/table. The evidence citations
-required by ``cept.cli.topology``/``cept.schema.provenance`` raise the bar,
+required by ``cept.schema.topology``/``cept.schema.provenance`` raise the bar,
 but a determined-enough fabrication can still include a citation-shaped
 string. This module is a fully deterministic backstop: known benchmark
 bus-graphs are diffed against whatever the agent actually ingested,

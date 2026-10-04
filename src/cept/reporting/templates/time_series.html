@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+<div class="grid">
+  <div class="card"><div class="k">Solution</div><div class="v">{% if converged %}<span class="badge ok">Converged</span>{% else %}<span class="badge bad">Diverged</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Duration</div><div class="v">{{ duration }} s</div></div>
+  <div class="card"><div class="k">Step</div><div class="v">{{ stepsize }} s</div></div>
+  <div class="card"><div class="k">Min voltage</div><div class="v">{{ '%.4f'|format(min_voltage) if min_voltage is not none else '—' }} pu</div></div>
+  <div class="card"><div class="k">Max voltage</div><div class="v">{{ '%.4f'|format(max_voltage) if max_voltage is not none else '—' }} pu</div></div>
+  <div class="card"><div class="k">Limit violations</div><div class="v {{ 'bad-txt' if violation_count else '' }}">{{ violation_count }}</div></div>
+</div>
+<h2>1. Study definition</h2>
+<table><tbody>
+  <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+  <tr><td>Simulation time</td><td>{{ duration }} s at {{ stepsize }} s steps</td></tr>
+  <tr><td>Method</td><td>OpenDSS daily-mode solver; supplied LoadShape profiles are applied at each step.</td></tr>
+</tbody></table>
+<h2>2. Single-line diagram</h2>
+{{ sld.sld_block("sld_qsts", sld_json, sld_caption) }}
+<h2>3. Time-series voltage summary</h2>
+<table><thead><tr><th>Time (s)</th><th>Converged</th><th>Min V (pu)</th><th>Max V (pu)</th><th>Total load (kW)</th></tr></thead><tbody>
+{% for row in snapshots %}<tr><td>{{ '%.3f'|format(row.t_s) }}</td><td>{{ 'yes' if row.converged else 'no' }}</td><td>{{ '%.4f'|format(row.min_voltage_pu) if row.min_voltage_pu is not none else '—' }}</td><td>{{ '%.4f'|format(row.max_voltage_pu) if row.max_voltage_pu is not none else '—' }}</td><td>{{ '%.1f'|format(row.total_load_kw) if row.total_load_kw is not none else '—' }}</td></tr>{% endfor %}
+</tbody></table>
+<p class="note">This is a solver trace, not an interpolated or analytically generated estimate. Review each snapshot and the supplied profile provenance before using it for research conclusions.</p>
+{% endblock %}

@@ -36,6 +36,12 @@ PUBLIC_BRANCH = "main"
 MANIFEST_NAME = "PUBLIC-EXPORT-MANIFEST.json"
 STYLESHEET = Path("public/site/education.css")
 
+#: Owner-approved homepage wording (2026-10-04). Used verbatim, which is why the
+#: delivery test asserts these two strings rather than paraphrasing them.
+HEADLINE = "เห็นระบบไฟของตัวเอง ก่อนต้องตัดสินใจเรื่องใหญ่"
+SUBTITLE = "CEPT Studio เป็นโปรแกรมช่วยศึกษาระบบไฟฟ้า — ใส่ข้อมูลที่มี รันเลขจริง ถ้าข้อมูลไม่พอจะบอกว่าขาดอะไร ไม่เดาให้"
+
+
 
 @dataclass(frozen=True)
 class Lesson:
@@ -152,10 +158,6 @@ GLOSSARY: tuple[tuple[str, str], ...] = (
     ("Dyn1", "A transformer winding connection: delta primary, wye secondary with neutral."),
     ("bus", "A junction point where network elements connect."),
 )
-
-_NUMBER_WORDS = {1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve"}
-_LESSON_WORD = _NUMBER_WORDS[len(LESSONS)]
-_TRACK_WORD = _NUMBER_WORDS[len(TRACKS)]
 
 _SKIP_TAGS = frozenset({"a", "button", "code", "pre", "summary", "script", "style", "h1", "h2", "h3", "h4", "h5", "h6"})
 _TIP_PATTERN = re.compile(
@@ -689,9 +691,9 @@ _SCRIPT = """
 """
 
 
-def _page_document(title: str, body: str, *, stylesheet: str, description: str) -> str:
+def _page_document(title: str, body: str, *, stylesheet: str, description: str, lang: str = "en") -> str:
     return f'''<!doctype html>
-<html lang="en">
+<html lang="{html.escape(lang, quote=True)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -713,7 +715,10 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str) 
 
 def _header(*, home_href: str, repository_url: str, home: bool) -> str:
     if home:
-        links = '<a href="#how">How it works</a><a href="#assist">AI + recipes</a><a href="#course">Course</a><a href="#limits">Limits</a>'
+        links = (
+            '<a href="#start">เริ่มใช้</a><a href="#how">ห้าขั้นตอน</a>'
+            '<a href="#editions">Free / Advance</a><a href="#course">บทเรียน</a><a href="#limits">ขอบเขต</a>'
+        )
     else:
         links = f'<a href="{home_href}#course">Course</a>'
     return f'''
@@ -729,11 +734,11 @@ def _header(*, home_href: str, repository_url: str, home: bool) -> str:
 '''
 
 
-def _footer(repository_url: str) -> str:
+def _footer(repository_url: str, *, note: str = "Demonstration results; not field validation.") -> str:
     return f'''
 <footer class="site-footer"><div class="shell">
   <span>CEPT Education · Apache-2.0</span>
-  <span class="footer-note">Demonstration results; not field validation.</span>
+  <span class="footer-note">{html.escape(note)}</span>
   <span class="footer-links"><a href="{html.escape(repository_url, quote=True)}">Source</a><a href="{html.escape(repository_url, quote=True)}/blob/main/LICENSE">License</a></span>
 </div></footer>
 '''
@@ -854,6 +859,107 @@ def _lesson_page(
 
 
 # ---------------------------------------------------------------------------
+# Free vs Advance — derived from the code boundary, never hand-listed
+# ---------------------------------------------------------------------------
+
+#: The machine-readable restatement of the code boundary, written by
+#: ``tools/build_edition_boundary.py`` and shipped under ``public/site/**``.
+EDITION_BOUNDARY = Path("public/site/edition-boundary.json")
+
+# Reader-facing wording for the derived rows, keyed by the identity the code
+# boundary produced.  These are translations, not a capability list: a row only
+# exists here if the derivation produced one, and the build refuses to publish a
+# derived row it has no wording for, so a new capability cannot reach the page
+# unwritten and a retired one cannot be left behind.
+FREE_VERB_COPY: dict[str, tuple[str, str]] = {
+    "doctor": ("`cept doctor`", "ดูว่าเครื่องนี้รัน OpenDSS ได้ไหม และขอบเขตที่รองรับอะไรบ้าง"),
+    "run": ("`cept run`", "รัน Case หนึ่งไฟล์ หรือเคสตัวอย่างที่แนบมากับโปรแกรม"),
+    "verify": ("`cept verify`", "ตรวจหลักฐานของการรันที่บันทึกไว้"),
+}
+FREE_STUDY_COPY = "4 การศึกษาบน OpenDSS — load flow, unbalanced load flow, hosting capacity, fault"
+FREE_RECIPE_COPY = "สูตร workflow ที่ติดมากับ wheel"
+FREE_LESSON_COPY = "บทเรียน Colab"
+
+#: How the free wheel's own exclusion list reads on a Thai page.  Keyed by the
+#: derived identity, so an unknown entry is refused rather than passed through.
+EXCLUDED_COPY = {"powerfactory": "PowerFactory"}
+EXCLUDED_STATUS_COPY = {"excluded_initially": "ตัดออกตั้งแต่ต้น", "pro_only": "อยู่เฉพาะ Advance"}
+
+ADVANCE_SECTION_COPY: dict[str, str] = {
+    "licensed engine adapter": "ตัวเชื่อมต่อ PowerFactory — นำเข้าไฟล์โครงการ, SLD แบบ native, dynamic lane",
+    "controller synthesis / PERC1 frames": "สังเคราะห์ controller และสร้างเฟรม PERC1",
+    "PFD source intake": "อ่านไฟล์ `.pfd` ของ PowerFactory ให้เป็น Case",
+    "licensed reference runs": "รัน reference ด้วยตัวเอง และอ่าน PDF ให้เป็น inventory",
+    "research runtime": "รันงานวิจัยผ่าน model package",
+    "comparison lanes": "เทียบผลข้ามเอนจิน และเทียบ PFD กับ PDF",
+    "benchmark harness": "benchmark และ catalogue ที่รับรองไว้แล้ว",
+    "source-to-Case fidelity": "กฎการลดระบบ (Kron) สำหรับเทียบไฟล์ต้นทางของ PowerFactory กับ Case",
+    "packaged lane workers (launched as ``python -m <module>``)": "worker สำหรับงาน dynamic และงานเทียบ parity",
+}
+
+
+def _edition_boundary(staging_root: Path) -> dict[str, Any]:
+    """Load the derived edition boundary, or refuse to build a partial table."""
+
+    path = staging_root / EDITION_BOUNDARY
+    if not path.is_file():
+        raise SiteBuildError(
+            f"staging root is missing the derived edition boundary: {EDITION_BOUNDARY.as_posix()}"
+        )
+    boundary = _read_json(path)
+    if boundary.get("schema") != "cept-edition-boundary-v1":
+        raise SiteBuildError(f"edition boundary has an unexpected schema: {boundary.get('schema')!r}")
+    for section in boundary.get("advance", {}).get("sections", []):
+        if section.get("label") not in ADVANCE_SECTION_COPY:
+            raise SiteBuildError(f"no wording for derived Advance section {section.get('label')!r}")
+    for name in boundary["free"]["excluded"]:
+        if name not in EXCLUDED_COPY:
+            raise SiteBuildError(f"no wording for derived exclusion {name!r}")
+    for verb in boundary.get("free", {}).get("verbs", []):
+        if verb.get("name") not in FREE_VERB_COPY:
+            raise SiteBuildError(f"no wording for derived public verb {verb.get('name')!r}")
+    return boundary
+
+
+def _edition_table(boundary: dict[str, Any]) -> str:
+    """Render the Free-vs-Advance feature table from the derived boundary."""
+
+    free, advance = boundary["free"], boundary["advance"]
+    rows: list[tuple[str, str, str]] = [
+        (f"{command} — {detail}", "✓", "–")
+        for command, detail in (FREE_VERB_COPY[verb["name"]] for verb in free["verbs"])
+    ]
+    rows.append((FREE_STUDY_COPY, "✓", "–"))
+    rows.append((f"{FREE_RECIPE_COPY} {len(free['recipes'])} ชุด", "✓", "–"))
+    rows.append((f"{FREE_LESSON_COPY} {free['lesson_count']} บท", "✓", "–"))
+    rows.extend(
+        (ADVANCE_SECTION_COPY[section["label"]], "–", "✓") for section in advance["sections"]
+    )
+
+    body = "".join(
+        f'<tr><th scope="row">{_inline_markdown(label)}</th><td class="yes">{yes}</td>'
+        f'<td class="no">{no}</td></tr>'
+        for label, yes, no in rows
+    )
+    excluded = " และ ".join(
+        f"{EXCLUDED_COPY.get(name, name)} ({EXCLUDED_STATUS_COPY.get(status, status)})"
+        for name, status in free["excluded"].items()
+    )
+    return f'''
+<div class="table-scroll">
+<table class="editions">
+  <caption class="sr-only">ความสามารถของแต่ละชุด ตามขอบเขตของโค้ดที่แยกไว้จริง</caption>
+  <thead><tr><th scope="col">ความสามารถ</th><th scope="col">ประกาศไว้ใน<br><small>{html.escape(free["distribution"])}</small></th><th scope="col">ประกาศไว้ใน<br><small>{html.escape(advance["distribution"])}</small></th></tr></thead>
+  <tbody>{body}</tbody>
+</table>
+</div>
+<p class="editions-note">เครื่องหมาย <strong>–</strong> หมายถึงชุดนั้นไม่ได้ประกาศความสามารถนี้ในตัวมันเอง
+ไม่ใช่แปลว่าใช้ไม่ได้เลย สองชุดนี้ติดตั้งแยกกัน และ Free wheel ที่ติดตั้งจาก PyPI เรียกของ Advance ไม่ได้</p>
+<p class="editions-note">ตัดออกตั้งแต่ต้นใน Free wheel: {html.escape(excluded)}</p>
+'''
+
+
+# ---------------------------------------------------------------------------
 # Homepage
 # ---------------------------------------------------------------------------
 
@@ -873,18 +979,28 @@ def _icon(name: str) -> str:
 
 
 def _hero_terminal() -> str:
+    """The three commands a visitor can actually run, with real output.
+
+    Every line here is copied from a committed notebook's saved output, and the
+    same commands were re-run against a freshly installed public wheel.
+    ``test_homepage_commands_come_from_committed_notebook_output`` keeps the two
+    from drifting apart.  The previous version of this figure showed
+    ``cept check`` and a ``cept run`` with no ``--out``; neither is accepted by
+    the installed wheel.
+    """
+
     return '''
-<figure class="terminal" aria-label="Example CEPT commands and output">
+<figure class="terminal" aria-label="คำสั่ง cept สามคำสั่งและผลลัพธ์จริง">
   <div class="terminal-bar" aria-hidden="true"><span></span><span></span><span></span></div>
-<pre><code><span class="t-cmd">cept case check</span> &lt;case&gt;.json
-<span class="t-out">Readiness: PASS · Engine: opendss</span>
-<span class="t-cmd">cept study run</span> &lt;case&gt;.json
-<span class="t-out">Status   PASSED</span>
-<span class="t-cmd">cept study verify</span> &lt;run&gt;
-<span class="t-ok">[PASS]</span> <span class="t-out">Case identity</span>
-<span class="t-ok">[PASS]</span> <span class="t-out">Solver result</span>
-<span class="t-ok">[PASS]</span> <span class="t-out">Saved evidence</span></code></pre>
-  <figcaption>Output as saved in Lesson 01. Paths shortened.</figcaption>
+<pre lang="en"><code><span class="t-cmd">cept doctor</span>
+<span class="t-ok">[READY]</span> <span class="t-out">CEPT environment check: READY</span>
+<span class="t-out">Solver             OpenDSS (ready)</span>
+<span class="t-cmd">cept run</span> <span class="t-out">--demo load-flow --network ieee13 --out run1</span>
+<span class="t-ok">[FINISHED]</span> <span class="t-out">CEPT study result: FINISHED</span>
+<span class="t-cmd">cept verify</span> <span class="t-out">run1</span>
+<span class="t-ok">[PASSED]</span> <span class="t-out">CEPT study check: PASSED</span>
+<span class="t-out">Checked   3 groups, 14 checks, all passed</span></code></pre>
+  <figcaption>ผลจริงจาก public wheel ที่ติดตั้งแล้ว บันทึกไว้ในบทเรียน 00 และ 04</figcaption>
 </figure>
 '''
 
@@ -898,15 +1014,15 @@ def _comparison_chart() -> str:
     return f'''
 <figure class="compare">
   <svg viewBox="0 0 580 170" role="img" aria-labelledby="cmp-t cmp-d">
-    <title id="cmp-t">Node 4 voltage with and without a declared voltage base</title>
-    <desc id="cmp-d">Bar chart in per-unit. The direct script that omits the downstream voltage base reads about 0.316. The CEPT run with the declared base reads about 0.948. A dashed line marks 1.0.</desc>
+    <title id="cmp-t">แรงดันที่จุด Node 4 เมื่อประกาศค่าฐานแรงดันหรือไม่</title>
+    <desc id="cmp-d">กราฟแท่งหน่วย pu สคริปต์ตรง ๆ ที่ไม่ประกาศค่าฐานแรงดันในส่วนปลายอ่านได้ประมาณ 0.316 ส่วนการรันของ CEPT ที่ประกาศค่าฐานแล้วอ่านได้ประมาณ 0.948 และมีเส้นประแบบประ แสดงค่า 1.0</desc>
     <g class="cmp-grid"><line x1="{left}" y1="24" x2="{left}" y2="124"/><line class="cmp-ref" x1="{tick}" y1="24" x2="{tick}" y2="124"/></g>
-    <text class="cmp-lbl" x="{left - 12}" y="58" text-anchor="end">Direct script</text>
-    <text class="cmp-sub" x="{left - 12}" y="76" text-anchor="end">base omitted</text>
+    <text class="cmp-lbl" x="{left - 12}" y="58" text-anchor="end">สคริปต์ตรง ๆ</text>
+    <text class="cmp-sub" x="{left - 12}" y="76" text-anchor="end">ไม่ประกาศฐาน</text>
     <rect class="cmp-bar cmp-bar--direct" x="{left}" y="40" width="{direct}" height="36" rx="3"/>
     <text class="cmp-val" x="{left + direct + 10}" y="64">0.316 pu</text>
-    <text class="cmp-lbl" x="{left - 12}" y="108" text-anchor="end">With CEPT</text>
-    <text class="cmp-sub" x="{left - 12}" y="126" text-anchor="end">base declared</text>
+    <text class="cmp-lbl" x="{left - 12}" y="108" text-anchor="end">ใช้ CEPT</text>
+    <text class="cmp-sub" x="{left - 12}" y="126" text-anchor="end">ประกาศฐานแล้ว</text>
     <rect class="cmp-bar cmp-bar--declared" x="{left}" y="90" width="{declared}" height="36" rx="3"/>
     <text class="cmp-val" x="{left + declared - 10}" y="114" text-anchor="end">0.948 pu</text>
     <text class="cmp-axis" x="{tick}" y="146" text-anchor="middle">1.0 pu</text>
@@ -918,19 +1034,18 @@ def _comparison_chart() -> str:
 
 def _course_card(lesson: Lesson, *, tips: _Tips, missing_count: int, repository: str) -> str:
     _, colab_url = _urls(repository, f"public/notebooks/{lesson.stem}.ipynb")
-    status = "Run to generate" if missing_count else "Saved results"
-    start = '<span class="badge">Start here</span>' if lesson.stem == "01_why_solvers_lie" else ""
+    status = "ยังไม่มีผลลัพธ์" if missing_count else "บันทึกผลแล้ว"
+    start = '<span class="badge">เริ่มที่นี่</span>' if lesson.stem == "01_why_solvers_lie" else ""
     return f'''
 <article class="course-card" data-lesson="{lesson.stem}">
-  <div class="cc-top"><span class="cc-num">{lesson.number}</span>{start}{tips.info(lesson.takeaway, label=f"Takeaway for lesson {lesson.number}")}</div>
-  <h4><a href="lessons/{lesson.stem}.html">{html.escape(lesson.title)}</a></h4>
-  <p class="cc-q">{html.escape(lesson.question)}</p>
+  <div class="cc-top"><span class="cc-num">{lesson.number}</span>{start}{tips.info(lesson.takeaway, label=f"สรุปบทที่ {lesson.number}")}</div>
+  <h4 lang="en"><a href="lessons/{lesson.stem}.html">{html.escape(lesson.title)}</a></h4>
   <p class="cc-meta"><span>{status}</span><a href="{html.escape(colab_url, quote=True)}">Colab<span class="sr-only"> for lesson {lesson.number}</span></a></p>
 </article>
 '''
 
 
-def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
+def _index_page(statuses: dict[str, tuple[int, int]], repository: str, boundary: dict[str, Any]) -> str:
     tips = _Tips()
     repository_url = f"https://github.com/{repository}"
     tracks_html: list[str] = []
@@ -941,144 +1056,154 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str) -> str:
             if lesson.track == key
         )
         tracks_html.append(
-            f'<section class="track" aria-labelledby="track-{key}"><div class="track-head"><h3 id="track-{key}">{label}</h3>'
-            f"{tips.info(note, label=f'About the {label} stage')}</div><div class=\"cards\">{cards}</div></section>"
+            f'<section class="track" aria-labelledby="track-{key}"><div class="track-head">'
+            f'<h3 id="track-{key}" lang="en">{label}</h3></div>'
+            f'<div class="cards">{cards}</div></section>'
         )
 
-    benefits = (
-        ("inputs", "Clear inputs", "One structured file holds the network, units and settings.",
-         "Missing data stays flagged instead of being filled in silently."),
-        ("network", "A visible network", "Get a one-line diagram and per-phase results from the same model.",
-         "Diagrams are drawn from the model, not placed by hand."),
-        ("repeat", "Repeatable runs", "Each run keeps its inputs, outputs and checks together.",
-         "Re-run the same inputs and compare. Hashes detect changes to saved files."),
-        ("limits", "Stated limits", "Every lesson says what its result does not show.",
-         "Course results are demonstrations, not field validation."),
+    start_steps = (
+        ("cept doctor", "เช็คว่าเครื่องนี้มี OpenDSS ใช้งานได้", "READY"),
+        ("cept run --demo load-flow --network ieee13 --out run1", "รันเคสตัวอย่างที่แนบมากับโปรแกรม", "FINISHED"),
+        ("cept verify run1", "ตรวจหลักฐานของการรันที่บันทึกไว้", "PASSED"),
     )
-    benefit_html = "".join(
-        f'<li class="benefit">{_icon(icon)}<div><h3>{title}</h3><p>{line}</p></div>{tips.info(detail, label=f"More about {title}")}</li>'
-        for icon, title, line, detail in benefits
+    start_html = "".join(
+        f'<li class="start-step"><code lang="en">{html.escape(command)}</code>'
+        f'<p>{line} <span class="start-out" lang="en">{result}</span></p></li>'
+        for command, line, result in start_steps
     )
+
+    helps = (
+        ("inputs", "ดูระบบของตัวเอง", "ใส่ข้อมูล feeder ของคุณลง Case ไฟล์เดียว แล้วรัน",
+         "Case คือไฟล์ JSON ที่เก็บเครือข่าย หน่วยวัด และการตั้งค่าการศึกษาไว้ที่เดียว ค่าที่ขาดจะถูกปฏิเสธ ไม่ใช่ถูกเดาให้"),
+        ("repeat", "ลองคำถามว่า “ถ้าเป็นแบบนี้จะเป็นอย่างไร”", "แก้ค่าใน Case แล้วรันซ้ำ ได้คำตอบใหม่จากเครือข่ายเดิม",
+         "แต่ละไฟล์ Case ได้ fingerprint ของตัวเอง เช่น 748c8026c9d6 แก้ไฟล์แล้วค่านี้เปลี่ยนตาม จึงบอกได้ว่าเป็นคนละการรัน"),
+        ("limits", "รู้ว่าข้อมูลพอไหม", "ถ้าไม่พอ มันจะบอกว่าขาดอะไร และจะไม่รันแทนคุณ",
+         "วัดจริงบน wheel ที่ติดตั้งแล้ว: Case ที่ขอ dynamics ถูกปฏิเสธด้วยข้อความว่า not in the CEPT Public scope; unsupported studies are blocked rather than approximated"),
+    )
+    help_html = "".join(
+        f'<li class="benefit">{_icon(icon)}<div><h3>{title}</h3><p>{line}</p></div>{tips.info(detail, label=f"รายละเอียด: {title}")}</li>'
+        for icon, title, line, detail in helps
+    )
+
     steps = (
-        ("Define", "Describe the network and study.", "Network, units and study settings go in one typed Case."),
-        ("Check", "See what is missing.", "CEPT reports unresolved required inputs before it runs anything."),
-        ("Solve", "OpenDSS does the solving.", "CEPT hands the model to OpenDSS and keeps the raw output."),
-        ("Inspect", "Read diagrams and results.", "Single-line diagram, phase voltages and study plots."),
-        ("Verify", "Check the saved run.", "Checks run identity and file integrity. They do not check physical correctness."),
+        ("เขียน Case", "เครือข่าย หน่วยวัด และการตั้งค่า อยู่ในไฟล์เดียว", "แก้ที่ไฟล์ ไม่ต้องแก้สคริปต์ของ solver"),
+        ("รัน", "ส่ง Case ให้ OpenDSS แล้วเก็บผลลัพธ์ดิบไว้", "cept run ต้องมี --out เสมอ ไม่มีการเดาว่าจะเขียนไฟล์ไว้ที่ไหน"),
+        ("คำนวณ", "OpenDSS เป็นคนแก้สมการไฟฟ้า ไม่ใช่ CEPT", "ถ้าการวนซ้ำไม่ลงก็จะบอกว่าไม่ลง ไม่ใช่เอาตัวเลขสุดท้ายมาให้"),
+        ("อ่านผล", "แผนผังหนึ่งสาย แรงดันรายเฟส และกราฟของการศึกษา", "แผนผังถูกวาดจากโมเดลเดียวกับที่คำนวณ ไม่ได้วางด้วยมือ"),
+        ("ตรวจหลักฐาน", "เช็กตัวตนของไฟล์และ checksum", "รู้ว่าไฟล์ไม่ถูกแก้ ไม่ได้แปลว่าคำตอบถูกต้องทางฟิสิกส์"),
     )
     step_html = "".join(
-        f'<li class="flow-step{" flow-solve" if name == "Solve" else ""}"><span class="flow-num" aria-hidden="true">{index}</span>'
-        f"<h3>{name}</h3><p>{line}</p>{tips.info(detail, label=f'More about {name}')}</li>"
+        f'<li class="flow-step{" flow-solve" if name == "คำนวณ" else ""}"><span class="flow-num" aria-hidden="true">{index}</span>'
+        f"<h3>{name}</h3><p>{line}</p>{tips.info(detail, label=f'รายละเอียดขั้นที่ {index}')}</li>"
         for index, (name, line, detail) in enumerate(steps, start=1)
     )
-    chips = (
-        tips.tip("OpenDSS solver", "A free, open-source power-system simulator. CEPT calls it; it does not replace it."),
-        tips.tip("Opens in Colab", "Each lesson is a notebook that opens in Google Colab."),
-        tips.tip("Saved results", "Every lesson page shows real solver output saved from a run."),
+
+    shows = (
+        "ตัวอย่างที่รันจริงบน OpenDSS พร้อมผลลัพธ์ที่บันทึกไว้ในไฟล์",
+        "เส้นทางจากข้อมูล → ผลลัพธ์ → หลักฐาน โดยไม่มีขั้นตอนที่ซ่อนอยู่",
+        "จุดที่สมมติฐานเข้ามามีผลต่อคำตอบอย่างไร",
     )
-    shows = ("Worked OpenDSS examples with saved outputs.", "How inputs, results and checks stay linked.", "Where assumptions enter a study.")
     not_shows = (
-        "Field validation or project approval.",
-        "Protection-setting or planning decisions.",
-        "Agreement with other tools, for example PowerFactory.",
+        "การรับรองงานจริงหรือการอนุมัติโครงการ — ระดับข้อ claim สูงสุดที่เราอ้างคือ WORKFLOW_VALIDATED",
+        "การตัดสินว่าผ่านเกณฑ์ grid code หรือมาตรฐานใดมาตรฐานหนึ่ง — และการตัดสินว่าเคสไหน (รวมถึง BESS) ต้องทำการศึกษาหรือไม่ เป็นหน้าที่ของเจ้าของระบบและหน่วยงานกำกับดูแล ไม่ใช่ของโปรแกรม",
+        "การเทียบผลกับ PowerFactory ใน Free wheel — ไม่มี และเราไม่อ้างว่าผลตรงกัน",
+        "ค่าที่วัดจากระบบจริง — ทุกตัวเลขบนเว็บนี้มาจากเคสตัวอย่างที่แนบมากับโปรแกรม",
+        "การรันสูตร workflow บนผลการรันของ public wheel — สูตรติดมากับ wheel แต่ cept run --recipe ยังรันไม่จบบนผลการรันที่ได้จาก cept run",
+        "การเรียกโมเดล AI สด ๆ — บทที่ 8 คือ session ที่บันทึกไว้แล้วเล่นซ้ำ ไม่มีการต่อกับโมเดลใด",
     )
     body = f'''
 {_header(home_href="index.html", repository_url=repository_url, home=True)}
 <main id="content" class="home">
   <section class="hero shell" aria-labelledby="hero-heading">
     <div class="hero-copy">
-      <p class="kicker">Power-system studies with CEPT</p>
-      <h1 id="hero-heading">Your OpenDSS run converged. Did it use the {tips.tip("voltage base", "The nominal voltage that per-unit values are measured against.", extra_class="tip-term")} you meant?</h1>
-      <p class="hero-lead">CEPT ties inputs, checks and results to one Case, so you can see what the solver was given. {_LESSON_WORD} short Colab lessons, one replaying an AI-assisted session.</p>
+      <p class="kicker">CEPT Power Studio — เรียนระบบไฟฟ้าด้วยตัวเลขจริง</p>
+      <h1 id="hero-heading">{HEADLINE}</h1>
+      <p class="hero-lead">{SUBTITLE}</p>
       <div class="hero-actions">
-        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with Lesson 1 <span aria-hidden="true">→</span></a>
-        <a class="button button-quiet" href="#how">See how it works</a>
+        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">เริ่มบทที่ 1 <span aria-hidden="true">→</span></a>
+        <a class="button button-quiet" href="#start">ดูวิธีเริ่มใน 5 นาที</a>
       </div>
-      <ul class="chips">{"".join(f"<li>{chip}</li>" for chip in chips)}</ul>
     </div>
     {_hero_terminal()}
   </section>
 
+  <section id="start" class="band band-start" aria-labelledby="start-heading">
+    <div class="shell">
+      <h2 id="start-heading">เริ่มใช้ใน 5 นาที</h2>
+      <p class="section-sub">ติดตั้ง public wheel ให้เสร็จ แล้วพิมพ์สามบรรทัดนี้ที่เทอร์มินัล</p>
+      <ol class="start">{start_html}</ol>
+      <p class="start-note">ต่อไปเปิด <code lang="en">run1/case.json</code> ซึ่งเป็น Case จริงที่โปรแกรมเขียนออกมา
+        แก้เป็นข้อมูลของคุณ แล้วรัน <code lang="en">cept run my-case.json --out run2</code></p>
+    </div>
+  </section>
+
   <section class="band band-benefits" aria-labelledby="why-heading">
     <div class="shell">
-      <h2 id="why-heading">What CEPT adds</h2>
-      <ul class="benefits">{benefit_html}</ul>
+      <h2 id="why-heading">ช่วยเรื่องอะไรได้บ้าง</h2>
+      <ul class="benefits benefits-three">{help_html}</ul>
     </div>
   </section>
 
   <section class="shell compare-section" aria-labelledby="cmp-heading">
     <div class="compare-copy">
-      <p class="kicker">One example</p>
-      <h2 id="cmp-heading">Same feeder. One declared voltage base.</h2>
-      <p>Both runs converge. Only one reads the downstream voltage base the Case declares.</p>
-      <a class="text-link" href="lessons/01_why_solvers_lie.html">Inspect the runs in Lesson 1 <span aria-hidden="true">→</span></a>
+      <p class="kicker">ตัวอย่างจริงจากบทที่ 1</p>
+      <h2 id="cmp-heading">เครือข่ายเดียวกัน ต่างกันแค่ค่าฐานแรงดันที่ประกาศไว้</h2>
+      <a class="text-link" href="lessons/01_why_solvers_lie.html">ดูผลทั้งสองการรันในบทที่ 1 <span aria-hidden="true">→</span></a>
     </div>
     {_comparison_chart()}
-    <p class="compare-note">Node 4 voltage from Lesson 01's saved OpenDSS output. A teaching example, not a field measurement.</p>
+    <p class="compare-note">แรงดันที่จุด Node 4 จากผลลัพธ์ OpenDSS ที่บันทึกไว้ในบทที่ 1 — ตัวอย่างสอน ไม่ใช่ค่าที่วัดจากระบบจริง</p>
   </section>
 
   <section id="how" class="band band-flow" aria-labelledby="how-heading">
     <div class="shell">
-      <h2 id="how-heading">One Case. Five steps.</h2>
+      <h2 id="how-heading">ห้าขั้นตอนจากข้อมูลถึงหลักฐาน</h2>
       <ol class="flow">{step_html}</ol>
-      <p class="flow-note">CEPT organises the study, OpenDSS solves it, and the engineering judgement stays with you.</p>
+      <p class="flow-note">CEPT จัดการขั้นตอนและเก็บหลักฐาน ส่วนการตัดสินใจทางวิศวกรรมยังอยู่กับคุณ</p>
     </div>
   </section>
 
-  <section id="assist" class="band band-assist" aria-labelledby="assist-heading">
-    <div class="shell assist">
-      <div class="assist-copy">
-        <p class="kicker">AI assist and recipes</p>
-        <h2 id="assist-heading">Let an AI drive. Let the checks decide.</h2>
-        <p>An agent can type the same short <code>cept</code> commands you would. A refused command stays on record; only CEPT's checks and solver output count.</p>
-        <p>A {tips.tip("recipe", "A fixed, versioned list of CEPT operations with declared inputs and outputs. It decides nothing itself.", extra_class="tip-term")} fixes the path for every run.</p>
-        <p class="assist-status"><span class="badge badge-soft">Preview</span> The recipe runtime is not in the public wheel yet.</p>
-        <a class="button button-primary" href="lessons/08_ask_in_plain_words.html">See the recorded session <span aria-hidden="true">→</span></a>
-      </div>
-      <figure class="agent-flow">
-        <ol>
-          <li><span class="af-num" aria-hidden="true">1</span><div><strong>You ask</strong><small>in plain words</small></div></li>
-          <li><span class="af-num" aria-hidden="true">2</span><div><strong>The agent runs</strong><small>short <code>cept</code> commands</small></div></li>
-          <li class="af-gate"><span class="af-num" aria-hidden="true">3</span><div><strong>CEPT checks</strong><small>and may refuse</small></div></li>
-          <li><span class="af-num" aria-hidden="true">4</span><div><strong>You verify</strong><small>the saved artifacts</small></div></li>
-        </ol>
-        <figcaption>Replayed from a saved session. No model is called here.</figcaption>
-      </figure>
+  <section id="editions" class="band band-editions" aria-labelledby="editions-heading">
+    <div class="shell">
+      <h2 id="editions-heading">Free wheel กับ Advance</h2>
+      <p class="section-sub">ตารางนี้ไม่ได้เขียนขึ้นเอง แต่ดึงมาจากขอบเขตของโค้ดจริงของทั้งสองชุดตอนสร้างเว็บ</p>
+      {_edition_table(boundary)}
+      <p class="limits-claim">ระดับข้อ claim ของทุกอย่างบนหน้านี้:
+        {tips.tip(boundary["free"]["claim"], "ขั้นตอนการทำงานรันจบ และการตรวจที่บันทึกไว้ผ่านสำหรับตัวอย่างเหล่านี้ ไม่มีการอ้างที่หนักกว่านี้เลย", extra_class="tip-code")}</p>
     </div>
   </section>
 
   <section id="course" class="shell course" aria-labelledby="course-heading">
-    <h2 id="course-heading">Choose where to start</h2>
-    <p class="section-sub">{_LESSON_WORD} lessons, {_TRACK_WORD.lower()} stages. Each opens in Colab.</p>
+    <h2 id="course-heading">{len(LESSONS)} บทเรียน</h2>
+    <p class="section-sub">แต่ละบทเปิดใน Google Colab ได้ทันที และหน้าเว็บแสดงผลลัพธ์ที่บันทึกไว้จากการรันจริง</p>
     {"".join(tracks_html)}
   </section>
 
   <section id="limits" class="band band-limits" aria-labelledby="limits-heading">
     <div class="shell limits">
-      <h2 id="limits-heading">What this course does and does not show</h2>
+      <h2 id="limits-heading">เราอ้างอะไร และไม่อ้างอะไร</h2>
       <div class="limits-grid">
-        <div class="limit limit-yes"><h3>It shows</h3><ul>{"".join(f"<li>{item}</li>" for item in shows)}</ul></div>
-        <div class="limit limit-no"><h3>It does not show</h3><ul>{"".join(f"<li>{item}</li>" for item in not_shows)}</ul></div>
+        <div class="limit limit-yes"><h3>อ้าง</h3><ul>{"".join(f"<li>{item}</li>" for item in shows)}</ul></div>
+        <div class="limit limit-no"><h3>ไม่อ้าง</h3><ul>{"".join(f"<li>{item}</li>" for item in not_shows)}</ul></div>
       </div>
-      <p class="limits-claim">Course claim level: {tips.tip("WORKFLOW_VALIDATED", "The workflow ran and its recorded checks passed for these examples. Nothing stronger is claimed.", extra_class="tip-code")}</p>
     </div>
   </section>
 
   <section class="shell final-cta">
-    <h2>Ready to try it?</h2>
+    <h2>ลองดูว่าข้อมูลของคุณจะพูดอะไร</h2>
     <div class="hero-actions">
-      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start with Lesson 1 <span aria-hidden="true">→</span></a>
-      <a class="text-link" href="{html.escape(repository_url, quote=True)}">View the source <span aria-hidden="true">↗</span></a>
+      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">เริ่มบทที่ 1 <span aria-hidden="true">→</span></a>
+      <a class="text-link" href="{html.escape(repository_url, quote=True)}">ดูซอร์สโค้ด <span aria-hidden="true">↗</span></a>
     </div>
   </section>
 </main>
-{_footer(repository_url)}
+{_footer(repository_url, note="ผลลัพธ์เป็นตัวอย่างสอน ไม่ใช่การรับรองงานจริง")}
 '''
     return _page_document(
-        "Learn power-system studies",
+        "เห็นระบบไฟของตัวเอง ก่อนต้องตัดสินใจเรื่องใหญ่",
         body,
         stylesheet="assets/education.css",
-        description=f"{_LESSON_WORD} short Colab lessons on running power-system studies with CEPT and OpenDSS, with inputs, results and checks kept together.",
+        lang="th",
+        description="CEPT Power Studio ช่วยศึกษาระบบไฟฟ้าด้วย OpenDSS — ใส่ข้อมูลที่มี รันเลขจริง และบอกว่าข้อมูลขาดอะไร ไม่เดาให้",
     )
 
 
@@ -1109,6 +1234,7 @@ def build_site(
     stylesheet = staging_root / STYLESHEET
     if not stylesheet.is_file():
         raise SiteBuildError(f"staging root is missing site asset: {STYLESHEET.as_posix()}")
+    boundary = _edition_boundary(staging_root)
 
     if output_dir.exists():
         if not force:
@@ -1130,7 +1256,9 @@ def build_site(
         statuses[lesson.stem] = (code_count, missing_count)
         (lesson_dir / f"{lesson.stem}.html").write_text(page, encoding="utf-8", newline="\n")
 
-    (output_dir / "index.html").write_text(_index_page(statuses, repository), encoding="utf-8", newline="\n")
+    (output_dir / "index.html").write_text(
+        _index_page(statuses, repository, boundary), encoding="utf-8", newline="\n"
+    )
     return {
         "schema": "cept-education-site-v1",
         "source_revision": revision,

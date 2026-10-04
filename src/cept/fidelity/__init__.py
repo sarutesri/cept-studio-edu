@@ -1,8 +1,10 @@
 """Lazy fidelity package facade.
 
-The per-unit intake gate is part of the neutral Case boundary.  The broader
-source-to-Case receipt remains available through lazy compatibility exports so
-the public package does not import research comparison code at import time.
+The per-unit intake gate is part of the neutral Case boundary and the broader
+source-to-Case receipt is the trust gate the run path enforces before a solver
+runs, so both stay in core: ``cept run`` must not stop working because an
+optional tier is not installed. Both modules load lazily so importing
+``cept.fidelity`` does not pull the receipt's JSON machinery at import time.
 """
 
 from __future__ import annotations

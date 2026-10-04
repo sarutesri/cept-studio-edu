@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+
+<!-- summary cards -->
+<div class="grid">
+  <div class="card"><div class="k">Converged</div>
+    <div class="v">{% if converged %}<span class="badge ok">Yes</span>{% else %}<span class="badge bad">No</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Total PV generation</div>
+    <div class="v">{{ total_pv_kw }} kW</div></div>
+  <div class="card"><div class="k">Total PV reactive</div>
+    <div class="v">{{ total_pv_kvar }} kvar</div></div>
+  <div class="card"><div class="k">Min bus voltage</div>
+    <div class="v {{ 'bad-txt' if vmin < v_min else '' }}">{{ '%.4f'|format(vmin) }} pu</div></div>
+  <div class="card"><div class="k">Max bus voltage</div>
+    <div class="v {{ 'bad-txt' if vmax > v_max else '' }}">{{ '%.4f'|format(vmax) }} pu</div></div>
+  <div class="card"><div class="k">Active losses</div>
+    <div class="v">{{ '%.1f'|format(loss_kw) }} kW</div></div>
+</div>
+
+<h2>1. Study definition</h2>
+<table><tbody>
+  <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+  <tr><td>Inverter standard</td><td>IEEE 1547-2018 (Category B curves)</td></tr>
+  <tr><td>Voltage limits</td><td>{{ v_min }} – {{ v_max }} pu</td></tr>
+</tbody></table>
+
+<h2>2. Inverter / DER configuration</h2>
+<table>
+  <thead><tr><th>DER id</th><th>Bus</th><th>Type</th><th>Control mode</th>
+    <th>Rated kW</th></tr></thead>
+  <tbody>
+  {% for d in ders %}
+    <tr><td>{{ d.id }}</td><td>{{ d.bus }}</td><td>{{ d.type }}</td>
+        <td>{{ (d.inverter.control if d.inverter else 'constant_pf') | replace('_',' ') }}</td>
+        <td>{{ d.kw or d.kva or '—' }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>3. Actual DER operating point (after control)</h2>
+<table>
+  <thead><tr><th>DER name</th><th>Kind</th><th>Bus</th><th>P (kW)</th>
+    <th>Q (kvar)</th><th>V mean (pu)</th><th>Note</th></tr></thead>
+  <tbody>
+  {% for d in der_outputs %}
+    <tr>
+      <td>{{ d.name }}</td><td>{{ d.kind }}</td><td>{{ d.bus }}</td>
+      <td>{{ '%.1f'|format(d.p_kw) }}</td>
+      <td class="{{ 'bad-txt' if d.q_kvar | abs > 0.5 else '' }}">{{ '%.1f'|format(d.q_kvar) }}</td>
+      <td>{{ '%.4f'|format(d.v_mean_pu) if d.v_mean_pu else '—' }}</td>
+      <td class="note">{{ 'absorbing Q (Volt-VAR)' if d.q_kvar < -0.5 else
+                          'injecting Q' if d.q_kvar > 0.5 else
+                          'unity PF' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>4. Single-line diagram</h2>
+{{ sld.sld_block("sld_ibr", sld_json, sld_caption) }}
+
+<h2>5. Voltage profile</h2>
+<div class="fig">{{ voltage_div|safe }}</div>
+
+<h2>6. Bus voltages &amp; standards check</h2>
+<p class="note">Limits: {{ v_min }}–{{ v_max }} pu (IEEE 1547 / EN 50160).</p>
+{% if bus_summary_note %}
+<p class="note summarised"><strong>Summarised:</strong> {{ bus_summary_note }}. Full profile: Section 5 chart.</p>
+{% endif %}
+<table>
+  <thead><tr><th>Bus</th><th>A (pu)</th><th>B (pu)</th><th>C (pu)</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for row in bus_rows %}
+    <tr class="{{ 'fail' if not row.ok else '' }}">
+      <td>{{ row.bus }}</td><td>{{ row.a }}</td><td>{{ row.b }}</td><td>{{ row.c }}</td>
+      <td>{% if row.ok %}<span class="ok-txt">OK</span>
+          {% else %}<span class="bad-txt">{{ row.flag }}</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

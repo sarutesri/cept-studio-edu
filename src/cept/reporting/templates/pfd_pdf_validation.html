@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card"><div class="k">Overall index</div><div class="v">{{ '%.4g'|format(summary.overall_error_index) if summary.overall_error_index is not none else 'BLOCKED' }}</div></div>
+  <div class="card"><div class="k">Coverage</div><div class="v">{{ '%.1f%%'|format((summary.coverage or 0)*100) }}</div></div>
+  <div class="card"><div class="k">Pass rate</div><div class="v">{{ '%.1f%%'|format((summary.pass_rate or 0)*100) if summary.pass_rate is not none else '—' }}</div></div>
+  <div class="card"><div class="k">Blocked items</div><div class="v">{{ summary.blocked or 0 }}</div></div>
+</div>
+
+<h2>1. Evidence boundary and sources</h2>
+<table><tbody>
+  <tr><td>Original PFD fresh rerun</td><td><code>{{ comparison.reference_run }}</code></td></tr>
+  <tr><td>CEPT fresh rerun</td><td><code>{{ comparison.candidate_run }}</code></td></tr>
+  <tr><td>Published PDF inventory</td><td><code>{{ comparison.pdf_manifest or ('not supplied — optional; PFD-only basis' if comparison.validation_basis == 'pfd-only' else 'not supplied') }}</code></td></tr>
+  <tr><td>Reference results hash</td><td><code>{{ comparison.reference_results_sha256 }}</code></td></tr>
+  <tr><td>Candidate results hash</td><td><code>{{ comparison.candidate_results_sha256 }}</code></td></tr>
+</tbody></table>
+<p class="note">A bundled PowerFactory result is an engine-regression reference, not an independent oracle. PDF values are used only when a reviewed inventory records an exact page/table/figure locator. Uncalibrated figures remain blocked.</p>
+
+<h2>2. SLD evidence side-by-side</h2>
+<p class="note">Source and native diagrams are supplementary visual evidence. The interactive view is the solver-backed CEPT graph; a missing image stays BLOCKED.</p>
+<div class="sld-comparison">
+{% for view in sld_gallery.views %}
+  <div class="sld-view">
+    <h3>{{ view.label }}</h3>
+    {% if view.kind == 'interactive' and view.graph %}
+      <div class="sld-wrap"><div id="comparison-sld-{{ loop.index }}" class="sld-canvas" style="height:420px"></div></div>
+      <script>document.addEventListener('DOMContentLoaded', function(){ ceptInitSLD('comparison-sld-{{ loop.index }}', {{ view.graph|tojson }}); });</script>
+    {% elif view.kind == 'image' and view.image %}
+      <div style="text-align:center;background:#fff;padding:8px;border-radius:6px;min-height:300px">
+        <img src="data:image/png;base64,{{ view.image }}" alt="{{ view.label }}" style="max-width:100%;max-height:420px;width:auto;height:auto">
+      </div>
+    {% else %}
+      <div class="note" style="min-height:300px;padding:40px 12px;text-align:center"><span class="badge bad">BLOCKED</span><br>Capture not supplied.</div>
+    {% endif %}
+    <p class="note">{{ view.caption }}</p>
+  </div>
+{% endfor %}
+</div>
+
+<h2>3. Error-index summary</h2>
+<div class="fig">{{ error_index_div|safe }}</div>
+<div class="fig">{{ status_div|safe }}</div>
+
+<h2>3. Asset × quantity</h2>
+<div class="fig">{{ heatmap_div|safe }}</div>
+<div class="fig">{{ scatter_div|safe }}</div>
+
+<h2>4. Dynamic and time-series comparison</h2>
+<p class="note">One chart per signal (reference + candidate only) &mdash; different signals have different units/scales and are never combined onto one axis.</p>
+<div class="fig-grid">
+{% for title, div in timeseries_figs %}<div class="fig">{{ div|safe }}</div>{% endfor %}
+</div>
+<h3>Residuals</h3>
+<div class="fig-grid">
+{% for title, div in residual_figs %}<div class="fig">{{ div|safe }}</div>{% endfor %}
+</div>
+
+<h2>5. Complete verdict table</h2>
+<table>
+<thead><tr><th>Scope</th><th>Asset</th><th>Quantity</th><th>Reference</th><th>Candidate</th><th>Abs error</th><th>Index</th><th>Status</th><th>Source locator</th></tr></thead>
+<tbody>
+{% for row in rows %}
+<tr class="{{ 'fail' if row.status == 'fail' else '' }}">
+  <td>{{ row.scope }}</td><td>{{ row.asset }}</td><td>{{ row['signal/quantity'] }}</td>
+  <td>{{ row.reference_value if row.reference_value is not none else '—' }}</td>
+  <td>{{ row.candidate_value if row.candidate_value is not none else '—' }}</td>
+  <td>{{ '%.6g'|format(row.absolute_error) if row.absolute_error is not none else '—' }}</td>
+  <td>{{ '%.6g'|format(row.normalized_error_index) if row.normalized_error_index is not none else '—' }}</td>
+  <td>{% if row.status == 'pass' %}<span class="ok-txt">PASS</span>{% elif row.status == 'fail' %}<span class="bad-txt">FAIL</span>{% else %}<span class="note">BLOCKED / OBSERVED</span>{% endif %}</td>
+  <td>{{ row.source_locator or '—' }}</td>
+</tr>
+{% endfor %}
+</tbody></table>
+{% endblock %}

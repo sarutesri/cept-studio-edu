@@ -26,7 +26,7 @@ or PowerFactory parity.
 ## Course path
 
 Follow five stages: start, build, apply, trust, and assist. Cells in the first
-eight lessons use the same `cept <noun> <verb>` commands as a terminal.
+eight lessons use the same `cept` commands as a terminal.
 
 <div class="cept-course-path" markdown>
 

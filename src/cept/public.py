@@ -6,9 +6,10 @@ models; it does not create a second solver or expose PowerFactory internals.
 
 The current CEPT Public boundary supports inline Cases and the bundled IEEE
 13-node feeder for load flow, unbalanced load flow, hosting capacity, and fault
-studies. Every file-backed run carries a case fingerprint, solver identity, an
-explicit ``WORKFLOW_VALIDATED`` claim boundary, and a fail-closed verification
-receipt.
+studies, plus OpenDSS classical-machine (`gencls-classical`) transient studies on
+an inline network. Every file-backed run carries a case fingerprint, solver
+identity, an explicit ``WORKFLOW_VALIDATED`` claim boundary, and a fail-closed
+verification receipt.
 """
 
 from __future__ import annotations
@@ -29,9 +30,15 @@ from cept.studies.planning import build_execution_plan, execute_run, execution_p
 from cept.util import sha256_file, write_json
 
 
-PUBLIC_STUDIES = frozenset({"load_flow", "unbalanced_load_flow", "hosting_capacity", "fault"})
+PUBLIC_STUDIES = frozenset(
+    {"load_flow", "unbalanced_load_flow", "hosting_capacity", "fault", "dynamics"}
+)
 PUBLIC_BUILTINS = frozenset({"ieee13"})
 PUBLIC_CLAIM = "WORKFLOW_VALIDATED"
+# Study types whose result is a transient. Kept separate from PUBLIC_STUDIES on
+# purpose: the receipt inspects whatever transient a study produced, so the
+# check does not depend on which of them the public scope currently promotes.
+_TRANSIENT_STUDIES = frozenset({"dynamics", "dynamics_rms"})
 PUBLIC_SUPPORT: dict[str, dict[str, str]] = {
     "desktop": {"platform": "windows", "python": "3.10"},
     "notebook": {"runtime": "google_colab", "platform": "linux", "status": "candidate"},
@@ -93,7 +100,6 @@ def public_capabilities() -> dict[str, Any]:
             name: {"engine": "opendss", "status": "candidate"} for name in sorted(PUBLIC_STUDIES)
         },
         "excluded": {
-            "dynamics": "excluded_initially",
             "powerfactory": "pro_only",
         },
         "claim_boundary": "WORKFLOW_VALIDATED only; not PROJECT_VALIDATED or field-evidence acceptance",
@@ -163,6 +169,97 @@ def _finite(value: Any) -> bool:
 
 def _check(name: str, passed: bool, detail: str) -> dict[str, Any]:
     return {"name": name, "passed": bool(passed), "detail": detail}
+
+
+def _dynamics_checks(case: Case, result: StudyResult) -> list[dict[str, Any]]:
+    """Inspect the transient itself, never the initialisation load flow.
+
+    A dynamics study is its own transient: the load flow that initialises the
+    solver says nothing about whether the disturbance ran or the machine
+    state stayed bounded, so the receipt is refused unless the solver's own
+    transient evidence is present and usable.  ``dynamics_rms`` is not in the
+    public study set; it is listed here because the branch keys on the study
+    that declares a transient, not on a promotion list.
+    """
+
+    study_type = result.study_type or case.study.type
+    dynamics = result.dynamics
+    if dynamics is None:
+        return [
+            _check(
+                "dynamics_transient",
+                False,
+                f"study.type={study_type!r} declares a transient simulation but the result "
+                "carries no transient payload; the initialisation load flow alone cannot earn "
+                "a claim.",
+            )
+        ]
+    checks = [
+        _check(
+            "dynamics_transient",
+            True,
+            "the result carries the transient the solver produced for this study.",
+        )
+    ]
+    checks.append(
+        _check(
+            "dynamics_convergence",
+            dynamics.converged is True,
+            "the solver reported a converged dynamic solution.",
+        )
+    )
+    horizon = _finite(dynamics.duration) and _finite(dynamics.stepsize) and dynamics.stepsize > 0.0
+    spans = [
+        max(trace.t) - min(trace.t)
+        for trace in dynamics.monitors
+        if trace.t and all(_finite(value) for value in trace.t)
+    ]
+    recorded = all(
+        bool(trace.channels)
+        and any(
+            channel.values and len(channel.values) == len(trace.t) for channel in trace.channels
+        )
+        for trace in dynamics.monitors
+    )
+    checks.append(
+        _check(
+            "dynamics_monitors",
+            bool(spans) and recorded,
+            "the solver recorded monitor traces whose channels carry a sample for every "
+            "recorded time step.",
+        )
+    )
+    checks.append(
+        _check(
+            "dynamics_horizon",
+            horizon
+            and bool(spans)
+            and len(spans) == len(dynamics.monitors)
+            and min(spans) >= float(dynamics.duration) - float(dynamics.stepsize),
+            "every recorded monitor trace spans the whole declared simulation window, so the "
+            "disturbance window was actually integrated rather than initialised only.",
+        )
+    )
+    samples = [value for trace in dynamics.monitors for channel in trace.channels for value in channel.values]
+    checks.append(
+        _check(
+            "dynamics_channel_values",
+            bool(samples) and all(_finite(value) for value in samples),
+            "every recorded transient sample is a finite solver value.",
+        )
+    )
+    observed_verdict = {True: "stable", False: "unstable"}.get(dynamics.stable, "not evaluated")
+    checks.append(
+        _check(
+            "dynamics_stability_evidence",
+            isinstance(dynamics.stable, bool) and _finite(dynamics.max_rotor_angle_deg),
+            "the solver returned a rotor-angle channel, so the bounded-rotor-angle stability "
+            "verdict is grounded in recorded samples rather than assumed. Observed verdict: "
+            f"{observed_verdict} (max |rotor angle| = {dynamics.max_rotor_angle_deg} deg). The "
+            "verdict itself is CEPT's criterion over those samples, not a solver-reported flag.",
+        )
+    )
+    return checks
 
 
 def _result_checks(case: Case, result: StudyResult) -> list[dict[str, Any]]:
@@ -244,6 +341,12 @@ def _result_checks(case: Case, result: StudyResult) -> list[dict[str, Any]]:
                 "fault type and phase currents are solver-returned, finite, and positive.",
             )
         )
+    if (
+        case.study.type in _TRANSIENT_STUDIES
+        or result.study_type in _TRANSIENT_STUDIES
+        or result.dynamics is not None
+    ):
+        checks.extend(_dynamics_checks(case, result))
     return checks
 
 

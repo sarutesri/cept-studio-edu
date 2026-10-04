@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="grid">
+  <div class="card"><div class="k">Solution</div>
+    <div class="v">{% if converged %}<span class="badge ok">Converged</span>
+      {% else %}<span class="badge bad">Diverged</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Samples</div>
+    <div class="v">{{ samples }}</div></div>
+  <div class="card"><div class="k">Duration</div>
+    <div class="v">{{ duration }} s</div></div>
+  <div class="card"><div class="k">Step (requested)</div>
+    <div class="v">{{ '%.3g'|format(requested_stepsize) }} s</div></div>
+  <div class="card"><div class="k">Step (solver time grid)</div>
+    <div class="v">{{ '%.3g'|format(actual_stepsize) }} s</div></div>
+</div>
+
+<h2>1. Study definition</h2>
+<p class="note">Electromagnetic-transient (EMT) waveform channels read directly
+from the solver's result object; no waveform is synthesized in Python.</p>
+<table><tbody>
+  <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+  <tr><td>Channels</td><td>{{ channel_names|join(', ') if channel_names else '—' }}</td></tr>
+  <tr><td>Simulation time</td><td>{{ duration }} s</td></tr>
+</tbody></table>
+
+<h2>2. Waveforms</h2>
+{% if waveform_div %}<div class="fig">{{ waveform_div|safe }}</div>
+{% else %}<p class="note">No channel data recorded.</p>{% endif %}
+
+<h2>3. Channel summary</h2>
+<table>
+  <thead><tr><th>Channel</th><th>Samples</th><th>First</th><th>Last</th></tr></thead>
+  <tbody>
+  {% for row in channel_rows %}
+    <tr><td>{{ row.name }}</td><td>{{ row.samples }}</td>
+        <td>{{ row.first }}</td><td>{{ row.last }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

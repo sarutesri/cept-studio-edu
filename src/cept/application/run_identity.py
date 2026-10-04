@@ -59,7 +59,16 @@ def assessment_id(
     return f"cept-assessment-{hashlib.sha256(encoded.encode('utf-8')).hexdigest()[:24]}"
 
 
+#: Filename of the per-stage executor-attribution record that Conduct writes
+#: beside a run and that the run-set verifier reads back.  The constant lives in
+#: core because verification (:mod:`cept.verification.run_set`) and the Conduct
+#: writer both need it; defining it here keeps ``cept.conduct.config`` importing
+#: *down* from core instead of verification importing *up* into ``cept.conduct``.
+CONDUCT_MODE_FILENAME = "conduct-mode.json"
+
+
 __all__ = [
+    "CONDUCT_MODE_FILENAME",
     "artifact_set_digest",
     "assessment_id",
     "model_revision_id",

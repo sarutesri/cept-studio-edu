@@ -1,0 +1,161 @@
+{
+  "schema": "cept-edition-boundary-v1",
+  "derived_from": {
+    "public-release.yaml": "de6a395d3060d0a6ce11e1d54c0196210fe55601ff9b33d76dc54692a76f5139",
+    "src/cept/public.py": "9860916bfe7e4fa98992761124e7ecc8b286b1f4fde5a8b3c678b6658e074f94",
+    "src/cept/public_cli.py": "5ec15d78e800de2b0460d48b353955b6ca4a0652103df2db4ad3a8cc200e3f87",
+    "src/cept_advanced/registry.py": "3deb3d9b8aca15d6d0502f2b1c0c164b5223943f05b7dc96b22ef843d884ccbd"
+  },
+  "free": {
+    "distribution": "cept-power-studio",
+    "edition": "public",
+    "engine": "opendss",
+    "claim": "WORKFLOW_VALIDATED",
+    "claim_boundary": "WORKFLOW_VALIDATED only; not PROJECT_VALIDATED or field-evidence acceptance",
+    "studies": [
+      "dynamics",
+      "fault",
+      "hosting_capacity",
+      "load_flow",
+      "unbalanced_load_flow"
+    ],
+    "excluded": {
+      "powerfactory": "pro_only"
+    },
+    "verbs": [
+      {
+        "name": "doctor",
+        "options": [
+          "--capabilities"
+        ]
+      },
+      {
+        "name": "run",
+        "options": [
+          "--demo",
+          "--dry-run",
+          "--force",
+          "--input",
+          "--network",
+          "--out",
+          "--recipe"
+        ]
+      },
+      {
+        "name": "verify",
+        "options": []
+      }
+    ],
+    "recipes": [
+      "release-qualification",
+      "report-preparation",
+      "run-audit",
+      "study-evidence"
+    ],
+    "lessons": [
+      "00_environment",
+      "01_why_solvers_lie",
+      "02_first_circuit_sld",
+      "03_unbalanced_feeder",
+      "04_incomplete_data",
+      "05_solar_hosting_capacity",
+      "06_fault_study",
+      "07_digital_evidence",
+      "08_ask_in_plain_words"
+    ],
+    "lesson_count": 9
+  },
+  "advance": {
+    "package": "cept_advanced",
+    "distribution": "cept-advance",
+    "sections": [
+      {
+        "label": "licensed engine adapter",
+        "capabilities": [
+          "powerfactory_provider",
+          "powerfactory_inventory_worker",
+          "PowerFactoryAdapter",
+          "PowerFactoryNotAvailable",
+          "PowerFactoryRunError",
+          "export_verified_native_sld",
+          "build_native_pfd_plan",
+          "audit_active_native_diagram"
+        ]
+      },
+      {
+        "label": "controller synthesis / PERC1 frames",
+        "capabilities": [
+          "synthesize_templates",
+          "load_target_template",
+          "target_contract_diagnostics",
+          "build_target_contract_from_files"
+        ]
+      },
+      {
+        "label": "PFD source intake",
+        "capabilities": [
+          "pfd_inventory_to_case",
+          "PfdConversionBlocked"
+        ]
+      },
+      {
+        "label": "licensed reference runs",
+        "capabilities": [
+          "run_reference_source",
+          "create_pdf_inventory",
+          "pfdelta_case_from_sample"
+        ]
+      },
+      {
+        "label": "research runtime",
+        "capabilities": [
+          "research",
+          "ModelPackageManifest",
+          "load_model_package"
+        ]
+      },
+      {
+        "label": "comparison lanes",
+        "capabilities": [
+          "compare_runs",
+          "compare_three_runs",
+          "write_comparison",
+          "write_three_way_comparison",
+          "attach_case_provenance",
+          "run_cross_engine",
+          "cross_engine_fault",
+          "cross_engine_voltages",
+          "DEFAULT_FAULT_TOL_PCT",
+          "DEFAULT_V_TOL_ABS_PU"
+        ]
+      },
+      {
+        "label": "benchmark harness",
+        "capabilities": [
+          "run_benchmark_suite",
+          "load_registry_document",
+          "validate_registry",
+          "validate_conduct_project",
+          "evaluate_case_results"
+        ]
+      },
+      {
+        "label": "packaged lane workers (launched as ``python -m <module>``)",
+        "capabilities": [
+          "workflow_dynamic_benchmark_report",
+          "workflow_dynamic_usermodel_parity_report",
+          "workflow_dynamic_parity_figure",
+          "workflow_sld_pair",
+          "workflow_usermodel_parity_strict"
+        ]
+      },
+      {
+        "label": "source-to-Case fidelity",
+        "capabilities": [
+          "_eliminated_source_conductors"
+        ]
+      }
+    ],
+    "capability_count": 41
+  }
+}

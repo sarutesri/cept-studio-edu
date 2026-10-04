@@ -13,6 +13,7 @@ import importlib
 from typing import Any
 
 from cept.ports.probe import EngineProbe
+from cept.adapters.advanced import capability
 
 _ENGINE_ORDER = ("opendss", "powerfactory")
 
@@ -30,7 +31,7 @@ class InstalledEngineProbe:
 
                 return dss.Basic.Version()
             if engine == "powerfactory":
-                provider = importlib.import_module("cept.adapters.powerfactory")
+                provider = capability("powerfactory_provider")
                 versions = provider.list_installed_versions()
                 return versions[0] if versions else None
         except Exception:
@@ -44,7 +45,7 @@ class InstalledEngineProbe:
         adapter boundary; consumers (research, doctor) go through the probe.
         """
         try:
-            provider = importlib.import_module("cept.adapters.powerfactory")
+            provider = capability("powerfactory_provider")
             versions = provider.list_installed_versions()
             api = provider.locate_pf_api()
             return {

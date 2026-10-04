@@ -1,4 +1,23 @@
-"""Small noun+verb CLI shipped in the CEPT Public wheel."""
+"""Verb-only CLI shipped in the CEPT Public wheel.
+
+The public grammar is verb-only (owner-decided 2026-10-03), and this wheel is
+the surface learners actually install, so it speaks the same verbs the full CLI
+does: ``cept doctor``, ``cept run``, and ``cept verify``.
+
+Two deliberate decisions:
+
+* ``--demo`` is a mode of ``cept run``, not a ``study demo`` noun+verb route.
+  The bundled demonstration is the same operation (``run_study``) over a Case
+  CEPT builds for you, and the verb set is closed, so it becomes a flag on the
+  verb that owns running rather than a second grammar.
+* ``capability show`` becomes ``cept doctor --capabilities``. The verb set is
+  closed, and ``capability`` would be an eighth verb, while a bare
+  ``cept capabilities`` would be exactly the noun-less noun this migration
+  exists to remove. The support boundary is an environment fact: ``doctor``
+  already carries ``support`` in its JSON payload, and ``--verbose`` already
+  means "capability details" in the full CLI. So the flag is the same question
+  asked of the same verb. The noun does not survive.
+"""
 
 from __future__ import annotations
 
@@ -34,39 +53,59 @@ def _parser() -> argparse.ArgumentParser:
         description="CEPT Public — OpenDSS-first reproducible power-system studies.",
     )
     parser.add_argument("--version", action="version", version=f"cept-power-studio {public_version()}")
-    nouns = parser.add_subparsers(dest="noun", required=True)
+    verbs = parser.add_subparsers(dest="verb", required=True)
 
-    environment = nouns.add_parser("environment", help="check the CEPT teaching environment")
-    environment_verbs = environment.add_subparsers(dest="verb", required=True)
-    check = environment_verbs.add_parser("check", help="check CEPT and the installed OpenDSS solver")
-    _add_format(check)
-
-    study = nouns.add_parser("study", help="run or verify a public study")
-    study_verbs = study.add_subparsers(dest="verb", required=True)
-    run = study_verbs.add_parser("run", help="run a JSON Case with OpenDSS")
-    run.add_argument("case", type=Path)
-    run.add_argument("--out", type=Path, required=True)
-    run.add_argument("--force", action="store_true")
-    _add_format(run)
-    demo = study_verbs.add_parser("demo", help="run a bundled public demonstration")
-    demo.add_argument(
-        "study",
-        choices=["load-flow", "unbalanced-load-flow", "hosting-capacity", "fault"],
-        nargs="?",
-        default="load-flow",
+    doctor = verbs.add_parser("doctor", help="check the CEPT teaching environment")
+    doctor.add_argument(
+        "--capabilities",
+        action="store_true",
+        help="show the public support boundary instead of running the readiness trial",
     )
-    demo.add_argument("--network", choices=["ieee13"], default="ieee13")
-    demo.add_argument("--out", type=Path, required=True)
-    demo.add_argument("--force", action="store_true")
-    _add_format(demo)
-    verify = study_verbs.add_parser("verify", help="verify a persisted public run")
+    _add_format(doctor)
+
+    run = verbs.add_parser("run", help="run a JSON Case with OpenDSS")
+    run.add_argument(
+        "case",
+        type=Path,
+        nargs="?",
+        help="Case JSON to run. Omit it only with --demo, which runs a bundled Case.",
+    )
+    run.add_argument("--out", type=Path)
+    run.add_argument("--force", action="store_true")
+    run.add_argument(
+        "--demo",
+        nargs="?",
+        const="load-flow",
+        choices=["load-flow", "unbalanced-load-flow", "hosting-capacity", "fault"],
+        default=None,
+        help="run a bundled demonstration Case instead of naming a Case path",
+    )
+    run.add_argument("--network", choices=["ieee13"], default="ieee13")
+    run.add_argument(
+        "--recipe",
+        default=None,
+        metavar="NAME|FILE",
+        help="run a whole workflow: a bundled recipe name, or a path to one",
+    )
+    run.add_argument(
+        "--input",
+        dest="inputs",
+        action="append",
+        default=None,
+        metavar="NAME=VALUE",
+        help="supply one declared recipe input; repeatable, e.g. case=case.json",
+    )
+    run.add_argument(
+        "--dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="with --recipe: render the plan and execute nothing",
+    )
+    _add_format(run)
+
+    verify = verbs.add_parser("verify", help="verify a persisted public run")
     verify.add_argument("run_dir", type=Path)
     _add_format(verify)
-
-    capability = nouns.add_parser("capability", help="show the public support boundary")
-    capability_verbs = capability.add_subparsers(dest="verb", required=True)
-    show = capability_verbs.add_parser("show", help="show supported public study types")
-    _add_format(show)
     return parser
 
 
@@ -259,12 +298,12 @@ def _print_terminal(kind: str, payload: dict[str, Any]) -> None:
             _terminal_row("Solver", f"{_human_engine(payload.get('engine'))} (ready)")
             _terminal_row("Version", _engine_version_summary(payload.get("engine_version", "unknown")))
             _terminal_meaning(*MEANING_ENVIRONMENT_OK)
-            _terminal_next("cept capability show --format text")
+            _terminal_next("cept doctor --capabilities --format text")
         else:
             _terminal_row("Solver", f"{_human_engine(payload.get('engine'))} (not ready)")
             _terminal_row("Problem", "CEPT could not start OpenDSS or finish the trial study.")
             _terminal_meaning(*MEANING_ATTENTION)
-            _terminal_next("cept environment check --format json")
+            _terminal_next("cept doctor --format json")
         return
 
     if kind == "capability":
@@ -276,7 +315,7 @@ def _print_terminal(kind: str, payload: dict[str, Any]) -> None:
                 if isinstance(details, dict):
                     print(f"  {_human_study(study)} ({_human_engine(details.get('engine'))})")
         _terminal_meaning(*MEANING_SCOPE)
-        _terminal_next("cept environment check --format text")
+        _terminal_next("cept doctor --format text")
         return
 
     if kind in {"run", "demo"}:
@@ -297,7 +336,7 @@ def _print_terminal(kind: str, payload: dict[str, Any]) -> None:
             _terminal_row("Case fingerprint", f"{fingerprint} (matches the case you ran)")
         _terminal_meaning(*(MEANING_RUN_OK if ok else MEANING_ATTENTION))
         if display_run:
-            _terminal_next(f"cept study verify {display_run} --format text")
+            _terminal_next(f"cept verify {display_run} --format text")
         return
 
     if kind == "verify":
@@ -325,7 +364,7 @@ def _print_terminal(kind: str, payload: dict[str, Any]) -> None:
             print()
             display_run = _display_path(run_dir)
             _terminal_row("Saved evidence", Path(display_run) / "public-verification.json")
-            _terminal_detail(f"cept study verify {display_run} --format json")
+            _terminal_detail(f"cept verify {display_run} --format json")
         return
 
     raise ValueError(f"unknown terminal payload kind: {kind}")
@@ -372,43 +411,28 @@ def _environment_check_payload() -> tuple[int, dict[str, Any]]:
     return (0 if trial_ok else 1), payload
 
 
+def _refuse(message: str) -> int:
+    """Print a grammar refusal and return the refusal exit code."""
+    print("error: " + message, file=sys.stderr)
+    return 2
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
-        if args.noun == "environment" and args.verb == "check":
+        if args.verb == "doctor":
+            if args.capabilities:
+                _emit("capability", public_capabilities(), args.format)
+                return 0
             returncode, payload = _environment_check_payload()
             _emit("environment", payload, args.format)
             return returncode
-        if args.noun == "capability" and args.verb == "show":
-            _emit("capability", public_capabilities(), args.format)
-            return 0
-        if args.noun == "study" and args.verb == "verify":
+        if args.verb == "verify":
             result = verify_study(args.run_dir)
             _emit("verify", result, args.format)
             return 0 if result.get("passed") is True else 1
-        if args.noun == "study" and args.verb == "run":
-            case = load_case(args.case)
-            run = run_study(case, out=args.out, force=args.force)
-            payload = {
-                "status": run.verification["status"],
-                "claim": run.verification["claim"],
-                "run_dir": str(run.run_dir) if run.run_dir else None,
-                "case_fingerprint": run.case.fingerprint(),
-            }
-            _emit("run", payload, args.format)
-            return 0 if run.verification["passed"] else 1
-        if args.noun == "study" and args.verb == "demo":
-            case = demo_case(args.study, network=args.network)
-            run = run_study(case, out=args.out, force=args.force)
-            payload = {
-                "status": run.verification["status"],
-                "claim": run.verification["claim"],
-                "study_type": run.result.study_type,
-                "run_dir": str(run.run_dir) if run.run_dir else None,
-                "case_fingerprint": run.case.fingerprint(),
-            }
-            _emit("demo", payload, args.format)
-            return 0 if run.verification["passed"] else 1
+        if args.verb == "run":
+            return _run_verb(args)
     except (PublicBoundaryError, FileExistsError, OSError, ValueError) as exc:
         print("CEPT could not complete this command.", file=sys.stderr)
         print(f"Problem: {_human_error(exc)}", file=sys.stderr)
@@ -416,6 +440,66 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     raise RuntimeError("unhandled public CLI route")
 
+
+def _run_verb(args: argparse.Namespace) -> int:
+    """``cept run``: exactly one of a Case path or ``--demo``, never a guess."""
+    if args.recipe:
+        return _run_recipe(args)
+    if args.case and args.demo:
+        return _refuse(
+            "`cept run` was given both a Case path and --demo. Use "
+            "`cept run <case.json> --out <run-dir>` or `cept run --demo --out <run-dir>`."
+        )
+    if not args.case and not args.demo:
+        return _refuse(
+            "`cept run` was given neither a Case path nor --demo. Use "
+            "`cept run <case.json> --out <run-dir>` or `cept run --demo --out <run-dir>`."
+        )
+    if args.out is None:
+        return _refuse("`cept run` needs `--out <run-dir>` to write this run's evidence.")
+
+    if args.demo:
+        case = demo_case(args.demo, network=args.network)
+        study_type = case.study.type
+        kind = "demo"
+    else:
+        case = load_case(args.case)
+        study_type = case.study.type
+        kind = "run"
+    run = run_study(case, out=args.out, force=args.force)
+    payload = {
+        "status": run.verification["status"],
+        "claim": run.verification["claim"],
+        "run_dir": str(run.run_dir) if run.run_dir else None,
+        "case_fingerprint": run.case.fingerprint(),
+    }
+    if kind == "demo":
+        payload["study_type"] = run.result.study_type
+    else:
+        payload["study_type"] = study_type
+    _emit(kind, payload, args.format)
+    return 0 if run.verification["passed"] else 1
+
+
+def _run_recipe(args: argparse.Namespace) -> int:
+    """``cept run --recipe``: hand the whole workflow to the shipped recipe runtime.
+
+    The recipes ship in this wheel, so refusing the flag would deny a capability
+    that is present. The runner owns the recipe grammar — bundled name or path,
+    declared inputs, and ``--dry-run`` — and writes its own receipt, so this
+    function only forwards the arguments and returns the runner's exit code.
+    """
+
+    from cept.recipes.runner import main as recipe_main
+
+    argv = [str(args.recipe)]
+    for item in args.inputs or ():
+        argv += ["--input", item]
+    if args.out is not None:
+        argv += ["--out", str(args.out)]
+    if args.dry_run:
+        argv.append("--dry-run")
+    return recipe_main(argv)
 
 if __name__ == "__main__":
     raise SystemExit(main())

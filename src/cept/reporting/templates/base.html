@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>{{ title }}</title>
+<!-- Decode vendor bundles at runtime so HTML parser state cannot corrupt a
+     minified library containing an innocuous '<![CDATA[' string literal.
+     WP19: exactly ONE charting library ships (plotly.js cartesian build). -->
+<script>(function(){var b=atob("{{ plotly_js_b64 }}"),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);(new Function(new TextDecoder().decode(u)))();})();</script>
+<style>
+  :root { --fg:#1a2330; --muted:#5b6b7f; --line:#e3e8ef; --ok:#1a7f37; --bad:#c5221f;
+          --accent:#0b5cad; --bg:#f6f8fb; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+         color: var(--fg); margin: 0; background: var(--bg); line-height: 1.5; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+  header.rpt { border-bottom: 3px solid var(--accent); padding-bottom: 16px; margin-bottom: 8px; }
+  header.rpt h1 { margin: 0 0 4px; font-size: 1.6rem; }
+  header.rpt .sub { color: var(--muted); font-size: 0.9rem; }
+  h2 { margin-top: 40px; font-size: 1.2rem; border-left: 4px solid var(--accent);
+       padding-left: 10px; }
+  h3 { margin: 18px 0 6px; font-size: 1rem; color: #28425f; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
+          gap: 12px; margin: 16px 0; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px 16px; }
+  .card .k { color: var(--muted); font-size: 0.78rem; text-transform: uppercase;
+             letter-spacing: 0.03em; }
+  .card .v { font-size: 1.35rem; font-weight: 650; margin-top: 4px; }
+  .badge { display: inline-block; padding: 3px 12px; border-radius: 999px;
+           font-weight: 700; font-size: 0.85rem; }
+  .badge.ok { background: #e6f4ea; color: var(--ok); }
+  .badge.bad { background: #fce8e6; color: var(--bad); }
+  .fig { background:#fff; border:1px solid var(--line); border-radius:10px;
+         padding:8px; margin:14px 0; }
+  .fig-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr));
+              gap: 12px; margin: 14px 0; }
+  .fig-grid .fig { margin: 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.86rem;
+          background:#fff; border-radius:10px; overflow:hidden; }
+  th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { background: #eef2f7; position: sticky; top: 0; }
+  tr.fail td { background: #fff5f5; }
+  .ok-txt { color: var(--ok); font-weight: 600; }
+  .bad-txt { color: var(--bad); font-weight: 600; }
+  .note { color: var(--muted); font-size: 0.85rem; }
+  .assumptions { background:#fff8e1; border:1px solid #e2b93b; border-left:5px solid #c98b00;
+                 border-radius:8px; padding:14px 18px; margin:18px 0 24px; }
+  .assumptions h2 { border:0; margin:0 0 8px; padding:0; color:#6b4b00; }
+  .assumptions ul { margin:8px 0 0; padding-left:22px; }
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: 0.8rem; }
+  code { background:#eef2f7; padding:1px 5px; border-radius:4px; }
+
+  /* --- SLD --- */
+  .sld-wrap { background:#0f172a; border:1px solid #1e293b; border-radius:12px;
+              padding:10px 10px 4px; margin:14px 0; box-shadow:0 12px 32px rgba(15,23,42,.18); }
+  .sld-toolbar { display:flex; flex-wrap:wrap; gap:6px; align-items:center;
+                 padding:4px 4px 10px; }
+  .sld-toolbar .grp { display:flex; gap:4px; align-items:center; margin-right:14px; }
+  .sld-toolbar .lbl { color:#64748b; font-size:0.72rem; text-transform:uppercase;
+                      letter-spacing:0.04em; margin-right:2px; }
+  .sld-btn { background:#1e293b; color:#cbd5e1; border:1px solid #334155;
+             border-radius:6px; padding:4px 10px; font-size:0.78rem; cursor:pointer; }
+  .sld-btn.active { background:#0b5cad; color:#fff; border-color:#0b5cad; }
+  .sld-canvas { width:100%; height:640px; border:1px solid rgba(148,163,184,.08);
+                border-radius:8px; background-color:#0b1220;
+                background-image:linear-gradient(rgba(148,163,184,.045) 1px,transparent 1px),
+                                 linear-gradient(90deg,rgba(148,163,184,.045) 1px,transparent 1px);
+                background-size:24px 24px; }
+  .sld-legend { display:flex; flex-wrap:wrap; gap:14px; padding:8px 6px 4px;
+                color:#cbd5e1; font-size:0.78rem; }
+  .sld-legend .it { display:flex; align-items:center; gap:6px; }
+  .sld-legend .sw { width:14px; height:14px; border-radius:3px; display:inline-block; }
+  .sld-cap { color:#94a3b8; font-size:0.82rem; padding:2px 6px 8px; }
+  .cmp { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width: 900px){ .cmp { grid-template-columns:1fr; } }
+  .sld-comparison { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+  .sld-comparison h2 { grid-column:1/-1; margin-bottom:0; }
+  .sld-comparison-heading { grid-column:2/-1; margin:0; color:#28425f; }
+  .pf-sld-comparison > .pf-sld-reference-row { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+  .pf-sld-comparison > .sld-view { min-width:0; }
+  .pf-sld-comparison > .interactive-sld-view { grid-column:1/-1; }
+  .pf-sld-comparison .sld-wrap { margin:0; box-shadow:none; }
+  .pf-sld-reference-row .sld-view { min-height:360px; display:flex; flex-direction:column; }
+  .pf-sld-reference-row .sld-view img { width:100%; height:360px; object-fit:contain; background:#fff; }
+  .sld-mobile-tabs { display:none; }
+  .sld-view { background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:10px; }
+  .sld-view h3 { margin:0 0 6px; color:#0f172a; font-size:1rem; }
+  .sld-view img { display:block; max-width:100%; height:auto; margin:auto; }
+  @media (max-width: 900px){
+    .sld-comparison { grid-template-columns:1fr; }
+    .sld-comparison-heading { grid-column:1; }
+    .sld-mobile-tabs { display:flex; grid-column:1; gap:6px; }
+    .pf-sld-comparison > .pf-sld-reference-row { display:contents; }
+    .pf-sld-comparison .sld-view { display:none; }
+    .pf-sld-comparison .sld-view.mobile-active { display:block; grid-column:1; }
+  }
+  .param-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin:12px 0 20px; }
+  .param-grid label { display:flex; flex-direction:column; gap:4px; font-size:.82rem; color:#475569; }
+  .param-grid input { border:1px solid #cbd5e1; border-radius:5px; padding:6px 8px; font:inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="rpt">
+    <h1>{{ title }}</h1>
+    <div class="sub">{{ subtitle }}</div>
+  </header>
+  {% if assumptions %}
+  <section class="assumptions" aria-label="Assumed values">
+    <h2>Demonstrator assumptions</h2>
+    <div>This case runs in <strong>{{ case_mode }}</strong> mode. The following values were not supplied as research inputs and must not be treated as measured or project-specific data.</div>
+    <ul>
+      {% for item in assumptions %}
+      <li><code>{{ item.path }}</code> = <strong>{{ item.value }}</strong> ({{ item.source }})</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+  {% block content %}{% endblock %}
+  <footer>
+    Generated by CEPT Power Studio v{{ cept_version }} ·
+    Engine: {{ engine }} ({{ engine_version | cept_engine_version }})<br>
+    Case fingerprint: <code>{{ fingerprint }}</code> · {{ created_at }}
+  </footer>
+</div>
+
+<script>
+// ---- shared SLD engine (Plotly) ------------------------------------------ //
+window.__ceptCharts = {};
+function ceptInitSLD(domId, graph) {
+  var dom = document.getElementById(domId);
+  if (!dom || !graph || !graph.nodes || graph.nodes.length === 0) {
+    if (dom) dom.innerHTML = '<p style="color:#94a3b8;padding:30px;text-align:center;">No diagram data.</p>';
+    return;
+  }
+  // Each tab owns an immutable JSON clone; the payload is never mutated.
+  graph = JSON.parse(JSON.stringify(graph));
+  var state = { node: 'v', edge: 'len' };
+  var initialPositions = {};
+  graph.nodes.forEach(function(n){ if (!n.is_device) initialPositions[n.name] = {x:n.x, y:n.y, rotation:n.rotation||0, bus_orientation:n.bus_orientation||null}; });
+  var PH = {1:'A',2:'B',3:'C'};
+
+  function barPath(n) {
+    var size = n.symbolSize || [38, 8];
+    var w = size[0] / 2, h = size[1] / 2;
+    return 'M' + (-w) + ',' + (-h) + 'h' + (2 * w) + 'v' + (2 * h) + 'h' + (-2 * w) + 'Z';
+  }
+  function nodeSymbol(n) {
+    if (n.is_flow_arrow) return 'arrow';
+    if (n.symbol && n.symbol.indexOf('path:') === 0) return n.symbol;
+    return barPath(n);
+  }
+  function nodeSize(n) {
+    if (n.is_flow_arrow) return n.symbolSize || 12;
+    if (n.symbol && n.symbol.indexOf('path:') === 0) return n.symbolSize || 14;
+    var size = n.symbolSize || [38, 8];
+    return Math.max(size[0], size[1]);
+  }
+  // plotly textposition places the text box edge AT the point, so the text
+  // point is offset by half the symbol extent + the renderer's label
+  // distance (24 for buses, 2 for devices) to mimic the ECharts layout.
+  function labelOffset(pos, size, distance) {
+    var w = Array.isArray(size) ? size[0] : size;
+    var h = Array.isArray(size) ? size[1] : size;
+    if (pos === 'bottom') return [0, -(h / 2 + distance)];
+    if (pos === 'top') return [0, h / 2 + distance];
+    if (pos === 'left') return [-(w / 2 + distance), 0];
+    return [w / 2 + distance, 0];
+  }
+  function textPos(pos) {
+    if (pos === 'bottom') return 'top center';
+    if (pos === 'top') return 'bottom center';
+    if (pos === 'left') return 'middle right';
+    return 'middle left';
+  }
+  function tipForNode(n) {
+    var head = '<b style="color:#38bdf8;">' + n.name.toUpperCase() + '</b>'
+      + (n.kind==='substation'?' <span style="background:#3b82f6;color:#fff;padding:1px 6px;border-radius:4px;font-size:.72rem;">SUBSTATION</span>':'')
+      + '<br><span style="color:#94a3b8;">Base '+ (n.kv?n.kv.toFixed(3):'?') +' kV (LN)</span>';
+    var ph = '';
+    if (n.phases && n.phases.length) {
+      ph = '<div style="margin-top:6px;border-top:1px solid #334155;padding-top:5px;">';
+      for (var i=0;i<n.phases.length;i++)
+        ph += '<div style="font-family:monospace;font-size:.82rem;"><span style="color:#60a5fa;">Ph '+PH[n.phases[i]]+':</span> '
+           + n.v_pu[i].toFixed(4)+' pu ∠ '+n.ang[i].toFixed(1)+'°</div>';
+      ph += '</div>';
+    }
+    var ex = '';
+    (n.gens||[]).forEach(function(g){ ex += '<div style="color:#f472b6;font-size:.82rem;">⚙ '+g.name+' ['+g.kind+']: '+g.kw.toFixed(0)+' kW'+(g.tripped?' (TRIPPED)':'')+'</div>'; });
+    (n.loads||[]).forEach(function(l){ ex += '<div style="color:#fbbf24;font-size:.82rem;">▽ '+l.name+': '+l.kw.toFixed(1)+' kW + j'+l.kvar.toFixed(1)+(l.shed?' (SHED)':'')+'</div>'; });
+    (n.shunts||[]).forEach(function(s){ ex += '<div style="color:#2dd4bf;font-size:.82rem;">⊥ '+s.name+': '+s.kvar.toFixed(0)+' kvar</div>'; });
+    if (ex) ex = '<div style="margin-top:6px;border-top:1px solid #334155;padding-top:5px;">'+ex+'</div>';
+    var ev = n.event ? '<div style="margin-top:6px;color:#fca5a5;font-weight:700;">● '+(n.event.label||n.event.kind)+'</div>' : '';
+    return head + ph + ex + ev;
+  }
+  function tipForEdge(l) {
+    if (!l.edge_id) return '';  // device-stub links carry no branch data
+    var dir = l.p_kw>=0 ? (l.src_bus+' → '+l.dst_bus) : (l.dst_bus+' → '+l.src_bus);
+    var len = (l.length!==null && l.length!==undefined) ? l.length.toFixed(0)+' '+(l.length_unit||'') : '—';
+    var tap = (l.tap!==null && l.tap!==undefined) ? '<div>Tap: <b>'+l.tap.toFixed(4)+'</b></div>' : '';
+    var ev = l.event ? '<div style="margin-top:4px;color:#fca5a5;font-weight:700;">● '+(l.event.label||l.event.kind)+'</div>' : '';
+    return '<b style="color:#a78bfa;">'+l.edge_id+'</b> <span style="color:#94a3b8;">('+l.el_kind+(l.status==='open'?', OPEN':'')+')</span>'
+      + '<div style="margin-top:4px;font-size:.84rem;">'
+      + '<div>Flow: <b>'+dir+'</b></div>'
+      + '<div>P = '+Math.abs(l.p_kw).toFixed(1)+' kW &nbsp; Q = '+l.q_kvar.toFixed(1)+' kvar</div>'
+      + '<div style="color:#f87171;">Loss: '+l.losses_kw.toFixed(2)+' kW</div>'
+      + '<div>Length: '+len+'</div>'+tap+ev+'</div>';
+  }
+
+  function buildTraces() {
+    var traces = [];
+    var byId = {};
+    graph.nodes.forEach(function(n){ byId[n.name] = n; });
+
+      // Branch polylines (one trace per link; route_points win over endpoints).
+      // Route points of one link form a single continuous polyline: do NOT
+      // split it with null gaps, or a straight 2-point route (every plain
+      // branch, device stub and grid link) degenerates into two isolated
+      // points and renders as no visible line at all.
+      graph.links.forEach(function(l){
+      var pts = l.route_points && l.route_points.length >= 2 ? l.route_points : null;
+      if (!pts) {
+        var s = byId[l.source], t = byId[l.target];
+        if (!s || !t) return;
+        pts = [[s.x, s.y], [t.x, t.y]];
+      }
+      var xs = [], ys = [];
+      for (var i = 0; i < pts.length; i++) {
+        if (i > 0 && pts[i][0] === pts[i - 1][0] && pts[i][1] === pts[i - 1][1]) continue;
+        xs.push(pts[i][0]); ys.push(pts[i][1]);
+      }
+      var style = l.lineStyle || {};
+      traces.push({
+        type: 'scatter', mode: 'lines', x: xs, y: ys,
+        line: { color: style.color || '#64748b', width: style.width || 2,
+                dash: style.type === 'dashed' ? 'dash' : 'solid' },
+        hoverinfo: 'skip', showlegend: false
+      });
+    });
+
+    // Branch hover targets: invisible markers at first-segment midpoints.
+    var hx = [], hy = [], htip = [];
+    graph.links.forEach(function(l){
+      if (!l.edge_id) return;  // device stubs are not hoverable branches
+      var s = byId[l.source], t = byId[l.target];
+      if (!s || !t) return;
+      var pts = l.route_points && l.route_points.length >= 2 ? l.route_points : [[s.x, s.y], [t.x, t.y]];
+      hx.push((pts[0][0] + pts[1][0]) / 2); hy.push((pts[0][1] + pts[1][1]) / 2);
+      htip.push(tipForEdge(l));
+    });
+    if (hx.length) traces.push({
+      type: 'scatter', mode: 'markers', x: hx, y: hy,
+      marker: { size: 16, color: 'rgba(0,0,0,0)' },
+      customdata: htip, hovertemplate: '%{customdata[0]}<extra></extra>', showlegend: false
+    });
+
+    // Flow-direction arrows (rotated 'arrow' markers).
+    var ax = [], ay = [], aang = [], asize = [], acolor = [];
+    graph.nodes.forEach(function(n){
+      if (!n.is_flow_arrow) return;
+      ax.push(n.x); ay.push(n.y);
+      aang.push(-(Number(n.symbolRotate) || 0));  // ECharts is clockwise; plotly is CCW
+      asize.push(n.symbolSize || 12);
+      acolor.push((n.itemStyle || {}).color || '#94a3b8');
+    });
+    if (ax.length) traces.push({
+      type: 'scatter', mode: 'markers', x: ax, y: ay,
+      marker: { symbol: 'arrow', size: asize, angle: aang, color: acolor },
+      hoverinfo: 'skip', showlegend: false
+    });
+
+    // Bus bars + device symbols (one trace per node for full styling).
+    graph.nodes.forEach(function(n){
+      if (n.is_bend || n.is_flow_arrow) return;
+      var style = n.itemStyle || {};
+      var isBus = n.category === 'bus';
+      var tr = {
+        type: 'scatter', mode: 'markers', x: [n.x], y: [n.y],
+        marker: {
+          symbol: nodeSymbol(n), size: nodeSize(n),
+          angle: -(Number(n.rotation) || 0),
+          color: style.color || '#94a3b8',
+          line: { color: style.borderColor || '#ffffff', width: style.borderWidth || 1 }
+        },
+        opacity: style.opacity !== undefined ? style.opacity : 1,
+        showlegend: false
+      };
+      if (isBus) { tr.customdata = [tipForNode(n)]; tr.hovertemplate = '%{customdata[0]}<extra></extra>'; }
+      else { tr.hoverinfo = 'skip'; }
+      traces.push(tr);
+    });
+
+    // Bus labels: voltage / per-phase / off via the toolbar.
+    var btx = [], bty = [], btxt = [], btpos = [];
+    graph.nodes.forEach(function(n){
+      if (n.is_bend || n.is_flow_arrow || n.is_device) return;
+      var text = state.node === 'off' ? '' : state.node === 'phase' ? (n.label_phase || '') : (n.label_v || '');
+      if (!text) return;
+      var pos = n.label && n.label.position ? n.label.position : (n.bus_orientation === 'vertical' ? 'bottom' : 'right');
+      var off = labelOffset(pos, n.symbolSize || [38, 8], 24);
+      btx.push(n.x + off[0]); bty.push(n.y + off[1]); btxt.push(text); btpos.push(textPos(pos));
+    });
+    if (btx.length) traces.push({
+      type: 'scatter', mode: 'text', x: btx, y: bty, text: btxt, textposition: btpos,
+      textfont: { size: 9, color: '#e2e8f0' }, hoverinfo: 'skip', showlegend: false
+    });
+
+    // Device labels (always on; generator labels keep their kind colour).
+    var dtx = [], dty = [], dtxt = [], dtpos = [], dtcolor = [];
+    graph.nodes.forEach(function(n){
+      if (!n.is_device || n.is_flow_arrow) return;
+      var lbl = n.label && n.label.formatter;
+      if (!lbl) return;
+      var pos = (n.label && n.label.position) || 'bottom';
+      var off = labelOffset(pos, n.symbolSize || 14, 2);
+      dtx.push(n.x + off[0]); dty.push(n.y + off[1]); dtxt.push(lbl); dtpos.push(textPos(pos));
+      dtcolor.push((n.label && n.label.color) || '#cbd5e1');
+    });
+    if (dtx.length) traces.push({
+      type: 'scatter', mode: 'text', x: dtx, y: dty, text: dtxt, textposition: dtpos,
+      textfont: { size: 8.5, color: dtcolor }, hoverinfo: 'skip', showlegend: false
+    });
+
+    // Branch labels: length·loss / P-Q flow / off, nudged off the line.
+    var etx = [], ety = [], etxt = [];
+    graph.links.forEach(function(l){
+      if (!l.edge_id) return;  // device stubs carry no length/flow labels
+      var text = state.edge === 'off' ? '' : state.edge === 'flow' ? (l.label_flow || '') : (l.label_len || '');
+      if (!text) return;
+      var s = byId[l.source], t = byId[l.target];
+      if (!s || !t) return;
+      var pts = l.route_points && l.route_points.length >= 2 ? l.route_points : [[s.x, s.y], [t.x, t.y]];
+      var dx = pts[1][0] - pts[0][0], dy = pts[1][1] - pts[0][1];
+      var norm = Math.sqrt(dx * dx + dy * dy) || 1;
+      etx.push((pts[0][0] + pts[1][0]) / 2 + (-dy / norm) * 8);
+      ety.push((pts[0][1] + pts[1][1]) / 2 + (dx / norm) * 8);
+      etxt.push(text);
+    });
+    if (etx.length) traces.push({
+      type: 'scatter', mode: 'text', x: etx, y: ety, text: etxt, textposition: 'middle center',
+      textfont: { size: 8, color: '#cbd5e1' }, hoverinfo: 'skip', showlegend: false
+    });
+
+    return traces;
+  }
+
+  var layout = {
+    margin: { l: 0, r: 0, t: 0, b: 0 },
+    showlegend: false,
+    hovermode: 'closest',
+    dragmode: 'pan',
+    paper_bgcolor: '#0b1220',
+    plot_bgcolor: '#0b1220',
+    xaxis: { visible: false, autorange: true, showgrid: false, zeroline: false },
+    yaxis: { visible: false, autorange: 'reversed', showgrid: false, zeroline: false }
+  };
+  var config = { scrollZoom: true, responsive: true, displaylogo: false, displayModeBar: false };
+
+  function render() { return Plotly.react(dom, buildTraces(), layout, config); }
+  Plotly.newPlot(dom, buildTraces(), layout, config).then(function(gd){
+    window.__ceptCharts[domId] = { chart: { resize: function(){ Plotly.Plots.resize(gd); } }, state: state, graph: graph };
+  });
+
+  // Toolbar wiring (scoped to this diagram's container).
+  var root = dom.closest('.sld-wrap');
+  if (root) {
+    root.querySelectorAll('[data-sld-set]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var kv = btn.getAttribute('data-sld-set').split(':');
+        state[kv[0]] = kv[1];
+        root.querySelectorAll('[data-sld-set^="'+kv[0]+':"]').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        render();
+      });
+    });
+    root.querySelectorAll('[data-sld-edit]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var action = btn.getAttribute('data-sld-edit');
+        if (action === 'reset') {
+          graph.nodes.forEach(function(n){
+            if (!n.is_device && initialPositions[n.name]) {
+              n.x = initialPositions[n.name].x; n.y = initialPositions[n.name].y;
+              n.rotation = initialPositions[n.name].rotation || 0;
+            }
+          });
+          render();
+          return;
+        }
+        if (action === 'save') { ceptDownloadLayout(graph); return; }
+        if (action === 'load') {
+          var picker = root.querySelector('[data-sld-file]');
+          if (picker) picker.click();
+          return;
+        }
+        if (action === 'run') { ceptRunModifiedCase(graph); return; }
+      });
+    });
+    var picker = root.querySelector('[data-sld-file]');
+    if (picker) picker.addEventListener('change', function(){
+      var file = picker.files && picker.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        try {
+          var layout = JSON.parse(reader.result);
+          if (layout.case_fingerprint && graph.case_fingerprint && layout.case_fingerprint !== graph.case_fingerprint) {
+            window.alert('Layout fingerprint does not match this Case; load refused.'); return;
+          }
+          Object.keys(layout.nodes || {}).forEach(function(name){
+            var node = graph.nodes.find(function(n){ return n.name === name; });
+            var point = layout.nodes[name];
+            if (!node || !point) return;
+            if (Number.isFinite(Number(point.x))) node.x = Number(point.x);
+            if (Number.isFinite(Number(point.y))) node.y = Number(point.y);
+            if (Number.isFinite(Number(point.rotation))) node.rotation = Number(point.rotation) % 360;
+            if (point.bus_orientation) node.bus_orientation = point.bus_orientation;
+          });
+          render();
+        } catch (err) { window.alert('Invalid SLD layout JSON: '+err.message); }
+      };
+      reader.readAsText(file); picker.value = '';
+    });
+  }
+}
+function ceptLayoutPayload(graph) {
+  var nodes = {};
+  (graph.nodes || []).forEach(function(n){
+    if (!n.is_device && !n.is_bend) nodes[n.name] = {x:Number(n.x), y:Number(n.y), rotation:Number(n.rotation)||0, bus_orientation:n.bus_orientation||null};
+  });
+  return {case_fingerprint: graph.case_fingerprint || null, coordinate_system:'cept-sld-v1', nodes:nodes};
+}
+function ceptDownloadLayout(graph) {
+  var blob = new Blob([JSON.stringify(ceptLayoutPayload(graph), null, 2)], {type:'application/json'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sld-layout.json'; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+}
+function ceptCollectPatch(graph) {
+  var changes = [];
+  document.querySelectorAll('[data-case-path]').forEach(function(input){
+    var value = Number(input.value);
+    if (Number.isFinite(value)) changes.push({path:input.getAttribute('data-case-path'), value:value});
+  });
+  return {case_fingerprint: graph.case_fingerprint || null, layout:ceptLayoutPayload(graph), changes:changes};
+}
+function ceptRunnerHeaders() {
+  var ctx = window.__ceptReportContext || {};
+  var headers = {'Content-Type':'application/json'};
+  if (ctx.csrf_token) headers['X-CEPT-CSRF'] = ctx.csrf_token;
+  return headers;
+}
+function ceptRunModifiedCase(graph) {
+  var patch = ceptCollectPatch(graph);
+  fetch('/api/review', {method:'POST', headers:ceptRunnerHeaders(), body:JSON.stringify(patch)})
+    .then(function(r){ return r.json().then(function(x){ return {ok:r.ok, data:x}; }); })
+    .then(function(result){
+      if (!result.ok) throw new Error(result.data.error || 'draft rejected');
+      var detail = (result.data.diff || []).map(function(d){ return d.path+': '+d.old+' -> '+d.new; }).join('\n');
+      var summary = 'Changes: '+result.data.changes.length+'; layout nodes: '+result.data.layout_nodes+'\n'+(detail ? '\n'+detail+'\n' : '')+'\nConfirm solver rerun?';
+      if (!window.confirm(summary)) return;
+      return fetch('/api/run', {method:'POST', headers:ceptRunnerHeaders(), body:JSON.stringify(Object.assign({}, patch, {confirm:true}))});
+    })
+    .then(function(r){ return r ? r.json() : null; })
+    .then(function(result){ if (result && result.ok) window.location.href = '/report.html';
+      else if (result && result.error) window.alert(result.error); })
+    .catch(function(err){
+      var ctx = window.__ceptReportContext || {};
+      ceptDownloadPatch(patch);
+      if (ctx.run_dir && window.confirm('Local CEPT runner is not available. Start it with the registered CEPT launcher?')) {
+        window.location.href = 'cept://start-runner?run='+encodeURIComponent(ctx.run_dir)+'&request='+encodeURIComponent(ctx.launcher_token || '');
+        return;
+      }
+      window.alert('Patch downloaded. Run: cept report '+(ctx.run_dir || '<run_dir>')+' --serve');
+    });
+}
+function ceptDownloadPatch(patch) {
+  var blob = new Blob([JSON.stringify(patch, null, 2)], {type:'application/json'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'case-patch.json'; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.sld-mobile-tabs [data-sld-tab]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = btn.closest('.pf-sld-comparison');
+      if (!panel) return;
+      panel.querySelectorAll('.sld-mobile-tabs [data-sld-tab]').forEach(function(item){ item.classList.remove('active'); });
+      panel.querySelectorAll('.sld-view').forEach(function(view){ view.classList.remove('mobile-active'); });
+      btn.classList.add('active');
+      var target = panel.querySelector('.'+btn.getAttribute('data-sld-tab'));
+      if (target) target.classList.add('mobile-active');
+    });
+  });
+});
+</script>
+</body>
+</html>

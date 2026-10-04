@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+{% for role in roles %}
+  <div class="card"><div class="k">{{ role.role }}</div>
+    <div class="v">{{ role.status|upper }}</div>
+    <div class="note">Engine: {{ role.engine }}<br>{{ role.study_type or 'study type unavailable' }}<br>{{ role.path or 'path not supplied' }}</div>
+  </div>
+{% endfor %}
+</div>
+
+<h2>1. Build process and engine provenance</h2>
+<table><thead><tr><th>Role</th><th>Engine</th><th>Version</th><th>Method</th><th>Status</th><th>Run Case fingerprint</th><th>Artifact</th></tr></thead><tbody>
+{% for role in roles %}<tr><td>{{ role.role }}</td><td>{{ role.engine }}</td><td>{{ role.engine_version or '—' }}</td><td>{{ role.calculation_method or '—' }}</td><td>{{ role.status }}</td><td><code>{{ role.case_fingerprint or 'external source' }}</code></td><td><code>{{ role.path or '—' }}</code></td></tr>{% endfor %}
+</tbody></table>
+{% if comparison.case_provenance %}
+<p class="note">Canonical Case <code>{{ comparison.case_provenance.canonical_case_fingerprint }}</code>
+({{ 'aligned' if comparison.case_provenance.aligned else 'BLOCKED: fingerprint mismatch' }}).
+Each solver run has its own expected fingerprint because the canonical engine field is expanded per adapter.</p>
+{% endif %}
+<p class="note">The source PFD is the parity reference. CEPT PFD is compared against it first; OpenDSS is reported as a separate cross-engine comparison.</p>
+{% if comparison.get('evaluation') %}<section class="verdict"><h2>Acceptance evaluator</h2><p><b>CEPT-PFD parity:</b> {{ comparison.evaluation.pfd_parity_verdict }} · <b>CEPT-OpenDSS cross-engine:</b> {{ comparison.evaluation.cross_engine_verdict }} · <b>Provenance:</b> {{ 'OK' if comparison.evaluation.provenance_ok else 'BLOCKED' }}</p><p class="note">Rows without an approved tolerance remain observed-only; they do not turn a passing eligible subset into a full-row claim.</p></section>{% endif %}
+
+<h2>2. Native and interactive SLD evidence</h2>
+<p class="note">Native SLD is an engine artifact. Interactive SLD is value-bearing only when a solver snapshot contains a typed SLD model. Missing evidence remains BLOCKED.</p>
+<div class="sld-comparison">
+{% for view in sld_gallery.views %}
+  <div class="sld-view">
+    <h3>{{ view.label }}</h3>
+    {% if view.kind == 'interactive' and view.graph %}
+      <div class="sld-wrap"><div id="three-way-sld-{{ loop.index }}" class="sld-canvas" style="height:720px"></div></div>
+      <script>document.addEventListener('DOMContentLoaded', function(){ ceptInitSLD('three-way-sld-{{ loop.index }}', {{ view.graph|tojson }}); });</script>
+    {% elif view.kind == 'image' and view.image %}
+      <div style="text-align:center;background:#fff;padding:8px;border-radius:6px;min-height:300px"><img src="data:image/png;base64,{{ view.image }}" alt="{{ view.label }}" style="max-width:100%;max-height:680px;width:auto;height:auto"></div>
+      {% if view.image_href %}<p class="note"><a href="{{ view.image_href }}">Open full-resolution native PNG</a></p>{% endif %}
+    {% elif view.artifact %}
+      <div class="note" style="min-height:300px;padding:40px 12px;text-align:center"><span class="badge">ARTIFACT ONLY</span><br>Editable native project is available, but no raster capture was returned.<br><a href="{{ view.artifact_href }}">Open {{ view.artifact|e }}</a></div>
+    {% elif view.status == 'not-applicable' %}
+      <div class="note" style="min-height:300px;padding:40px 12px;text-align:center"><span class="badge">N/A</span><br>OpenDSS has no native PowerFactory SLD artifact.</div>
+    {% else %}
+      <div class="note" style="min-height:300px;padding:40px 12px;text-align:center"><span class="badge bad">BLOCKED</span><br>Capture not supplied.</div>
+    {% endif %}
+    <p class="note">{{ view.caption }}</p>
+  </div>
+{% endfor %}
+</div>
+
+<h2>3. Error index by parameter</h2>
+<div class="fig">{{ error_div|safe }}</div>
+<table><thead><tr><th>Pair</th><th>Scope</th><th>Asset</th><th>Parameter</th><th>Error index</th><th>Status</th></tr></thead><tbody>
+{% for row in rows %}<tr><td>{{ row.pair or '—' }}</td><td>{{ row.scope }}</td><td>{{ row.asset }}</td><td>{{ row['signal/quantity'] }}</td><td>{{ '%.6g'|format(row.normalized_error_index) if row.normalized_error_index is not none else '—' }}</td><td>{{ row.status }}</td></tr>{% endfor %}
+</tbody></table>
+
+<h2>4. Time-series key parameters</h2>
+<p class="note">Each graph contains one key parameter only. Available source, CEPT PFD, and OpenDSS traces are overlaid without mixing units.</p>
+<div class="fig-grid">{% for title, div in timeseries_figs %}<div class="fig">{{ div|safe }}</div>{% else %}<p class="note">No time-series channels are available in these runs.</p>{% endfor %}</div>
+
+<h2>5. Analysis</h2>
+<ul>{% for line in analysis %}<li>{{ line }}</li>{% endfor %}</ul>
+<p class="note">Goal: reduce source↔CEPT PFD error to zero where the same topology/model is represented, then minimize source↔OpenDSS error within OpenDSS model limits. This report never converts missing artifacts into a pass.</p>
+{% endblock %}

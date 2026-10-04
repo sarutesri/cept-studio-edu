@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+
+<div class="grid">
+  <div class="card"><div class="k">Overall</div><div class="v">
+    {% if passed %}<span class="badge ok">PASS</span>
+    {% else %}<span class="badge bad">FAIL</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Points passed</div>
+    <div class="v">{{ n_pass }} / {{ n_total }}</div></div>
+  <div class="card"><div class="k">Max abs error</div>
+    <div class="v">{{ '%.5f'|format(max_err) }} pu</div></div>
+  <div class="card"><div class="k">Tolerance</div>
+    <div class="v">{{ tol }} pu</div></div>
+</div>
+
+<h2>1. What is being validated</h2>
+<table><tbody>
+  <tr><td>Test system</td><td>{{ reference_name }}</td></tr>
+  <tr><td>Quantity</td><td>Per-unit line-to-neutral voltage magnitude</td></tr>
+  <tr><td>Acceptance</td><td>|computed − published| ≤ {{ tol }} pu per node</td></tr>
+  <tr><td>Configuration</td><td>{{ config_note }}</td></tr>
+</tbody></table>
+
+{% if sld_json %}
+<h2>2. Single-line diagram (validated network)</h2>
+{{ sld.sld_block("sld_val", sld_json, sld_caption) }}
+<p class="note">Buses colored by worst-phase voltage; hover for per-phase V∠θ,
+branch P/Q, loss, length, and tap.</p>
+{% endif %}
+
+<h2>3. Computed vs published</h2>
+<div class="fig">{{ scatter_div|safe }}</div>
+
+<h2>4. Per-node error</h2>
+<div class="fig">{{ error_div|safe }}</div>
+
+<h2>5. Full comparison table</h2>
+<table>
+  <thead><tr><th>Node</th><th>Computed (pu)</th><th>Published (pu)</th>
+    <th>|err| (pu)</th><th>err (%)</th><th>Result</th></tr></thead>
+  <tbody>
+  {% for i in items %}
+    <tr class="{{ 'fail' if not i.passed else '' }}">
+      <td>{{ i.label }}</td>
+      <td>{{ '%.4f'|format(i.computed) }}</td>
+      <td>{{ '%.4f'|format(i.reference) }}</td>
+      <td>{{ '%.5f'|format(i.error_abs) }}</td>
+      <td>{{ '%.3f'|format(i.error_rel_pct) if i.error_rel_pct is not none else '—' }}</td>
+      <td>{% if i.passed %}<span class="ok-txt">PASS</span>
+          {% else %}<span class="bad-txt">FAIL</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

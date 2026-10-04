@@ -9,9 +9,8 @@ The candidate package contains an OpenDSS-first vertical slice for education:
 * typed inline Cases and the bundled IEEE 13-node feeder;
 * load flow, unbalanced load flow, hosting-capacity, and fault studies;
 * deterministic JSON run artifacts and a fail-closed verification receipt;
-* the `cept environment check`, `cept capability show`, and `cept study ...`
-  noun+verb CLI with shared human-readable `--format text` and machine
-  `--format json` output; and
+* the verb-only `cept` CLI (`cept doctor`, `cept doctor --capabilities`) with
+  shared human-readable `--format text` and machine `--format json` output; and
 * the nine cold-start notebooks under `public/notebooks/`.
 
 The course has five stages: start, build, apply, trust, and assist. Open each lesson
@@ -47,14 +46,15 @@ The eight notebooks that run CEPT pin the published teaching wheel by URL and SH
 local install, download the wheel from
 [`v0.2.0-edu.1`](https://github.com/sarutesri/cept-studio-edu/releases/tag/v0.2.0-edu.1),
 verify SHA-256
-`c7e609a1d9cc85b322bfb615f0c796c7ea5c43815b197289eb555786964478bc`,
-install it, and then run:
+`c7e609a1d9cc85b322bfb615f0c796c7ea5c43815b197289eb555786964478bc`, and install
+it. The installed wheel checks itself with:
 ```text
-cept environment check --format text
-cept capability show --format text
-cept study demo load-flow --network ieee13 --out runs/ieee13 --force --format text
-cept study verify runs/ieee13 --format text
+cept doctor
+cept doctor --verbose
 ```
+
+The guided demo runner is an Advance capability: it is not part of the free CEPT
+wheel and has no core CLI command today.
 
 The wheel intentionally contains no PowerFactory adapter, private project
 paths, internal evidence, or private research assets. The release is licensed

@@ -9,6 +9,7 @@ import json
 import os
 import tempfile
 from pathlib import Path
+from collections.abc import Iterable
 from typing import Any
 
 
@@ -20,6 +21,17 @@ def read_json(path: str | Path) -> Any:
 def sha256_file(path: str | Path) -> str:
     """SHA-256 hex digest of a file's raw bytes."""
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def require_distinct_output(path: Path, source_paths: Iterable[Path]) -> None:
+    """Refuse an output that resolves to, or aliases, source evidence."""
+    target = Path(path).resolve()
+    for source in source_paths:
+        source = Path(source).resolve()
+        if target == source or (
+            target.exists() and source.exists() and target.samefile(source)
+        ):
+            raise ValueError(f"output destination would overwrite source evidence: {source}")
 
 
 def write_json(path: str | Path, payload: Any) -> None:
@@ -48,4 +60,4 @@ def write_json(path: str | Path, payload: Any) -> None:
 
 
 
-__all__ = ["read_json", "sha256_file", "write_json"]
+__all__ = ["read_json", "sha256_file", "write_json", "require_distinct_output"]

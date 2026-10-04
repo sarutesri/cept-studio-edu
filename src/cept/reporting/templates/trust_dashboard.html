@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CEPT Trust Dashboard — Benchmark Validation</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --pass-green: #22c55e;
+      --warn-yellow: #eab308;
+      --fail-red: #ef4444;
+      --observed-gray: #64748b;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 0.5rem 0;
+      color: var(--accent-blue);
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .card-title {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .card-value {
+      font-size: 2.25rem;
+      font-weight: 700;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-pass { background: rgba(34, 197, 94, 0.2); color: var(--pass-green); border: 1px solid var(--pass-green); }
+    .badge-warn { background: rgba(234, 179, 8, 0.2); color: var(--warn-yellow); border: 1px solid var(--warn-yellow); }
+    .badge-fail { background: rgba(239, 68, 68, 0.2); color: var(--fail-red); border: 1px solid var(--fail-red); }
+    .badge-obs { background: rgba(100, 116, 139, 0.2); color: var(--observed-gray); border: 1px solid var(--observed-gray); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    th {
+      background: #111827;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:last-child td { border-bottom: none; }
+    a { color: var(--accent-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .legend {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #111827;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CEPT Master Trust Dashboard</h1>
+      <div class="subtitle">
+        Physics-grounded verification framework & benchmark parity matrix under approved policy
+        (<a href="../../docs/cept/ACCEPTANCE_POLICY.md" target="_blank">ACCEPTANCE_POLICY.md</a>).
+      </div>
+    </header>
+
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-title">Curated Tier Headline</div>
+        <div class="card-value" style="color: var(--pass-green);">__HEADLINE_SUMMARY__</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Total Benchmark Cases</div>
+        <div class="card-value">__TOTAL_CASES__</div>
+      </div>
+      <div class="card">
+        <div class="card-title">PFD Parity Passes</div>
+        <div class="card-value" style="color: var(--pass-green);">__PFD_PARITY_PASSES__</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Case ID & Title</th>
+          <th>Study Type</th>
+          <th>PFD Parity Verdict</th>
+          <th>Cross-Engine Verdict</th>
+          <th>Rows Evaluated</th>
+          <th>Details & Reports</th>
+        </tr>
+      </thead>
+      <tbody>
+        __TABLE_ROWS__
+      </tbody>
+    </table>
+
+    <div class="legend">
+      <strong>Acceptance Policy Legend:</strong><br>
+      • <strong>PFD Parity (Same Engine)</strong>: Source PF ↔ CEPT-PFD tight tolerance (Voltage 1e-4 pu, Angle 0.01 deg, Power 0.1%).<br>
+      • <strong>Cross-Engine (PF ↔ OpenDSS)</strong>: Physically-justified tolerance (Voltage 5e-3 pu, Angle 0.1 deg, Power 1.0%).<br>
+      • Quantities without physical tolerance basis remain labeled <em>observed-only</em>.
+    </div>
+  </div>
+</body>
+</html>

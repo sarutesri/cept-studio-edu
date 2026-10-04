@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cept.local/schema/workflow-recipe-v1.schema.json",
+  "title": "CEPT workflow recipe (workflow-recipe-v1)",
+  "description": "One deterministic workflow recipe. A recipe names which registered operation to run, which declared inputs it takes, and which named transition to take next. It never contains executable content, loops, retries, parallelism, scheduling, or recursion. The authoritative validator is cept.recipes.schema (pydantic); this artifact is the published JSON Schema mirror of it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "version",
+    "title",
+    "inputs",
+    "stages",
+    "expected_artifacts",
+    "blocked_conditions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "workflow-recipe-v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/recipeInput"
+      }
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/recipeStage"
+      }
+    },
+    "expected_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "blocked_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "includes": {
+      "type": "array",
+      "default": [],
+      "uniqueItems": true,
+      "description": "Allowlist of one-level child filenames. Every entry must be invoked by an include stage; children may not include recipes or write completion receipts.",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*\\.(ya?ml|json)$"
+      }
+    }
+  },
+  "$defs": {
+    "recipeInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": ["file", "directory", "string", "integer", "boolean"]
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "description": {
+          "type": "string"
+        },
+        "default": {
+          "type": ["string", "integer", "boolean", "null"],
+          "default": null
+        }
+      }
+    },
+    "recipeTransition": {
+      "type": "object",
+      "description": "A bounded decision. Only next, reason, blocked, and review are allowed. Every non-null target must name a declared stage.",
+      "required": ["next", "reason"],
+      "properties": {
+        "next": {
+          "type": ["string", "null"]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "blocked": {
+          "type": ["string", "null"]
+        },
+        "review": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "recipeStage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "inputs", "on_success", "on_failure"],
+      "oneOf": [
+        {
+          "required": ["operation", "owner", "outputs"],
+          "not": {"required": ["include"]}
+        },
+        {
+          "required": ["include"],
+          "not": {
+            "anyOf": [
+              {"required": ["operation"]},
+              {"required": ["owner"]},
+              {"required": ["outputs"]}
+            ]
+          },
+          "properties": {
+            "optional": {"const": false},
+            "on_failure": {
+              "properties": {
+                "next": {"type": "null"},
+                "blocked": {"type": "null"},
+                "review": {"type": "null"}
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "operation": {
+          "description": "Exactly one registered operation id.",
+          "enum": [
+            "case.check",
+            "study.run",
+            "study.verify",
+            "compare.runs",
+            "report.render",
+            "report.serve",
+            "report.notebook",
+            "receipt.write"
+          ]
+        },
+        "owner": {
+          "description": "Exactly one implementation owner; a list or multi-value form is rejected.",
+          "enum": ["cli", "script", "python"]
+        },
+        "include": {
+          "description": "Bare child filename from the recipe includes allowlist. Inputs map every child input name to a parent input name.",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*\\.(ya?ml|json)$"
+        },
+        "inputs": {
+          "type": "object",
+          "description": "Stage input name -> declared recipe input name.",
+          "propertyNames": {
+            "not": {
+              "pattern": "^(?i)(script|scripts|python|code|source|run|command|cmd|eval|exec|shell|bash|sh|notebook|cell|cells|inline|body|loop|repeat|for_each|foreach|each|while|retry|retries|backoff|parallel|concurrency|schedule|cron|queue|fan_out)$"
+            }
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "on_success": {
+          "$ref": "#/$defs/recipeTransition"
+        },
+        "on_failure": {
+          "$ref": "#/$defs/recipeTransition"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  },
+  "x-cept-rules": {
+    "description": "Cross-field prohibitions enforced by cept.recipes.schema, which cannot be expressed in JSON Schema alone.",
+    "reject_unknown_operation_id": true,
+    "reject_transition_not_a_declared_stage": true,
+    "reject_stage_input_reference_to_undeclared_input": true,
+    "reject_duplicate_stage_ids": true,
+    "reject_duplicate_input_names": true,
+    "reject_empty_expected_artifacts": true,
+    "reject_stage_graph_cycle": true,
+    "reject_nested_includes": true,
+    "reject_unreferenced_includes": true,
+    "reject_incomplete_child_input_mapping": true,
+    "reject_child_receipt_write": true,
+    "reject_inline_executable_content_keys": [
+      "script",
+      "python",
+      "code",
+      "run",
+      "command",
+      "eval",
+      "exec",
+      "shell",
+      "notebook"
+    ],
+    "reject_loop_control_keys": [
+      "loop",
+      "repeat",
+      "for_each",
+      "while",
+      "retry",
+      "retries",
+      "parallel",
+      "schedule"
+    ]
+  }
+}

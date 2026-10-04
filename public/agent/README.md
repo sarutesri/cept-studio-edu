@@ -15,6 +15,11 @@ opencode run --command cept --format json --model <provider/model> "Run the boun
 
 In the OpenCode TUI this is the short `/cept` command, so learners always see which command the agent is driving.
 
+The lesson drives the verb-only public CLI: put a public `case.json` in the
+teaching workspace and the agent runs `cept check`, `cept run`, and
+`cept verify` on it. `observe-replay.json` is a recorded transcript of an
+observed session, not a command reference.
+
 The committed replay was recorded with `opencode/muse-spark-1.3-contributor-free`. Do not copy that choice without reading its terms: OpenCode's privacy page says that model is discounted "in exchange for permission to use your prompts and completions to train future Meta models" (https://opencode.ai/docs/zen/#privacy). Pick a model whose data policy you accept. The same page documents `space-bunny-free` and `longcat-2.5-preview-free` as zero-retention and not used for training, but both are free for a limited time, so check the page before relying on them. Whatever you choose, the agent can send your prompts and the files in the workspace to that provider: do not use confidential data. Provider availability changes; if a model is unavailable, select another explicitly and do not silently substitute one in a recorded comparison.
 
 ## Credential safety

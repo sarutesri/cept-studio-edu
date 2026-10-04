@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "name": "kundur_smib_classical_case",
+    "description": "Classical single-mass synchronous generator behind an infinite bus, driven through OpenDSS's native single-mass machine model. The network, operating point and disturbance follow the Kundur single-machine-bus classical study: a 345/24 kV three-bus system with a 3-phase bolted fault on bus HT at t=1.0 s, cleared at t=1.06 s by clearing the fault and opening Source_HT_2. H=3.5 MWs/MVA, D=0 and Xd'=0.300001 pu are ILLUSTRATIVE TEACHING VALUES for a reduced single-mass machine; they are not a citation of any published machine data set, and no published machine set is recorded in this repository. reference_xstr is the internal-emf reference the reduced machine is pinned to and is DERIVED from this Case's own Xd', not taken from another tool's machine model. The remaining GenrouDynamics fields are required by the Case schema and are NOT used by this reduced lane; they are filler for compatibility and carry no engineering meaning here. Two assumptions are inherited from the network and are reported as missing rather than filled in: the thermal rating of both lines. This Case demonstrates the workflow: a solver-backed run whose receipt checks convergence, monitor coverage over the whole declared window, finite channel values and a rotor-angle channel. It is WORKFLOW_VALIDATED only. It is not agreement with any reference, not a grid-code requirement, not a full-order (GENROU) result, and not project validation.",
+    "author": "CEPT",
+    "language": "en",
+    "mode": "demonstrator"
+  },
+  "network": {
+    "kind": "inline",
+    "frequency_hz": 60,
+    "source": { "kind": "grid" },
+    "inline": {
+      "buses": [
+        { "name": "SourceBus", "kv": 345.0, "phases": 3 },
+        { "name": "HT", "kv": 345.0, "phases": 3 },
+        { "name": "LT", "kv": 24.0, "phases": 3 }
+      ],
+      "lines": [
+        {
+          "name": "Source_HT_1", "from_bus": "SourceBus", "to_bus": "HT",
+          "length_km": 1.0, "r1_ohm_per_km": 0.0, "x1_ohm_per_km": 26.8075,
+          "b1_us_per_km": 0.0
+        },
+        {
+          "name": "Source_HT_2", "from_bus": "SourceBus", "to_bus": "HT",
+          "length_km": 1.0, "r1_ohm_per_km": 0.0, "x1_ohm_per_km": 49.86195,
+          "b1_us_per_km": 0.0
+        }
+      ],
+      "transformers": [
+        {
+          "name": "Step_Up", "hv_bus": "HT", "lv_bus": "LT",
+          "mva": 2220.0, "hv_kv": 345.0, "lv_kv": 24.0,
+          "uk_pct": 15.0, "x_r_ratio": 1000.0, "vector_group": "Dyn11"
+        }
+      ],
+      "loads": [],
+      "external_grids": [
+        {
+          "name": "SourceBus_Grid", "bus": "SourceBus",
+          "pu": 0.90081, "angle_deg": 0.0,
+          "sk3_mva": 100000000.0, "x_r_ratio": 10.0
+        }
+      ],
+      "generators": [
+        {
+          "name": "G1", "bus": "LT", "bus_type": "pq",
+          "mva": 2220.0, "kv": 24.0, "pu": 1.0,
+          "kw": 1998000.0, "pf": 0.899957,
+          "xdpp_pu": 0.3,
+          "dynamics": {
+            "h": 3.5, "d": 0.0,
+            "xd": 0.300002, "xq": 0.300002,
+            "xdp": 0.300001, "xqp": 0.300001,
+            "xdpp": 0.3, "xqpp": 0.3,
+            "xl": 0.3, "td0p": 0.001, "tq0p": 0.001,
+            "ra": 0.0, "td0pp": 0.000001, "tq0pp": 0.000001,
+            "reference_xstr": 0.300001
+          }
+        }
+      ]
+    }
+  },
+  "study": {
+    "type": "dynamics",
+    "options": { "dynamic_model": "gencls-classical" }
+  },
+  "dynamics": {
+    "stepsize": 0.001,
+    "duration": 5.0,
+    "events": [
+      { "t": 1.0, "kind": "fault", "target": "HT", "params": { "r": 0.0 }, "label": "3ph bolted fault on HT" },
+      { "t": 1.06, "kind": "clear_fault", "target": "HT", "label": "clear fault" },
+      { "t": 1.06, "kind": "open", "target": "Source_HT_2", "label": "trip faulted circuit" }
+    ]
+  },
+  "standards": {
+    "v_min_pu": 0.5,
+    "v_max_pu": 1.15,
+    "voltage_method": "range"
+  }
+}

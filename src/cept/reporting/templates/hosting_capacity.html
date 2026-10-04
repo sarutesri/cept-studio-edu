@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+
+<div class="grid">
+  <div class="card"><div class="k">Buses assessed</div><div class="v">{{ n_buses }}</div></div>
+  <div class="card"><div class="k">Criterion</div><div class="v">{{ criterion }}</div></div>
+  <div class="card"><div class="k">Voltage limit</div><div class="v">{{ v_max }} pu</div></div>
+  <div class="card"><div class="k">Baseline max V</div>
+    <div class="v">{{ '%.4f'|format(baseline_vmax) }} pu</div></div>
+  <div class="card"><div class="k">Weakest bus (min HC)</div>
+    <div class="v">{{ min_bus }} · {{ '%.0f'|format(min_hc) }} kW</div></div>
+</div>
+
+<h2>1. Method</h2>
+<p class="note">PV is incrementally added at each candidate bus (controls frozen at
+the baseline operating point) until the first network constraint is violated.
+The largest violation-free injection is the bus's hosting capacity. Regulated
+head buses are excluded from the voltage metric.</p>
+<table><tbody>
+  <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+  <tr><td>DER type</td><td>{{ der_type }}</td></tr>
+  <tr><td>Limiting criterion</td><td>{{ criterion }} (Vmax = {{ v_max }} pu)</td></tr>
+  <tr><td>Search ceiling</td><td>{{ '%.0f'|format(max_kw) }} kW</td></tr>
+</tbody></table>
+
+<h2>2. Single-line diagram (hosting capacity per bus)</h2>
+{{ sld.sld_block("sld_hc", sld_json, sld_caption) }}
+<p class="note">Each assessed bus is annotated with its PV hosting capacity (kW).</p>
+
+<h2>3. Hosting capacity by bus</h2>
+<div class="fig">{{ hc_div|safe }}</div>
+
+<h2>4. Detailed results</h2>
+{% if items_summary_note %}
+<p class="note summarised"><strong>Summarised:</strong> {{ items_summary_note }}. Full capacity curve: Section 3 chart.</p>
+{% endif %}
+<table>
+  <thead><tr><th>Bus</th><th>Hosting capacity (kW)</th><th>Limiting factor</th>
+    <th>Max V at HC (pu)</th></tr></thead>
+  <tbody>
+  {% for it in items %}
+    <tr><td>{{ it.bus }}</td><td>{{ '%.0f'|format(it.hc_kw) }}</td>
+        <td>{{ it.limit }}</td>
+        <td>{{ '%.4f'|format(it.v_at_hc) if it.v_at_hc is not none else '—' }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,158 @@
+# recipes/release-qualification.yaml
+#
+# Release-qualification workflow over explicitly named, already-existing
+# evidence. This file is DATA: ordered operations, their declared inputs, the
+# artifacts each one writes, and the declared transition out of each one. It
+# carries no executable text, and it never changes a Case value, a model setting,
+# a tolerance, or an evidence setting.
+#
+# Every stage runs in process through the neutral application function in
+# cept.application.operations.audit (and cept.application.operations.verify for
+# the run's own verdict), which is the same function the retired `cept release
+# qualify` route called.
+#
+# Claim ceiling: WORKFLOW_VALIDATED. A READY qualification record says the named
+# evidence exists and its physics audit passed. It is not a release approval, not
+# a reference agreement, and not project validation.
+
+schema: workflow-recipe-v1
+id: release-qualification
+version: 1.0.0
+title: Release qualification from one explicitly named, already-audited run
+
+description: >-
+  Builds a release-qualification record from evidence that already exists. It
+  verifies one explicit run directory against its own stored artifacts,
+  physics-audits that same directory, and records the named evidence it
+  qualified, then writes the deterministic workflow completion receipt. Every
+  input is named by the caller: the recipe never discovers a run by mtime, by
+  "latest", or by a worker claim, and it never promotes a claim when evidence is
+  missing or blocked.
+
+inputs:
+  - name: run_dir
+    type: string
+    required: true
+    description: >-
+      Exact directory of the already-created run to qualify. It is declared as a
+      path string because this recipe never creates it; a missing run directory
+      fails closed at verification. Declared stage outputs and the recipe's
+      expected artifacts resolve against this directory.
+
+  - name: qualify_root
+    type: string
+    required: true
+    description: >-
+      Exact root recorded in the qualification record as the scope the evidence
+      came from. It is recorded verbatim in the artifact and is not searched for
+      candidate runs.
+
+  - name: qualify_out
+    type: string
+    required: false
+    default: release-qualification.json
+    description: >-
+      Name of the qualification record, written inside the declared run
+      directory. The qualification operation takes an explicit destination from
+      its caller and defines no default filename of its own, so this recipe pins
+      the default and declares the artifact it produces at that default.
+      Overriding this value makes the declared output name no longer resolve.
+
+  - name: receipt_path
+    type: string
+    required: false
+    default: recipe-run.json
+    description: >-
+      Name of the workflow completion receipt. The receipt records the exact
+      stage results, exit codes, stderr, and artifact hashes of this run. It is
+      not a validation verdict.
+
+stages:
+  - id: verify-run
+    operation: study.verify
+    owner: python
+    inputs:
+      run_dir: run_dir
+    outputs:
+      - validation_report.json
+    on_success:
+      next: qualify-release
+      reason: >-
+        The run verified against its own stored artifacts and its stored
+        validation report states a literal pass, so it may be qualified on its
+        own evidence.
+    on_failure:
+      blocked: null
+      next: null
+      reason: >-
+        Verification did not produce a literal pass. Only a validation report
+        that explicitly states a pass counts, so an unverified run is never
+        entered into a qualification record.
+
+  - id: qualify-release
+    operation: release.qualify
+    owner: python
+    inputs:
+      qualify_root: qualify_root
+      run_dir: run_dir
+      audit_out: qualify_out
+    outputs:
+      - release-qualification.json
+    on_success:
+      next: write-receipt
+      reason: >-
+        The qualification record was written and states READY: the named run
+        exists and its physics audit returned a literal pass. The workflow may
+        write its completion receipt.
+    on_failure:
+      blocked: null
+      next: null
+      reason: >-
+        The qualification record is BLOCKED. That covers a missing named
+        artifact, a run whose physics audit did not pass, an OpenDER run that is
+        not CO_SIMULATED, and a request that names no evidence at all. The
+        workflow stops rather than presenting an unqualified run.
+
+  - id: write-receipt
+    operation: receipt.write
+    owner: python
+    inputs:
+      receipt_path: receipt_path
+    outputs:
+      - recipe-run.json
+    on_success:
+      next: null
+      reason: >-
+        The completion receipt is written from the recorded stage results. The
+        workflow stops here, at the WORKFLOW_VALIDATED ceiling.
+    on_failure:
+      blocked: null
+      next: null
+      reason: >-
+        The completion receipt could not be written, which means this workflow
+        produced no record of what actually happened. The workflow stops without
+        one.
+
+# Every name here must exist in the declared run directory for the workflow to
+# report a pass. The receipt is excluded because it is written after this check.
+expected_artifacts:
+  - validation_report.json
+  - release-qualification.json
+
+blocked_conditions:
+  - >-
+    This workflow qualifies evidence that already exists and runs no solver. It
+    never creates a run, never repairs a failed audit, and never re-runs a
+    study to obtain a cleaner result.
+  - >-
+    A READY qualification record is not a release approval and not project
+    validation. It states that the named artifacts exist, that the named run's
+    physics audit returned a literal pass, and that no named OpenDER run is
+    un-simulated. Source-bound parameters, measured operating points, explicit
+    tolerances, and reviewer acceptance are still required before any
+    project-level claim. See AGENTS.md rule 8.
+  - >-
+    The OpenDER check requires every record in a named run's results.json to be
+    CO_SIMULATED. A missing OpenDER metadata block, or a record in any other
+    state, blocks the record. The workflow never downgrades that requirement to
+    make a run qualify. See src/cept/application/operations/audit.py.

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card"><div class="k">Engine</div><div class="v">{{ engine }}</div></div>
+  <div class="card"><div class="k">Version</div><div class="v">{{ engine_version }}</div></div>
+  <div class="card"><div class="k">Fresh solver</div><div class="v ok-txt">YES</div></div>
+  <div class="card"><div class="k">Claim cap</div><div class="v">{{ (manifest.claim_cap or ['observed'])|join(', ') }}</div></div>
+</div>
+
+<h2>Evidence boundary</h2>
+<table><tbody>
+  <tr><td>Reference ID</td><td><code>{{ manifest.reference_id }}</code></td></tr>
+  <tr><td>Source path (metadata)</td><td><code>{{ manifest.source.original_path or manifest.source.path }}</code></td></tr>
+  <tr><td>Source SHA-256</td><td><code>{{ manifest.source.sha256 }}</code></td></tr>
+  <tr><td>Fresh command</td><td><code>{{ (manifest.execution.argv or manifest.command.argv)|join(' ') }}</code></td></tr>
+  <tr><td>Raw outputs</td><td><code>{{ (manifest.execution.outputs or [])|join(', ') }}</code></td></tr>
+</tbody></table>
+<p class="note">This is an independent, source-pinned solver reference. It does not fill or validate an incomplete PowerFactory controller/library row. No saved result was used as an oracle.</p>
+
+{% if dynamics %}<h2>Dynamics summary</h2>
+<table><tbody>
+  <tr><td>Converged</td><td>{{ dynamics.converged }}</td></tr>
+  <tr><td>Duration</td><td>{{ dynamics.duration }} s</td></tr>
+  <tr><td>Step</td><td>{{ dynamics.stepsize }} s</td></tr>
+  <tr><td>Events</td><td>{{ dynamics.events|length }}</td></tr>
+  <tr><td>Channels</td><td>{{ channels|length }}</td></tr>
+</tbody></table>
+{% else %}
+<h2>Power-flow summary</h2>
+<p class="note">This reference contains a fresh ANDES PFlow snapshot only. Dynamic channels are not part of this source packet and are not inferred.</p>
+{% endif %}
+
+{% if load_flow %}
+<h2>Fresh power-flow snapshot</h2>
+<p class="note">Parsed from the fresh ANDES PFlow text output. Values retain the source base and units recorded in the manifest.</p>
+<table><thead><tr><th>Bus</th><th>V (pu)</th><th>Angle (deg)</th></tr></thead><tbody>
+{% for row in load_flow.bus_voltages %}<tr><td>{{ row.bus }}</td><td>{{ row.v_pu }}</td><td>{{ row.v_angle_deg }}</td></tr>{% endfor %}
+</tbody></table>
+<table><thead><tr><th>Branch</th><th>From</th><th>To</th><th>P from (kW)</th><th>Q from (kvar)</th><th>P to (kW)</th><th>Q to (kvar)</th><th>Loss (kW)</th></tr></thead><tbody>
+{% for row in load_flow.branch_flows %}<tr><td>{{ row.name }}</td><td>{{ row.bus_from }}</td><td>{{ row.bus_to }}</td><td>{{ row.p_kw }}</td><td>{{ row.q_kvar }}</td><td>{{ row.p_to_kw }}</td><td>{{ row.q_to_kvar }}</td><td>{{ row.losses_kw }}</td></tr>{% endfor %}
+</tbody></table>
+{% endif %}
+
+{% if dynamics %}<h2>Solver traces</h2>
+<div class="fig">{{ angle_div|safe }}</div>
+<div class="fig">{{ freq_div|safe }}</div>
+<div class="fig">{{ volt_div|safe }}</div>
+<div class="fig">{{ power_div|safe }}</div>
+{% endif %}
+
+{% if dynamics %}<h2>Complete channel inventory</h2>
+<table><thead><tr><th>Channel</th><th>Unit</th><th>Samples</th><th>First</th><th>Last</th></tr></thead><tbody>
+{% for row in channels %}<tr><td>{{ row.name }}</td><td>{{ row.unit }}</td><td>{{ row.samples }}</td><td>{{ row.first }}</td><td>{{ row.last }}</td></tr>{% endfor %}
+</tbody></table>
+{% endif %}
+{% endblock %}

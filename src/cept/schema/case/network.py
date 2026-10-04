@@ -705,17 +705,18 @@ class GenrouDynamics(BaseModel):
         ge=0,
         description="Open-circuit subtransient time constant Tq0'' (s), when declared.",
     )
-    powerfactory_xstr: float | None = Field(
+    reference_xstr: float | None = Field(
         None,
         ge=0,
         description=(
-            "PowerFactory TypSym.xstr, carried verbatim under its source name "
-            "because CEPT does not claim to know its general meaning. On the "
-            "Nine-bus machines it is the reactance the source's own rotor "
-            "angle is measured behind -- back-solving the initial angle "
-            "returns 0.15047, 0.23000 and 0.23217 against declared values of "
-            "0.15048, 0.230016 and 0.232064 -- and dropping it left a rebuilt "
-            "type at the dialog default of 0.2."
+            "Internal-emf reference reactance (pu) the reduced machine is "
+            "pinned to: the reactance behind which the source's own rotor "
+            "angle is measured. On the Nine-bus machines back-solving the "
+            "initial angle returns 0.15047, 0.23000 and 0.23217 against "
+            "declared values of 0.15048, 0.230016 and 0.232064, and omitting "
+            "it leaves a rebuilt machine at a dialog default of 0.2. The "
+            "selected dynamic-model contract requires it to agree with Xd' "
+            "so both engines use the same reduced-machine point."
         ),
     )
     salient_pole: bool = Field(
@@ -978,7 +979,7 @@ class InlineShunt(BaseModel):
 class InlineNetwork(BaseModel):
     """Engine-neutral structured network — the same definition is buildable
     in both the OpenDSS and PowerFactory adapters, which is what makes
-    cross-engine validation (:mod:`cept.verification.comparison.cross_engine`) possible.
+    cross-engine validation (:mod:`cept_advanced.verification.comparison.cross_engine`) possible.
 
     Deliberately scoped to positive/zero-sequence balanced data: enough for
     load-flow and short-circuit studies, not a replacement for a detailed

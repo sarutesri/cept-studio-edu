@@ -2,15 +2,49 @@
 
 The package boundary is intentionally import-safe for CEPT Public: importing
 ``cept.adapters`` or ``cept.adapters.opendss`` must not import the licensed
-PowerFactory adapter.  Pro callers keep the historical names through
-``__getattr__``; the licensed modules are loaded only when a Pro-only symbol
-is actually requested.
+PowerFactory adapter, which now lives in the separate ``cept_advanced``
+distribution.
+
+Two facts are load-bearing here:
+
+* ``default_probe`` is a **core** capability (``cept.adapters.probe``), so it is
+  a plain import. It used to sit in the lazy Pro table, which made four core
+  modules reach an engine-discovery helper through a licensed-capability path.
+* The licensed symbols are listed here by **name only**. This module contains
+  no module path into ``cept_advanced``; ``cept.ports.advanced.capability``
+  resolves the name against the Advance package's own declaration and fails
+  closed when the tier is absent. A renamed Advance module can therefore no
+  longer leave a stale string here that reports a working capability as missing.
 """
 
 from __future__ import annotations
 
 import importlib
 from typing import Any
+
+from cept.adapters.advanced import (
+    AdvanceUnavailable,
+    available as advance_available,
+    capability,
+    declared_names as advance_declared_names,
+    module_name,
+)
+from cept.adapters.probe import default_probe
+
+#: Names this facade forwards to the CEPT Advance tier. Names, not module paths.
+ADVANCE_CAPABILITIES = frozenset(
+    {
+        "PowerFactoryAdapter",
+        "PowerFactoryNotAvailable",
+        "PowerFactoryRunError",
+        "audit_active_native_diagram",
+        "build_native_pfd_plan",
+        "export_verified_native_sld",
+        "extract_load_flow",
+        "powerfactory_inventory_worker",
+        "run_load_flow",
+    }
+)
 
 
 def adapter_for(engine: str) -> Any:
@@ -30,49 +64,24 @@ def adapter_names() -> list[str]:
 
 
 def __getattr__(name: str) -> Any:
-    if name == "powerfactory_inventory_worker":
-        try:
-            return importlib.import_module("cept.adapters.pf.inventory")
-        except ModuleNotFoundError as exc:
-            raise ImportError(
-                "PowerFactory inventory is a CEPT Pro capability and is not installed in this CEPT Public package."
-            ) from exc
     if name == "OpenDSSAdapter":
         return importlib.import_module("cept.adapters.opendss").OpenDSSAdapter
-    if name == "PowerFactoryAdapter":
-        try:
-            return importlib.import_module("cept.adapters.pf.phase_aware").PowerFactoryAdapter
-        except ModuleNotFoundError as exc:
-            raise ImportError(
-                "PowerFactory is a CEPT Pro capability and is not installed in this CEPT Public package."
-            ) from exc
-    pro_exports = {
-        "PowerFactoryNotAvailable": ("cept.adapters.pf.errors", "PowerFactoryNotAvailable"),
-        "PowerFactoryRunError": ("cept.adapters.pf.errors", "PowerFactoryRunError"),
-        "export_verified_native_sld": ("cept.adapters.pf.native_export", "export_verified_native_sld"),
-        "build_native_pfd_plan": ("cept.adapters.pf.sld_plan", "build_native_pfd_plan"),
-        "extract_load_flow": ("cept.adapters.pf.study", "extract_load_flow"),
-        "run_load_flow": ("cept.adapters.pf.study", "run_load_flow"),
-        "audit_active_native_diagram": ("cept.adapters.pf.sld_readback", "audit_active_native_diagram"),
-        "default_probe": ("cept.adapters.probe", "default_probe"),
-    }
-    target = pro_exports.get(name)
-    if target is not None:
-        try:
-            return getattr(importlib.import_module(target[0]), target[1])
-        except ModuleNotFoundError as exc:
-            raise ImportError(
-                f"{name} is a CEPT Pro capability and is not installed in this CEPT Public package."
-            ) from exc
+    if name in ADVANCE_CAPABILITIES:
+        return capability(name)
     raise AttributeError(name)
 
 
 __all__ = [
+    "AdvanceUnavailable",
     "OpenDSSAdapter",
     "PowerFactoryAdapter",
     "PowerFactoryNotAvailable",
     "PowerFactoryRunError",
     "adapter_for",
+    "advance_available",
+    "advance_declared_names",
+    "capability",
+    "module_name",
     "powerfactory_inventory_worker",
     "audit_active_native_diagram",
     "default_probe",

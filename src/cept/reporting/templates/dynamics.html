@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+
+<div class="grid">
+  <div class="card"><div class="k">Solution</div>
+    <div class="v">{% if converged %}<span class="badge ok">Converged</span>
+      {% else %}<span class="badge bad">Diverged</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Stability</div>
+    <div class="v">{% if stable is none %}—
+      {% elif stable %}<span class="badge ok">Stable</span>
+      {% else %}<span class="badge bad">Unstable</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Frequency nadir</div>
+    <div class="v">{{ '%.3f'|format(freq_nadir) if freq_nadir is not none else '—' }} Hz</div></div>
+  <div class="card"><div class="k">Frequency peak</div>
+    <div class="v">{{ '%.3f'|format(freq_peak) if freq_peak is not none else '—' }} Hz</div></div>
+  <div class="card"><div class="k">Max rotor angle</div>
+    <div class="v">{{ '%.1f'|format(max_angle) if max_angle is not none else '—' }}°</div></div>
+  <div class="card"><div class="k">Duration</div>
+    <div class="v">{{ duration }} s @ {{ stepsize*1000 }} ms</div></div>
+</div>
+
+<h2>1. Study definition</h2>
+<p class="note">Electromechanical (RMS) transient simulation — OpenDSS Dynamics mode.
+Each machine integrates its swing equation while the network is solved as a
+phasor power flow at every {{ stepsize*1000 }} ms step.</p>
+<table><tbody>
+  <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+  <tr><td>Machines</td><td>{{ generators|join(', ') if generators else '—' }}</td></tr>
+  <tr><td>Simulation time</td><td>{{ duration }} s, step {{ stepsize*1000 }} ms</td></tr>
+  <tr><td>Assessment</td><td>{{ settling_note }}</td></tr>
+</tbody></table>
+
+{% if dynamic_model_mapping %}
+<h2>1.1 Dynamic model contract</h2>
+<p class="note">This section records the model family selected at runtime. A
+solver run is not automatically a model-equivalence or paper-validation
+claim; unsupported fields and blocked families remain visible.</p>
+<table><tbody>
+  <tr><td>Mapping status</td><td>{{ dynamic_model_mapping.get('status', 'blocked') }}</td></tr>
+  {% for family in dynamic_model_mapping.get('families', []) %}
+  <tr><td>Runtime family</td><td><code>{{ family.get('model_family', '—') }}</code></td></tr>
+  <tr><td>Runtime object</td><td>{{ family.get('model_object', '—') }}</td></tr>
+  <tr><td>Instances</td><td>{{ family.get('instances', [])|join(', ') or '—' }}</td></tr>
+  <tr><td>Equations</td><td><ul>{% for equation in family.get('equations', []) %}<li><code>{{ equation }}</code></li>{% endfor %}</ul></td></tr>
+  <tr><td>Unsupported Case fields</td><td>{{ family.get('unsupported_case_fields', [])|join(', ') or 'none declared' }}</td></tr>
+  {% endfor %}
+  {% if dynamic_model_mapping.get('runtime') %}
+  <tr><td>Callback backend</td><td>{{ dynamic_model_mapping.get('runtime', {}).get('backend', '—') }}</td></tr>
+  <tr><td>Solver boundary</td><td>{{ dynamic_model_mapping.get('runtime', {}).get('solver_boundary', '—') }}</td></tr>
+  {% endif %}
+</tbody></table>
+{% endif %}
+
+<h2>1.2 Solver initialization evidence</h2>
+<p class="note">Status: <strong>{{ initialization_status }}</strong>{% if initialization_source %}; {{ initialization_source }}{% endif %}{% if initialization_time is not none %}; t={{ initialization_time }} s{% endif %}.</p>
+{% if initialization_rows %}
+<table>
+  <thead><tr><th>Generator</th><th>Channel</th><th>Source</th><th>Initial value</th><th>Unit</th></tr></thead>
+  <tbody>{% for row in initialization_rows %}
+    <tr><td>{{ row.generator }}</td><td>{{ row.channel }}</td><td><code>{{ row.source_channel }}</code></td><td>{{ row.value }}</td><td>{{ row.unit }}</td></tr>
+  {% endfor %}</tbody>
+</table>
+{% else %}
+<p class="note">No solver-produced t=0 channel was available. This study is blocked for initialization comparison; no value was guessed.</p>
+{% endif %}
+
+<h2>2. Disturbance timeline</h2>
+<table>
+  <thead><tr><th>Time (s)</th><th>Event</th><th>Target</th></tr></thead>
+  <tbody>
+  {% for ev in events %}
+    <tr><td>{{ '%.3f'|format(ev.t) }}</td><td>{{ ev.label }}</td><td>{{ ev.target }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>3. Single-line diagram</h2>
+{% if sld_snapshots %}
+<div class="sld-snapshot-tabs" role="tablist" aria-label="Solver SLD snapshots">
+  {% for view in sld_snapshots %}<button class="sld-btn{% if loop.first %} active{% endif %}" data-dyn-snapshot-tab="{{ view.id }}">{{ view.label }}{% if view.status == 'blocked' %} (BLOCKED){% endif %}</button>{% endfor %}
+</div>
+{% for view in sld_snapshots %}<div class="sld-snapshot-view" data-dyn-snapshot-view="{{ view.id }}"{% if not loop.first %} style="display:none"{% endif %}>
+  {{ sld.sld_block("dyn_sld_snapshot_" ~ loop.index, view.graph_json, view.caption) }}
+</div>{% endfor %}
+<script>(function(){var script=document.currentScript;function init(){var root=script.parentElement,bs=root.querySelectorAll('[data-dyn-snapshot-tab]'),vs=root.querySelectorAll('[data-dyn-snapshot-view]');bs.forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-dyn-snapshot-tab');bs.forEach(function(x){x.classList.toggle('active',x===b)});vs.forEach(function(v){var on=v.getAttribute('data-dyn-snapshot-view')===id;v.style.display=on?'block':'none';if(on)v.querySelectorAll('.sld-canvas').forEach(function(c){var x=window.__ceptCharts[c.id];if(x)x.chart.resize()})})}})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();</script>
+{% elif engine == "powerfactory" %}
+<div class="sld-comparison pf-sld-comparison">
+  <div class="sld-mobile-tabs" role="tablist" aria-label="SLD views">
+    <button class="sld-btn" data-sld-tab="source-sld-view">Source</button>
+    <button class="sld-btn" data-sld-tab="native-sld-view">Native PF</button>
+    <button class="sld-btn active" data-sld-tab="interactive-sld-view">Interactive</button>
+  </div>
+  <div id="powerfactory-sld-source-native"></div>
+  <div class="sld-view interactive-sld-view mobile-active">
+    <h3>Interactive CEPT SLD</h3>
+    {{ sld.sld_block("sld_dyn", sld_json, sld_caption) }}
+  </div>
+</div>
+{% else %}
+{{ sld.sld_block("sld_dyn", sld_json, sld_caption) }}
+{% endif %}
+
+<h2>4. Rotor angle</h2>
+{% if angle_div %}<div class="fig">{{ angle_div|safe }}</div>
+<p class="note">Bounded oscillation that settles = transient stability. An angle
+that runs away past ±180° = loss of synchronism.</p>
+{% else %}<p class="note">No rotor-angle channel (no synchronous machines).</p>{% endif %}
+
+<h2>5. Frequency</h2>
+{% if freq_div %}<div class="fig">{{ freq_div|safe }}</div>{% else %}
+<p class="note">No frequency channel available.</p>{% endif %}
+
+<h2>6. Voltage</h2>
+{% if volt_div %}<div class="fig">{{ volt_div|safe }}</div>{% else %}
+<p class="note">No voltage channel available.</p>{% endif %}
+
+<h2>7. Real power</h2>
+{% if power_div %}<div class="fig">{{ power_div|safe }}</div>{% else %}
+<p class="note">No power channel available.</p>{% endif %}
+
+{% endblock %}

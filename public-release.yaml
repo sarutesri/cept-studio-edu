@@ -57,7 +57,7 @@ capabilities:
     status: candidate
   dynamics:
     engine: opendss
-    status: excluded_initially
+    status: candidate
 
 features:
   verification: candidate
@@ -104,23 +104,132 @@ export:
     - src/cept/fidelity/perunit.py
     - src/cept/util.py
     - src/cept/model_package_identity.py
-    # Enumerated, not a wildcard: `src/cept/schema/recipe-v1.schema.json`
-    # describes the private recipe runtime, which this public wheel does not
-    # ship, and a `**` entry would copy it into the public tree silently.
+    # Enumerated, not a wildcard. `src/cept/schema/**` is a private tree, so a
+    # `**` entry would copy unrelated schema modules into the public tree
+    # silently. This wheel now ships the recipe runtime (owner decision
+    # 2026-10-03, T-028: both `study-evidence` and `report-preparation` ship),
+    # so `recipe-v1.schema.json` and the intake/topology modules the recipe
+    # surface reaches are public contract. Only the schema modules the shipped
+    # recipe closure actually reaches are listed.
     - src/cept/schema/__init__.py
     - src/cept/schema/case/__init__.py
     - src/cept/schema/case/case.py
     - src/cept/schema/case/models.py
     - src/cept/schema/case/network.py
+    - src/cept/schema/intake_provenance.py
     - src/cept/schema/intake_resolution.py
     - src/cept/schema/provenance.py
+    - src/cept/schema/recipe-v1.schema.json
     - src/cept/schema/reference_topologies.py
     - src/cept/schema/result.py
     - src/cept/schema/sld.py
+    - src/cept/schema/topology.py
+    # Shipped recipe runtime closure, enumerated file-by-file (never a `**`).
+    # Measured with an AST import-closure walk rooted at what the two shipped
+    # recipes dispatch: `cept.recipes.runner` plus the operations the recipes
+    # name (case.check, study.run, study.verify, compare.runs, report.render,
+    # report.notebook, receipt.write), following every import edge including
+    # lazy function-local edges and every ancestor package __init__. The result
+    # is 134 modules; the 59 already staged below/above plus the 75 listed here
+    # is exactly that closure. `cept.conduct`, `cept.gridcode`, and
+    # `cept.research` are deliberately absent: their import edges from the
+    # recipe surface are cut, and `cept.research` is a BLOCKED_IMPORT_PREFIX.
+    # `cept.cli` is deliberately absent too — the public wheel ships the slim
+    # `src/cept/public_cli.py`, so no module in this closure may import it.
+    - src/cept/recipes/__init__.py
+    - src/cept/recipes/__main__.py
+    - src/cept/recipes/composition.py
+    - src/cept/recipes/registry.py
+    - src/cept/recipes/run_result.py
+    - src/cept/recipes/runner.py
+    - src/cept/recipes/schema.py
+    - src/cept/application/artifacts.py
+    - src/cept/application/environment_identity.py
+    - src/cept/application/execution.py
+    - src/cept/application/exit_codes.py
+    # Declares the experiment-diagnostics slot. It names no implementation:
+    # the research runtime that provides it is deliberately not shipped, so a
+    # public install refuses experiment-bound work instead of guessing.
+    - src/cept/application/experiment_diagnostics.py
+    - src/cept/application/operations/__init__.py
+    # Phase 4's audit recipes (run-audit, release-qualification) dispatch these
+    # four operations. `operations/audit.py` is the only new module in the
+    # closure; its imports resolve to already-staged modules except the physics
+    # audit's own package, which is enumerated below with its siblings because
+    # `cept.verification.audits.__init__` star-imports all five audits at module
+    # scope. None of the five imports a blocked prefix or a tree routed out of
+    # the free wheel; `pf_internal_e_audit` post-processes PowerFactory *results*
+    # and never opens a licensed session.
+    - src/cept/application/operations/audit.py
+    - src/cept/verification/audits/__init__.py
+    - src/cept/verification/audits/physics.py
+    - src/cept/verification/audits/pf_internal_e_audit.py
+    - src/cept/verification/audits/topology_audit.py
+    - src/cept/verification/audits/torque_power_audit.py
+    - src/cept/verification/audits/usermodel_callback_audit.py
+    - src/cept/application/operations/check.py
+    - src/cept/application/operations/compare.py
+    - src/cept/application/operations/notebook.py
+    - src/cept/application/operations/report.py
+    - src/cept/application/operations/run.py
+    - src/cept/application/operations/serve.py
+    - src/cept/application/operations/verify.py
+    - src/cept/application/software_identity.py
+    - src/cept/application/staging.py
+    - src/cept/application/trust_summary.py
+    - src/cept/application/worker.py
+    - src/cept/artifacts.py
+    - src/cept/export/__init__.py
+    - src/cept/export/dss_script.py
+    - src/cept/report_server.py
+    - src/cept/reporting/collisions.py
+    - src/cept/reporting/export.py
+    - src/cept/reporting/figures.py
+    - src/cept/reporting/geometry.py
+    - src/cept/reporting/notebook.py
+    - src/cept/reporting/render.py
+    - src/cept/reporting/reports.py
+    # The Jinja2 HTML report templates and the vendored plotly bundle the report
+    # renderer loads from the package at runtime. `reporting/render.py` builds a
+    # FileSystemLoader over `templates/`, so these data files ship with the wheel
+    # or every HTML report render (study-evidence's report.render, report.render
+    # stage) fails at runtime.
+    - src/cept/reporting/templates/*.html
+    - src/cept/reporting/static/*.js
+    - src/cept/adapters/opendss/translation.py
+    - src/cept/studies/__init__.py
+    - src/cept/studies/result_cache.py
+    - src/cept/studies/scenarios.py
+    - src/cept/validation/__init__.py
+    - src/cept/validation/acceptance.py
+    - src/cept/validation/harness.py
+    - src/cept/validation/papers.py
+    - src/cept/validation/references.py
+    - src/cept/validation/sld_fidelity.py
+    - src/cept/validation/thai_grid_code.py
+    - src/cept/validation/time_series.py
+    - src/cept/validation/waveform.py
+    - src/cept/verification/__init__.py
+    - src/cept/verification/run_set.py
+    # Only the verdict owner is shipped. `cept.verification.__init__` loads its
+    # audits/benchmarks/comparison/parity subpackages lazily (PEP 562), so
+    # `run_set` is importable on its own and the private `benchmarks` subtree
+    # plus the PowerFactory comparison/audit modules stay out of the free wheel.
+    # The two shipped recipes themselves, installed as data under share/cept/recipes.
+    - recipes/study-evidence.yaml
+    - recipes/report-preparation.yaml
+    - recipes/run-audit.yaml
+    - recipes/release-qualification.yaml
     - src/cept/intent/__init__.py
     - src/cept/intent/schema.py
     - src/cept/adapters/__init__.py
     - src/cept/adapters/probe.py
+    # The Advance capability resolver. Both `adapters/__init__.py` and
+    # `adapters/probe.py` import it at module scope, so a free install that
+    # loaded either would die on import without it. It is the fail-closed
+    # half of the split: it names no module in `cept_advanced`, only the
+    # capability it asks for.
+    - src/cept/adapters/advanced.py
     - src/cept/adapters/opendss/__init__.py
     - src/cept/adapters/opendss/adapter.py
     - src/cept/adapters/opendss/der.py
@@ -128,6 +237,32 @@ export:
     - src/cept/adapters/opendss/fault.py
     - src/cept/adapters/opendss/hosting_capacity.py
     - src/cept/adapters/opendss/load_flow.py
+    # Runtime import edges the AST closure cannot see. `der.py`, `network.py`
+    # and `export/dss_script.py` each call
+    # `importlib.import_module("cept.adapters.opendss.dynamics_mapping")`
+    # whenever a Case carries a generator `machine` block, and
+    # `adapters/opendss/adapter.py` reaches the same package through its
+    # `optional(name)` loader. A static import walk scores all of them as zero
+    # edges, which is how the free wheel shipped without these two files and a
+    # machine-block Case died at runtime with `ModuleNotFoundError`. Sized from
+    # a live `sys.modules` capture of a real run, not from an AST walk; see
+    # tests/test_runtime_module_closure.py, which re-derives the closure and
+    # fails closed if a runtime edge points at a module the stage does not hold.
+    - src/cept/adapters/opendss/dynamics_mapping.py
+    # `dynamics_mapping` imports this at module scope; it is core, engine-neutral
+    # dynamics contract data with no licensed dependency.
+    - src/cept/dynamics_contract.py
+    # `dynamics_mapping` imports this at function scope for the opt-in
+    # UserModel lane. The module itself is core: `dss.UserModels` is loaded
+    # lazily inside its functions, so the free wheel can hold the mapping
+    # without shipping that optional solver extension.
+    - src/cept/adapters/opendss/user_models.py
+    # `adapter.py` reaches this one through the same `optional(name)` ->
+    # `importlib.import_module("cept.adapters.opendss.<study>")` edge when a Case
+    # declares `study.type: dynamics`, which the manifest now admits as a
+    # candidate capability. Without it the free wheel raised a bare
+    # `ModuleNotFoundError` on a promoted study type.
+    - src/cept/adapters/opendss/dynamics.py
     - src/cept/adapters/opendss/network.py
     - src/cept/adapters/opendss/sld.py
     - src/cept/adapters/opendss/ybus_power_flow.py

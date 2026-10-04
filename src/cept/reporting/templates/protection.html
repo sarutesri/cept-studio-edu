@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+<div class="grid">
+  <div class="card"><div class="k">Fault bus</div><div class="v">{{ fault_bus }}</div></div>
+  <div class="card"><div class="k">Fault type</div><div class="v">{{ fault_type }}</div></div>
+  <div class="card"><div class="k">Solver current</div><div class="v">{{ '%.1f'|format(fault_current) if fault_current is not none else '—' }} A</div></div>
+  <div class="card"><div class="k">Relays</div><div class="v">{{ relays|length }}</div></div>
+</div>
+<h2>1. Study definition</h2>
+<table><tbody><tr><td>Network</td><td>{{ network_desc }}</td></tr><tr><td>Calculation method</td><td>{{ method }}</td></tr></tbody></table>
+<h2>2. Single-line diagram</h2>
+{{ sld.sld_block("sld_protection", sld_json, sld_caption) }}
+<h2>3. Relay screening</h2>
+<table><thead><tr><th>Relay</th><th>Pickup (A)</th><th>Multiple</th><th>Trip time (s)</th><th>Status</th></tr></thead><tbody>
+{% for row in relays %}<tr><td>{{ row.name }}</td><td>{{ '%.1f'|format(row.pickup_a) }}</td><td>{{ '%.3f'|format(row.current_multiple) }}</td><td>{{ '%.6f'|format(row.trip_time_s) if row.trip_time_s is not none else '—' }}</td><td>{{ row.status }}</td></tr>{% endfor %}
+</tbody></table>
+<p class="note">Trip times are a screening calculation from the solver-returned fault current and the named inverse-time curve. They are not a protection coordination sign-off; CT saturation, breaker time, grading margins, and system contingencies still require engineering review.</p>
+{% endblock %}

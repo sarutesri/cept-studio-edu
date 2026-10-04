@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="grid">
+  <div class="card"><div class="k">Max GIC</div>
+    <div class="v bad-txt">{{ '%.1f'|format(max_gic) }} A</div></div>
+  <div class="card"><div class="k">Total GIC</div>
+    <div class="v">{{ '%.0f'|format(total_gic) }} A</div></div>
+  <div class="card"><div class="k">Transformers</div>
+    <div class="v">{{ n_transformers }}</div></div>
+  <div class="card"><div class="k">GIC lines</div>
+    <div class="v">{{ n_lines }}</div></div>
+</div>
+
+<h2>1. Method</h2>
+<p class="note">Geomagnetically induced current (GIC) is a quasi-DC phenomenon.
+OpenDSS models the geo-electric field as voltage sources in the
+transmission lines (GICLine) and solves the resulting DC network at a low
+frequency ({{ frequency }} Hz). Transformer neutral-to-ground paths
+(GICTransformer + grounding reactors) carry the GIC.</p>
+<table><tbody>
+  <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+  <tr><td>Solution frequency</td><td>{{ frequency }} Hz (quasi-DC)</td></tr>
+  {% if e_field %}<tr><td>Applied E-field</td><td>{{ e_field }} V/km</td></tr>{% endif %}
+</tbody></table>
+
+<h2>2. GIC by element</h2>
+<div class="fig">{{ gic_div|safe }}</div>
+
+<h2>3. Transformer GIC (effective per-phase)</h2>
+<p class="note">Per-phase GIC drives half-cycle saturation and reactive-power
+absorption / harmonics in the transformer.</p>
+{% if elements_summary_note %}
+<p class="note summarised"><strong>Summarised:</strong> {{ elements_summary_note }}. The GIC chart above shows the top elements.</p>
+{% endif %}
+<table>
+  <thead><tr><th>Element</th><th>Type</th><th>Bus</th>
+    <th>GIC total (A)</th><th>GIC per phase (A)</th></tr></thead>
+  <tbody>
+  {% for e in elements %}
+    <tr class="{{ 'fail' if e.gic_amps > 50 else '' }}">
+      <td>{{ e.name }}</td><td>{{ e.kind }}</td><td>{{ e.bus_h }}</td>
+      <td>{{ '%.2f'|format(e.gic_amps) }}</td>
+      <td>{{ '%.2f'|format(e.gic_amps_per_phase) }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

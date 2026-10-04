@@ -45,23 +45,17 @@ The ledger is intake provenance, not solver output and not project validation.
 
 ## 2. Respect the CEPT Public boundary
 
-CEPT Public currently exposes the noun+verb CLI for `environment check`, `capability show`, and `study run|demo|verify`. Do not pretend that the public wheel exposes private/full-product intake commands.
+CEPT Public's CLI is verb-only, and the verb set is closed: `cept init`, `cept check <case.json>`, `cept run <case.json>`, `cept verify <run-dir>`, `cept report <run-dir>`, and `cept doctor`. Never invent a command that is not on that list and never put a noun in front of a verb. Do not pretend that the public wheel exposes private/full-product intake commands.
 
-If the learner already has a complete public inline `case.json` that can be assembled from source/derived values without guessing, run:
+If the learner already has a complete public inline `case.json` that can be assembled from source/derived values without guessing, use it for the first bounded demonstration when the learner asks to see CEPT run:
 
 ```text
-cept study run case.json --out runs/user-case --force
-cept study verify runs/user-case
+cept check case.json
+cept run case.json --out runs/user-case --force
+cept verify runs/user-case
 ```
 
 If required information is unresolved, stop before the solver and explain the blocker. Do not fill the gap just to obtain a result.
-
-For a first bounded demonstration, when the learner asks to see CEPT run, execute:
-
-```text
-cept study demo load-flow --network ieee13 --out runs/agent-ieee13 --force
-cept study verify runs/agent-ieee13
-```
 
 Read only solver-owned/result evidence needed for the explanation. Report the study type, engine identity, literal `passed` value, and exact run directory. Explain that `WORKFLOW_VALIDATED` is not project or field validation.
 

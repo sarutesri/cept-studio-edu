@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+<div class="grid">
+  <div class="card"><div class="k">Solution</div><div class="v">{% if converged %}<span class="badge ok">Converged</span>{% else %}<span class="badge bad">Diverged</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Fundamental</div><div class="v">{{ fundamental_hz }} Hz</div></div>
+  <div class="card"><div class="k">Frequencies</div><div class="v">{{ snapshots|length }}</div></div>
+</div>
+<h2>1. Study definition</h2>
+<table><tbody><tr><td>Network</td><td>{{ network_desc }}</td></tr><tr><td>Method</td><td>OpenDSS harmonic-mode solver with explicitly supplied source spectra.</td></tr></tbody></table>
+<h2>2. Single-line diagram</h2>
+{{ sld.sld_block("sld_harmonics", sld_json, sld_caption) }}
+<h2>3. Harmonic voltage results</h2>
+<table><thead><tr><th>Order</th><th>Frequency (Hz)</th><th>Converged</th><th>Samples</th></tr></thead><tbody>
+{% for row in snapshots %}<tr><td>{{ row.harmonic }}</td><td>{{ '%.3f'|format(row.frequency_hz) }}</td><td>{{ 'yes' if row.converged else 'no' }}</td><td>{{ row.bus_voltages|length }}</td></tr>{% endfor %}
+</tbody></table>
+<h2>4. Voltage THD by bus</h2>
+<table><thead><tr><th>Bus</th><th>THD<sub>V</sub> (%)</th></tr></thead><tbody>{% for bus, value in thd.items()|sort %}<tr><td>{{ bus }}</td><td>{{ '%.6f'|format(value) }}</td></tr>{% endfor %}</tbody></table>
+<p class="note">THD is calculated from the harmonic voltages returned by the solver relative to the returned fundamental voltage. It is not an assumed or interpolated value.</p>
+{% endblock %}

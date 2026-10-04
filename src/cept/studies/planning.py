@@ -16,11 +16,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-import importlib
 from dataclasses import dataclass
 from typing import Any, Iterable, Optional, cast
 
 from cept.adapters import default_probe
+from cept.application.software_identity import source_identity
 from cept.capability import resolve_study_capability
 from cept.model_package_identity import inspect_model_packages, model_package_identity_json
 from cept.ports.capabilities import EvidenceCapability, ExecutionCapability, ResolvedStudyCapability
@@ -269,10 +269,9 @@ def build_execution_plan(
     if software_identity is not None:
         software_payload = dict(software_identity)
     else:
-        # Keep the research identity implementation optional for the public
-        # package; the production checkout still resolves the same function.
-        identity_module = importlib.import_module("cept.research.source_identity")
-        software_payload = dict(identity_module.source_identity())
+        # ``source_identity`` is core (cept.application.software_identity), so it is
+        # a plain import, not an optional runtime lookup.
+        software_payload = dict(source_identity())
     software_json = _canonical_json(software_payload)
     software_fingerprint = f"cept-software-{_sha256_text(software_json)[:20]}"
     observed_runtime = solver_runtime_version

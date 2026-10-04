@@ -17,7 +17,7 @@ visible. The lessons are concise, icon-led, and designed for Colab.
 | Assist | [`08_ask_in_plain_words.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/08_ask_in_plain_words.ipynb) | Ask in plain words (a recorded AI session) |
 
 
-Notebooks 00-07 use the same `cept <noun> <verb>` commands as a terminal; notebook 08 replays a recorded session and runs none.
+Notebooks 00-07 use the same `cept` commands as a terminal; notebook 08 replays a recorded session and runs none.
 Step icons support scanning: **⚙ Setup · 🧩 Inputs · ▶ Run · 📊 Results · ✓ Verify · ◇ Interpret**.
 Direct OpenDSS/Python comparison cells remain optional; the main path stays
 focused on the declared Case and saved evidence.

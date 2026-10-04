@@ -10,7 +10,7 @@ description: Learn CEPT through eight small OpenDSS lessons in Google Colab, inc
 ## Start small. Keep the evidence visible.
 
 Nine notebooks with concise instructions and labelled step icons. Eight run
-visible `cept <noun> <verb>` commands; Lesson 08 replays a recorded session.
+visible `cept` commands; Lesson 08 replays a recorded session.
 
 **⚙ Setup → 🧩 Inputs → ▶ Run → 📊 Results → ✓ Verify → ◇ Interpret**
 
@@ -87,7 +87,7 @@ Review missing inputs and approved resolutions; inspect a separate bundled demo.
 <span class="cept-status">Terminal-first</span>
 
 ### The same commands, in a notebook
-Eight lessons run literal `cept <noun> <verb>` commands, exactly as in a normal terminal. Lesson 08 only replays a recorded session. Optional OpenCode help stays on the single researcher-facing `/cept` surface.
+Eight lessons run literal `cept` commands, exactly as in a normal terminal. Lesson 08 only replays a recorded session. Optional OpenCode help stays on the single researcher-facing `/cept` surface.
 </div>
 
 </div>

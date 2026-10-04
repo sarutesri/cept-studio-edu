@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+
+<div class="grid">
+  <div class="card"><div class="k">Solution</div>
+    <div class="v">{% if converged %}<span class="badge ok">Converged</span>
+      {% else %}<span class="badge bad">Diverged</span>{% endif %}</div></div>
+  <div class="card"><div class="k">Iterations</div><div class="v">{{ iterations }}</div></div>
+  <div class="card"><div class="k">Source power</div><div class="v">{{ source_kw }} kW</div></div>
+  <div class="card"><div class="k">Total losses</div><div class="v">{{ loss_kw }} kW</div></div>
+  <div class="card"><div class="k">Min voltage</div>
+    <div class="v {{ 'bad-txt' if vmin < v_min else '' }}">{{ '%.4f'|format(vmin) }} pu</div></div>
+  <div class="card"><div class="k">Max voltage</div>
+    <div class="v {{ 'bad-txt' if vmax > v_max else '' }}">{{ '%.4f'|format(vmax) }} pu</div></div>
+</div>
+
+<h2>1. Study definition</h2>
+<table>
+  <tbody>
+    <tr><td>Study type</td><td>{{ study_type }}</td></tr>
+    <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+    <tr><td>Base frequency</td><td>{{ frequency_hz }} Hz</td></tr>
+    <tr><td>Source / mode</td><td>{{ source_mode }}</td></tr>
+    <tr><td>Voltage limits</td><td>{{ v_min }} – {{ v_max }} pu ({{ voltage_method }})</td></tr>
+    {% if machine_base_generators %}
+    <tr><td>Generator MVA basis</td><td><strong>Engine-path only:</strong> {{ machine_base_generators|join('; ') }}</td></tr>
+    {% endif %}
+    <tr><td>Description</td><td>{{ description }}</td></tr>
+  </tbody>
+</table>
+{% if voltage_method == 'range' %}
+<p class="note"><strong>Voltage diagnostic band:</strong> {{ v_min }}–{{ v_max }} pu is the editable CEPT range used to flag this report. Unless the Case names a reviewed standard/grid-code criterion, treat it as a diagnostic threshold rather than project acceptance evidence.</p>
+{% endif %}
+
+<h2>2. Single-line diagram (SLD)</h2>
+{% if sld_snapshots %}
+<p class="note">Solver-bound snapshots. Values and topology are read from the
+selected solver state; a blocked snapshot is never replaced by stale data.</p>
+<div class="sld-snapshot-tabs" role="tablist" aria-label="Solver SLD snapshots">
+  {% for view in sld_snapshots %}
+  <button class="sld-btn{% if loop.first %} active{% endif %}" data-snapshot-tab="{{ view.id }}">{{ view.label }}{% if view.status == 'blocked' %} (BLOCKED){% endif %}</button>
+  {% endfor %}
+</div>
+{% for view in sld_snapshots %}
+<div class="sld-snapshot-view" data-snapshot-view="{{ view.id }}"{% if not loop.first %} style="display:none"{% endif %}>
+  {{ sld.sld_block("sld_snapshot_" ~ loop.index, view.graph_json, view.caption) }}
+</div>
+{% endfor %}
+<script>
+(function(){
+  var script=document.currentScript;
+  function init(){
+    var root=script.parentElement.querySelector('.sld-snapshot-tabs');
+    if(!root) return;
+    var buttons=root.querySelectorAll('[data-snapshot-tab]');
+    var views=root.parentElement.querySelectorAll('[data-snapshot-view]');
+    buttons.forEach(function(btn){btn.addEventListener('click',function(){
+      var id=btn.getAttribute('data-snapshot-tab');
+      buttons.forEach(function(b){b.classList.toggle('active',b===btn);});
+      views.forEach(function(view){
+        var active=view.getAttribute('data-snapshot-view')===id;
+        view.style.display=active?'block':'none';
+        if(active) view.querySelectorAll('.sld-canvas').forEach(function(canvas){
+          var item=window.__ceptCharts[canvas.id]; if(item) item.chart.resize();
+        });
+      });
+    });});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+{% elif experiment_name %}
+<p class="note">Disturbance study: <b>{{ experiment_name }}</b>. The two diagrams
+compare the network <b>before</b> and <b>after</b> the experiment; affected
+elements are marked.</p>
+<h3>Before — baseline</h3>
+{{ sld.sld_block("sld_before", sld_json, sld_caption) }}
+<h3>After — {{ experiment_name }}</h3>
+{{ sld.sld_block("sld_after", sld_after_json, sld_after_caption) }}
+{% else %}
+{% if engine == "powerfactory" %}
+<div class="sld-comparison pf-sld-comparison">
+  <div class="sld-mobile-tabs" role="tablist" aria-label="SLD views">
+    <button class="sld-btn" data-sld-tab="source-sld-view">Source</button>
+    <button class="sld-btn" data-sld-tab="native-sld-view">Native PF</button>
+    <button class="sld-btn active" data-sld-tab="interactive-sld-view">Interactive</button>
+  </div>
+  <div id="powerfactory-sld-source-native"></div>
+  <div class="sld-view interactive-sld-view mobile-active">
+    <h3>Interactive CEPT SLD</h3>
+    {{ sld.sld_block("sld_main", sld_json, sld_caption) }}
+  </div>
+</div>
+{% else %}
+{{ sld.sld_block("sld_main", sld_json, sld_caption) }}
+{% endif %}
+{% endif %}
+<p class="note">Symbols: substation/bus bars colored by worst-phase voltage;
+generators (PV/Wind/Hydro/SG/BESS) above the bus, loads below, capacitors to
+the side. Arrows show real-power flow direction. Use the toolbar to switch
+between voltage / per-phase labels and length·loss / P-Q-flow branch labels;
+hover any element for full detail.</p>
+
+<h2>Editable draft parameters</h2>
+<p class="note">Change the diagnostic band or the allow-listed case parameters, review the diff, then confirm a child rerun. The parent run stays immutable.</p>
+<div class="param-grid">
+  <label><span>Voltage lower limit (pu)</span>
+    <input class="cept-param" data-case-path="standards.v_min_pu" type="number" step="0.001" min="0.001" value="{{ v_min }}">
+  </label>
+  <label><span>Voltage upper limit (pu)</span>
+    <input class="cept-param" data-case-path="standards.v_max_pu" type="number" step="0.001" min="0.001" value="{{ v_max }}">
+  </label>
+{% for item in editable_parameters %}
+  <label><span>{{ item.label }}</span>
+    <input class="cept-param" data-case-path="{{ item.path }}" type="number" step="any" value="{{ item.value }}">
+  </label>
+{% endfor %}
+</div>
+
+<h2>3. Voltage profile</h2>
+<div class="fig">{{ voltage_div|safe }}</div>
+
+<h2>4. Bus voltages &amp; standards check</h2>
+<p class="note">Limits: {{ v_min }}–{{ v_max }} pu. Out-of-range phases are flagged. For the default range method this is a diagnostic screen, not by itself a project-validation claim.</p>
+{% if bus_summary_note %}
+<p class="note summarised"><strong>Summarised:</strong> {{ bus_summary_note }}. Full profile: Section 3 chart.</p>
+{% endif %}
+<table>
+  <thead><tr><th>Bus</th><th>A (pu)</th><th>B (pu)</th><th>C (pu)</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for row in bus_rows %}
+    <tr class="{{ 'fail' if not row.ok else '' }}">
+      <td>{{ row.bus }}</td>
+      <td>{{ row.a }}</td><td>{{ row.b }}</td><td>{{ row.c }}</td>
+      <td>{% if row.ok %}<span class="ok-txt">OK</span>
+          {% else %}<span class="bad-txt">{{ row.flag }}</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>5. Branch flows, lengths &amp; losses</h2>
+<p class="note">Sending-end power, conductor length, active loss, and tap for
+every branch (lines, transformers, regulators, switches).</p>
+{% if branch_summary_note %}
+<p class="note summarised"><strong>Summarised:</strong> {{ branch_summary_note }}. The chart below shows every branch.</p>
+<div class="fig">{{ branch_summary_div|safe }}</div>
+{% endif %}
+<table>
+  <thead><tr><th>Branch</th><th>Type</th><th>From</th><th>To</th>
+    <th>Length</th><th>P (kW)</th><th>Q (kvar)</th><th>Loss (kW)</th><th>Tap</th></tr></thead>
+  <tbody>
+  {% for b in branches %}
+    <tr>
+      <td>{{ b.id }}</td><td>{{ b.kind }}</td>
+      <td>{{ b.src }}</td><td>{{ b.dst }}</td>
+      <td>{{ ('%.0f %s'|format(b.length, b.length_unit)) if b.length is not none else '—' }}</td>
+      <td>{{ '%.1f'|format(b.p_kw) }}</td><td>{{ '%.1f'|format(b.q_kvar) }}</td>
+      <td>{{ '%.2f'|format(b.losses_kw) }}</td>
+      <td>{{ '%.4f'|format(b.tap) if b.tap is not none else '—' }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><td colspan="7" style="text-align:right;font-weight:700;">Total active loss</td>
+    <td style="font-weight:700;">{{ '%.2f'|format(total_loss_kw) }}</td><td></td></tr></tfoot>
+</table>
+
+{% endblock %}

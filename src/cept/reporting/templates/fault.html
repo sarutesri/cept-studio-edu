@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "_sld.html" as sld %}
+{% block content %}
+
+<div class="grid">
+  <div class="card"><div class="k">Faulted bus</div><div class="v">{{ bus }}</div></div>
+  <div class="card"><div class="k">Fault type</div><div class="v">{{ ftype }}</div></div>
+  <div class="card"><div class="k">Fault impedance</div><div class="v">{{ rf }} Ω</div></div>
+  <div class="card"><div class="k">Max fault current</div>
+    <div class="v">{{ '%.0f'|format(total_i) }} A</div></div>
+  <div class="card"><div class="k">Min voltage (sag)</div>
+    <div class="v bad-txt">{{ '%.3f'|format(vmin) }} pu</div></div>
+</div>
+
+<h2>1. Fault definition</h2>
+<table><tbody>
+  <tr><td>Network</td><td>{{ network_desc }}</td></tr>
+  <tr><td>Faulted bus</td><td>{{ bus }}</td></tr>
+  <tr><td>Fault type</td><td>{{ ftype_long }}</td></tr>
+  <tr><td>Fault impedance R<sub>f</sub></td><td>{{ rf }} Ω</td></tr>
+  <tr><td>Faulted phases</td><td>{{ phases }}</td></tr>
+</tbody></table>
+
+<h2>2. Single-line diagram (fault location &amp; voltage sag)</h2>
+{{ sld.sld_block("sld_fault", sld_json, sld_caption) }}
+<p class="note">The faulted bus is marked ⚡; bus colours show the depressed
+voltage <b>during the fault</b>. Hover any bus for per-phase sag.</p>
+
+<h2>3. Fault current at faulted bus</h2>
+<table>
+  <thead><tr><th>Phase</th><th>|I| (A)</th><th>Angle (°)</th></tr></thead>
+  <tbody>
+  {% for c in currents %}
+    <tr><td>{{ {1:'A',2:'B',3:'C'}[c.phase] }}</td>
+        <td>{{ '%.1f'|format(c.i_amp) }}</td>
+        <td>{{ '%.1f'|format(c.i_angle_deg) }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>4. Voltage sag profile (during fault)</h2>
+<div class="fig">{{ sag_div|safe }}</div>
+
+{% if study_rows %}
+<h2>5. Available fault current (all buses)</h2>
+<div class="fig">{{ faultcur_div|safe }}</div>
+<table>
+  <thead><tr><th>Bus</th><th>3-phase (A)</th><th>1-phase / SLG (A)</th><th>L-L (A)</th></tr></thead>
+  <tbody>
+  {% for r in study_rows %}
+    <tr><td>{{ r.bus }}</td>
+        <td>{{ '%.0f'|format(r.i_3ph_a) if r.i_3ph_a is not none else '—' }}</td>
+        <td>{{ '%.0f'|format(r.i_1ph_a) if r.i_1ph_a is not none else '—' }}</td>
+        <td>{{ '%.0f'|format(r.i_ll_a) if r.i_ll_a is not none else '—' }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% endblock %}

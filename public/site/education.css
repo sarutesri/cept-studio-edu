@@ -131,6 +131,25 @@ p { margin: 0; }
 .cmp-axis { fill: var(--muted); font: 12px var(--font); }
 .compare-note { grid-column: 1 / -1; color: var(--muted); font-size: .9rem; }
 
+.band-start { margin-top: 0; border-top: 1px solid var(--line); background: var(--bg); }
+.start { display: grid; gap: 12px; margin: 24px 0 0; padding: 0; list-style: none; }
+.start-step { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.start-step code { display: block; overflow-x: auto; padding: 8px 10px; border-radius: 6px; background: var(--code-bg); color: var(--code-ink); white-space: pre; }
+.start-step p { font-size: .95rem; }
+.start-out { padding: 1px 8px; border-radius: 4px; background: #e4f3ec; color: #10603f; font: 700 .78rem var(--mono); }
+.start-note { margin-top: 18px; color: var(--body); }
+.start-note code { padding: 1px 5px; border-radius: 4px; background: var(--card); border: 1px solid var(--line); }
+.benefits-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.band-editions { margin-top: 64px; background: var(--bg); border-block: 1px solid var(--line); }
+.editions { margin-top: 20px; }
+.editions thead th { background: var(--card); }
+.editions thead small { display: block; color: var(--muted); font: 500 .78rem var(--mono); }
+.editions tbody th { background: var(--card); font-weight: 600; }
+.editions td { width: 8.5rem; text-align: center; font-size: 1.05rem; }
+.editions td.yes { color: var(--teal); font-weight: 700; }
+.editions td.no { color: var(--muted); }
+.editions-note { margin-top: 14px; color: var(--muted); font-size: .9rem; }
+
 .band-flow { margin-top: 64px; background: var(--navy); color: var(--on-dark); }
 .band-flow h2 { color: var(--on-dark); }
 .band-flow :focus-visible { outline-color: #f2c14e; }

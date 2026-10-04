@@ -2,6 +2,8 @@
   "schema": "cept-public-agent-observe-replay-v1",
   "label": "SANITIZED_OBSERVE_REPLAY",
   "evidence_role": "agent interaction example only; not a solver receipt or product-acceptance result",
+  "replayed_on": "2026-10-04, against the verb-only grammar",
+  "replay_note": "Re-recorded after the verb-only migration. The previous version drove `cept study demo load-flow`, a route that no longer dispatches, so an agent copying it would now fail closed. Every command, exit status and digest below comes from this run, not from the earlier one.",
   "executor": {
     "tool": "OpenCode",
     "mode": "headless `opencode run --command cept` from a public-only tree",
@@ -13,13 +15,18 @@
   "observed_actions": [
     {
       "kind": "command",
-      "command": "cept study demo load-flow --network ieee13",
+      "command": "cept run public/examples/first_circuit_case.json",
       "exit_status": 2,
-      "note": "CLI failed closed: --out is required. The agent read the usage error and retried with an explicit output directory."
+      "note": "CLI failed closed: the output directory is required, so nothing was written where the agent did not ask for it. The agent read the refusal and retried with an explicit output directory."
     },
     {
       "kind": "command",
-      "command": "cept study demo load-flow --network ieee13 --out runs/ieee13-demo --force",
+      "command": "cept run public/examples/first_circuit_case.json --out runs/ieee13-demo --force",
+      "exit_status": 0
+    },
+    {
+      "kind": "command",
+      "command": "cept verify runs/ieee13-demo",
       "exit_status": 0
     },
     {
@@ -41,8 +48,8 @@
     "passed": true,
     "status": "PASS",
     "claim": "WORKFLOW_VALIDATED",
-    "case_fingerprint": "748c8026c9d6",
-    "artifact_set_digest": "cept-artifacts-e759d99511e6c7de9581cdd7bd2fe946a33780a86e051c557e29edec29965949"
+    "case_fingerprint": "aaea341ddd26",
+    "artifact_set_digest": "cept-artifacts-43fe433d80f945ee816d3dd8c426c907a8ab73dc2aba4911f12b705361ea43fc"
   },
   "sanitization": {
     "absolute_paths_replaced": true,

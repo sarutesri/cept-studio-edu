@@ -13,12 +13,12 @@
   "reserved_study_types": {
     "economic_dispatch": {
       "status": "blocked",
-      "reason": "Economic dispatch is reserved in CEPT: no adapter, physics-audit section, or benchmark exists for it. It is never silently converted to load_flow. External dispatch/optimization workflows must invoke `cept study run` as a sub-solver from workspace/<slug>/local/; CEPT never becomes the optimizer.",
+      "reason": "Economic dispatch is reserved in CEPT: no adapter, physics-audit section, or benchmark exists for it. It is never silently converted to load_flow. External dispatch/optimization workflows must invoke `cept run` as a sub-solver from workspace/<slug>/local/; CEPT never becomes the optimizer.",
       "gate": "Gate blocking a Case whose study.type is 'economic_dispatch' before any solver connection."
     },
     "unit_commitment": {
       "status": "blocked",
-      "reason": "Unit commitment is reserved in CEPT: no adapter, physics-audit section, or benchmark exists for it. It is never silently converted to load_flow. External optimization workflows must invoke `cept study run` as a sub-solver from workspace/<slug>/local/; CEPT never becomes the optimizer.",
+      "reason": "Unit commitment is reserved in CEPT: no adapter, physics-audit section, or benchmark exists for it. It is never silently converted to load_flow. External optimization workflows must invoke `cept run` as a sub-solver from workspace/<slug>/local/; CEPT never becomes the optimizer.",
       "gate": "Gate blocking a Case whose study.type is 'unit_commitment' before any solver connection."
     }
   },
@@ -612,14 +612,14 @@
     },
     "economic_dispatch": {
       "engines": {
-        "opendss": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks economic_dispatch for every engine." } },
-        "powerfactory": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks economic_dispatch for every engine." } }
+        "opendss": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks economic_dispatch for every engine." } },
+        "powerfactory": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks economic_dispatch for every engine." } }
       }
     },
     "unit_commitment": {
       "engines": {
-        "opendss": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks unit_commitment for every engine." } },
-        "powerfactory": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept study run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks unit_commitment for every engine." } }
+        "opendss": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks unit_commitment for every engine." } },
+        "powerfactory": { "*": { "status": "blocked", "reason": "Reserved study type: no adapter/audit/benchmark. Never converted to load_flow. Optimizers invoke `cept run` as a sub-solver from workspace/<slug>/local/.", "gate": "capability gate blocks unit_commitment for every engine." } }
       }
     }
   }

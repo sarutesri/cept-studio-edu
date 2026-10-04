@@ -14,6 +14,13 @@ dependencies = [
     "networkx>=3.0",
     "OpenDSSDirect.py>=0.9",
     "pydantic>=2.5",
+    # The two shipped recipes are YAML documents and the HTML report is
+    # Jinja2-rendered; plotly renders the report's inline figures. These are
+    # runtime requirements of `cept run --recipe` / `cept report` now that
+    # the recipe runtime ships in the free wheel.
+    "PyYAML>=6.0",
+    "Jinja2>=3.1",
+    "plotly>=5.0",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -35,13 +42,27 @@ cept = "cept.public_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["cept*"]
+# Core only. `cept*` also matched `cept_advanced`, which must never be reachable
+# from a public install even by accident; the public stage does not contain it,
+# and this narrows the glob so a mistake there cannot package it.
+include = ["cept", "cept.*"]
 
+
+# Install the authoritative recipe files without maintaining package copies, so
+# `python -m cept.recipes study-evidence|report-preparation` resolves them from
+# the installed layout (share/cept/recipes) as well as a source checkout.
+[tool.setuptools.data-files]
+"share/cept/recipes" = ["recipes/study-evidence.yaml", "recipes/report-preparation.yaml", "recipes/run-audit.yaml", "recipes/release-qualification.yaml"]
+"share/cept/schemas" = ["src/cept/schema/recipe-v1.schema.json"]
+
+# The HTML report renderer (jinja2) loads its templates/static from the package.
 [tool.setuptools.package-data]
+"cept.reporting" = ["templates/*.html", "static/*.js"]
 cept = [
     "engine_passports.json",
     "testsystems/ieee13/*.csv",
     "testsystems/ieee13/*.dss",
     "capability/*.json",
     "semantics/data/*.json",
+    "templates/*.csv",
 ]

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid">
+  <div class="card"><div class="k">Overall observed index</div><div class="v">{{ '%.6g'|format(summary.overall_error_index) if summary.overall_error_index is not none else 'BLOCKED' }}</div></div>
+  <div class="card"><div class="k">Coverage</div><div class="v">{{ '%.1f%%'|format((summary.coverage or 0)*100) }}</div></div>
+  <div class="card"><div class="k">Observed channels</div><div class="v">{{ summary.available or 0 }}/{{ summary.expected or 0 }}</div></div>
+  <div class="card"><div class="k">Claim</div><div class="v">{{ (comparison.claim_cap or ['observed'])|join(', ') }}</div></div>
+</div>
+<h2>Evidence boundary</h2>
+<table><tbody>
+  <tr><td>Reference engine</td><td>{{ comparison.reference_engine or 'reference' }}</td></tr>
+  <tr><td>Candidate engine</td><td>{{ comparison.candidate_engine or 'candidate' }}</td></tr>
+  {% if comparison.case_path %}<tr><td>Canonical typed Case</td><td><code>{{ comparison.case_path }}</code></td></tr>{% endif %}
+  <tr><td>Reference run</td><td><code>{{ comparison.reference_run }}</code></td></tr>
+  <tr><td>Candidate run</td><td><code>{{ comparison.candidate_run }}</code></td></tr>
+  <tr><td>Reference results SHA-256</td><td><code>{{ comparison.reference_results_sha256 }}</code></td></tr>
+  <tr><td>Candidate results SHA-256</td><td><code>{{ comparison.candidate_results_sha256 }}</code></td></tr>
+</tbody></table>
+<p class="note">Basis: <code>{{ comparison.validation_basis }}</code>. Without an approved tolerance this remains observed evidence, not benchmark qualification or project validation.</p>
+{% if comparison.case_provenance %}
+<p class="note">Case provenance: <strong>{{ 'aligned' if comparison.case_provenance.aligned else 'BLOCKED' }}</strong> — {{ comparison.case_provenance.reason or comparison.case_provenance.canonical_case_fingerprint }}</p>
+{% endif %}
+{% if comparison.scope_summary %}
+<h2>Report scope</h2>
+<table><tbody>
+  <tr><td>Scope</td><td>{{ comparison.scope_summary.label }}</td></tr>
+  <tr><td>Verdict</td><td><span class="badge {{ 'ok' if comparison.scope_summary.status == 'PASS' else 'bad' }}">{{ comparison.scope_summary.status }}</span></td></tr>
+  <tr><td>Scored quantities</td><td>{{ comparison.scope_summary.scored_quantities }}</td></tr>
+  <tr><td>Diagnostic quantities</td><td>{{ comparison.scope_summary.diagnostic_quantities }}</td></tr>
+  {% if comparison.scope_summary.artifact %}<tr><td>Machine-readable receipt</td><td><code>{{ comparison.scope_summary.artifact }}</code></td></tr>{% endif %}
+  {% if comparison.scope_summary.diagnostic_page %}<tr><td>Diagnostic page</td><td><code>{{ comparison.scope_summary.diagnostic_page }}</code></td></tr>{% endif %}
+  {% if comparison.scope_summary.full_packet %}<tr><td>Complete packet</td><td><code>{{ comparison.scope_summary.full_packet }}</code></td></tr>{% endif %}
+</tbody></table>
+{% endif %}
+{% if comparison.analysis %}
+<h2>Interpretation and limits</h2>
+<ul>{% for line in comparison.analysis %}<li>{{ line }}</li>{% endfor %}</ul>
+{% endif %}
+{% if comparison.model_equivalence %}
+<h2>Dynamic model-family equivalence</h2>
+<p class="note">Matching model-family labels are only a comparability precondition. They do not prove identical equations or initialization. A mismatch keeps waveform agreement diagnostic-only.</p>
+<table><tbody>
+  <tr><td>Status</td><td><span class="badge {{ 'ok' if comparison.model_equivalence.status == 'comparable-family' else 'bad' }}">{{ comparison.model_equivalence.status }}</span></td></tr>
+  <tr><td>PowerFactory family</td><td><code>{{ (comparison.model_equivalence.powerfactory_families or [])|join(', ') or '—' }}</code></td></tr>
+  <tr><td>OpenDSS family</td><td><code>{{ (comparison.model_equivalence.opendss_families or [])|join(', ') or '—' }}</code></td></tr>
+  <tr><td>Reason</td><td>{{ comparison.model_equivalence.reason }}</td></tr>
+</tbody></table>
+{% endif %}
+
+{% if comparison.runtime_provenance %}
+<h2>Runtime and extension disclosure</h2>
+<p class="note">This section identifies what actually executed. A DSS-Extensions native model, DSS-Python UserModel, and DynamicExp are separate paths; the labels must not be inferred from the file extension or from the plotted line.</p>
+<div class="grid">
+{% for role, runtime in comparison.runtime_provenance.items() %}
+  <div class="card">
+    <div class="k">{{ role }}</div>
+    <div class="v" style="font-size:1rem">{{ runtime.execution }}</div>
+    <table><tbody>
+      <tr><td>Model family</td><td><code>{{ runtime.model_family }}</code></td></tr>
+      <tr><td>Model object</td><td>{{ runtime.model_object }}</td></tr>
+      <tr><td>Runtime path</td><td>{{ runtime.extension }}</td></tr>
+      <tr><td>DSS-Python UserModel</td><td>{{ runtime.usermodel }}</td></tr>
+      <tr><td>DynamicExp</td><td>{{ runtime.dynamic_exp }}</td></tr>
+      <tr><td>Ra translation</td><td><code>{{ runtime.ra_translation }}</code></td></tr>
+      <tr><td>Trace time grid</td><td>{{ runtime.time_grid }}</td></tr>
+      <tr><td>Engine version</td><td>{{ runtime.engine_version }}</td></tr>
+      <tr><td>Source revision</td><td><code>{{ runtime.source_revision or 'unavailable' }}</code> · dirty={{ runtime.source_dirty }}</td></tr>
+    </tbody></table>
+  </div>
+{% endfor %}
+</div>
+{% endif %}
+
+{% if comparison.event_alignment %}
+<h2>Dynamic fault event timeline</h2>
+<p class="note">The vertical markers in dynamic charts come from the solver artifacts. They are shown only as aligned when both artifacts carry the same event kind, target, label, and time.</p>
+<p><span class="badge {{ 'ok' if comparison.event_alignment.aligned else 'bad' }}">{{ 'ALIGNED' if comparison.event_alignment.aligned else 'BLOCKED' }}</span></p>
+<table><thead><tr><th>Event</th><th>Time (s)</th><th>Target</th><th>Label</th></tr></thead><tbody>
+{% for event in comparison.events or [] %}<tr><td>{{ event.kind }}</td><td>{{ event.t }}</td><td>{{ event.target or '—' }}</td><td>{{ event.label or '—' }}</td></tr>{% endfor %}
+</tbody></table>
+{% endif %}
+
+{% if comparison.dynamic_key_channels %}
+<h2>Paired dynamic key channels</h2>
+<p class="note">Only reviewed channels present on both solver artifacts are plotted here. This is the numerical cross-engine subset; engine-specific traces and unpaired channels remain in the verdict table and the linked per-engine run reports.</p>
+<table><thead><tr><th>Asset</th><th>Quantity</th><th>Unit</th><th>NRMSE</th><th>Max abs error</th><th>Status</th></tr></thead><tbody>
+{% for channel in comparison.dynamic_key_channels %}<tr class="{{ 'fail' if channel.status == 'fail' else '' }}"><td>{{ channel.asset }}</td><td>{{ channel.quantity }}</td><td>{{ channel.unit }}</td><td>{{ channel.nrmse if channel.nrmse is not none else '—' }}</td><td>{{ channel.maximum_absolute_error if channel.maximum_absolute_error is not none else '—' }}</td><td>{{ channel.status }}</td></tr>{% endfor %}
+</tbody></table>
+{% elif comparison.event_alignment %}
+<p class="note"><span class="badge bad">BLOCKED</span> No reviewed dynamic channel is paired between these two artifacts. The per-engine report links remain the authoritative solver traces.</p>
+{% endif %}
+
+<h2>Single-line diagram comparison</h2>
+<p class="note">Source and native diagrams are supplementary visual evidence. The interactive view is solver-backed; missing captures stay BLOCKED.</p>
+<div class="sld-comparison">
+{% for view in sld_gallery.views %}
+  <div class="sld-view">
+    <h3>{{ view.label }}</h3>
+    {% if view.kind == 'interactive' and view.graph %}
+      <div class="sld-wrap"><div id="comparison-sld-{{ loop.index }}" class="sld-canvas" style="height:420px"></div></div>
+      <script>document.addEventListener('DOMContentLoaded', function(){ ceptInitSLD('comparison-sld-{{ loop.index }}', {{ view.graph|tojson }}); });</script>
+    {% elif view.kind == 'image' and view.image %}
+      <div style="text-align:center;background:#fff;padding:8px;border-radius:6px;min-height:300px"><img src="data:image/png;base64,{{ view.image }}" alt="{{ view.label }}" style="max-width:100%;max-height:420px;width:auto;height:auto"></div>
+    {% else %}
+      <div class="note" style="min-height:300px;padding:40px 12px;text-align:center"><span class="badge bad">BLOCKED</span><br>Capture not supplied.</div>
+    {% endif %}
+    <p class="note">{{ view.caption }}</p>
+  </div>
+{% endfor %}
+</div>
+
+<h2>Error indexes</h2>
+<div class="fig">{{ error_index_div|safe }}</div>
+<div class="fig">{{ status_div|safe }}</div>
+<h2>Trace comparison</h2>
+<p class="note">One chart per paired signal (PowerFactory + OpenDSS). Fault and clearing events are marked vertically; different signals have different units/scales and are never combined onto one axis.</p>
+<div class="fig-grid">
+{% for title, div in timeseries_figs %}<div class="fig">{{ div|safe }}</div>{% endfor %}
+</div>
+<h3>Residuals</h3>
+<div class="fig-grid">
+{% for title, div in residual_figs %}<div class="fig">{{ div|safe }}</div>{% endfor %}
+</div>
+<h2>Asset Ã— quantity</h2>
+<div class="fig">{{ heatmap_div|safe }}</div>
+<div class="fig">{{ scatter_div|safe }}</div>
+<h2>Verdict table for this page's scope</h2>
+<table><thead><tr><th>Scope</th><th>Asset</th><th>Signal</th><th>Abs error</th><th>Index</th><th>Status</th><th>Locator</th></tr></thead><tbody>
+{% for row in rows %}<tr class="{{ 'fail' if row.status == 'fail' else '' }}"><td>{{ row.scope }}</td><td>{{ row.asset }}</td><td>{{ row['signal/quantity'] }}</td><td>{{ row.absolute_error if row.absolute_error is not none else '—' }}</td><td>{{ row.normalized_error_index if row.normalized_error_index is not none else '—' }}</td><td>{{ row.status }}</td><td>{{ row.source_locator }}</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}
