@@ -1,4 +1,4 @@
-/* CEPT Education — "Deep Navy Instrument" theme.
+/* CEPT Power Studio — "Deep Navy Instrument" theme.
    Plain CSS, system fonts, no external requests. Colour pairs are checked by
    tests/test_public_education_delivery.py (WCAG AA). */
 
@@ -47,25 +47,24 @@ p { margin: 0; }
 .skip-link:focus { top: 12px; }
 
 /* Contents ---------------------------------------------------------------
-   A strip under the header that folds away. Built from each page's own h2
-   anchors, so the list cannot point at a heading the page does not have. The
-   sticky offset for anchor jumps has to clear both this strip and the header. */
-.toc-bar { position: sticky; top: 64px; z-index: 25; width: min(1120px, calc(100% - 40px)); margin-inline: auto; background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-.toc > summary { display: flex; align-items: center; gap: 10px; padding: 11px 2px; cursor: pointer; color: var(--navy); font-weight: 700; list-style: none; }
+   A left sidebar beside the page content, one entry per row. Built from each
+   page's own h2 anchors, so the list cannot point at a heading the page does
+   not have. Below the sidebar breakpoint it moves above the content and stays
+   a single column, so the reading order is the same at every width. */
+.page-layout { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 56px; align-items: start; }
+.page-toc { position: sticky; top: 84px; max-height: calc(100vh - 104px); overflow: auto; padding: 28px 0 8px; }
+.toc { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.toc > summary { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; color: var(--navy); font-weight: 700; list-style: none; }
 .toc > summary::-webkit-details-marker { display: none; }
-.toc > summary::after { content: "▾"; color: var(--teal); font-size: .8rem; transition: transform .15s ease; }
+.toc > summary::after { content: "▾"; margin-left: auto; color: var(--teal); font-size: .8rem; transition: transform .15s ease; }
 .toc[open] > summary::after { transform: rotate(180deg); }
 .toc > summary small { color: var(--muted); font-weight: 500; font-size: .82rem; }
-.toc-list { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0; padding: 0 0 14px; list-style: none; }
-/* Folded to a single pill: still sticky, but it costs one row instead of the
-   height of the whole list. The script folds it whenever the chips would wrap,
-   so a narrow window costs the same as a wide one. */
-.toc:not([open]) { border-bottom: 0; }
-.toc-list a { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--body); font-size: .9rem; text-decoration: none; }
-.toc-list a:hover { border-color: var(--navy); color: var(--navy); }
-.toc-list a[aria-current="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
-/* Anchor jumps must land below the two sticky bars, not under them. */
-h2[id], section[id], .key-result { scroll-margin-top: 150px; }
+.toc-list { display: grid; gap: 1px; margin: 0; padding: 0 6px 8px; list-style: none; }
+.toc-list a { display: block; padding: 7px 12px; border-left: 3px solid var(--line); border-radius: 0 6px 6px 0; color: var(--body); font-size: .93rem; line-height: 1.35; text-decoration: none; }
+.toc-list a:hover { border-left-color: var(--navy); background: var(--bg); color: var(--navy); }
+.toc-list a[aria-current="true"] { border-left-color: var(--teal); background: var(--bg); color: var(--navy); font-weight: 650; }
+/* Anchor jumps must land below the sticky header, not under it. */
+h2[id], section[id], .key-result { scroll-margin-top: 96px; }
 
 /* Header and footer ------------------------------------------------------ */
 .site-header { position: sticky; top: 0; z-index: 30; background: rgba(255, 255, 255, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
@@ -323,6 +322,11 @@ th { color: var(--navy); background: var(--bg); }
   .benefits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .flow { grid-template-columns: 1fr; }
   .flow-step:not(:last-child)::after { display: none; }
+  /* Too narrow for a sidebar beside the text: the contents moves above the
+     content and sticks to the top instead. Still one column, so the reading
+     order of the entries does not change with the width. */
+  .page-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .page-toc { position: sticky; top: 64px; z-index: 25; max-height: none; overflow: visible; padding: 0 0 8px; background: var(--bg); }
 }
 @media (max-width: 900px) {
   .hero, .compare-section, .lesson-layout, .limits-grid, .assist { grid-template-columns: 1fr; }
@@ -330,17 +334,15 @@ th { color: var(--navy); background: var(--bg); }
   .lesson-aside { position: static; max-height: none; }
   .lesson-layout { gap: 20px; }
   .compare-section { gap: 20px; }
-  /* Two columns no longer fit: the chips go vertical and scroll rather than
-     pushing the whole page's worth of headings onto the screen. */
-  .toc-list { flex-direction: column; max-height: 44vh; overflow: auto; padding-right: 4px; }
-  .toc-list a { width: 100%; }
+  /* A long list must not push the lesson off the screen: cap it and scroll. */
+  .page-toc .toc-list { max-height: 44vh; overflow: auto; }
 }
 @media (max-width: 560px) {
   body { font-size: 1rem; }
   .shell { width: calc(100% - 28px); }
   .header-inner { flex-wrap: wrap; padding-block: 6px; }
   .site-header { position: static; }
-  .toc-bar { position: sticky; top: 0; }
+  .page-toc { top: 0; }
   .site-header nav { gap: 0; }
   .site-header nav a { padding: 10px 9px; }
   .site-header .nav-source { display: none; }

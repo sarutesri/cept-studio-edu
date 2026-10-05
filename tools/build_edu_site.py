@@ -688,18 +688,10 @@ _SCRIPT = """
   var rail = document.querySelector('.rail');
   if (rail && window.matchMedia('(max-width: 900px)').matches) { rail.open = false; }
 
-  // The contents strip is sticky, so an open list that wraps costs screen the
-  // reader cannot use. Fold it away when it would wrap, and when the screen is
-  // too narrow for the chips to be worth showing unasked.
+  // Open on a screen with room for a sidebar, folded on a narrow one. Folding is
+  // a plain <details> toggle, so it also works with this script blocked.
   var toc = document.querySelector('.toc');
-  if (!toc) { return; }
-  var chips = Array.prototype.slice.call(toc.querySelectorAll('.toc-list a'));
-  if (chips.length && window.matchMedia('(max-width: 760px)').matches) { toc.open = false; }
-  else {
-    var firstTop = Math.round(chips[0].getBoundingClientRect().top);
-    var wraps = chips.some(function (c) { return Math.round(c.getBoundingClientRect().top) !== firstTop; });
-    if (wraps) { toc.open = false; }
-  }
+  if (toc && window.matchMedia('(max-width: 760px)').matches) { toc.open = false; }
 })();
 """
 
@@ -711,13 +703,13 @@ def _plain(markup: str) -> str:
 _TOC_HEADING = re.compile(r'<h2 id="([^"]+)">(.*?)</h2>', re.S)
 
 
-def _insert_toc(body: str) -> str:
-    """Put a contents list between the header and the main content.
+def _toc_html(body: str) -> str:
+    """The page's own headings as a foldable contents list, in one column.
 
-    The list is read back out of the finished markup instead of being declared
-    next to it, so a heading that is renamed or removed takes its entry with it
-    and the list can never point at an anchor that is not on the page. A heading
-    with no id is not a link target, so it is not listed.
+    Read back out of the finished markup rather than declared next to it, so a
+    heading that is renamed or dropped takes its entry with it and the list can
+    never point at an anchor that is not on the page. A heading with no id is
+    not a link target, so it is not listed.
     """
 
     items = [
@@ -725,14 +717,24 @@ def _insert_toc(body: str) -> str:
         for anchor, text in _TOC_HEADING.findall(body)
     ]
     if not items:
-        return body
-    toc = (
-        '<div class="toc-bar"><details class="toc" open>'
+        return ""
+    return (
+        '<details class="toc" open>'
         f'<summary><span>Contents</span><small>{len(items)} sections</small></summary>'
-        f'<ol class="toc-list">{"".join(items)}</ol></details></div>'
+        f'<ol class="toc-list">{"".join(items)}</ol></details>'
     )
+
+
+def _insert_toc(body: str) -> str:
+    """Stand the contents list up as a left sidebar beside the page content."""
+
+    toc = _toc_html(body)
+    if not toc:
+        return body
     header, sep, rest = body.partition("<main")
-    return f"{header}{toc}{sep}{rest}"
+    if not sep:
+        return body
+    return f'{header}<div class="page-layout"><aside class="page-toc">{toc}</aside>{sep}{rest}</div>'
 
 
 def _page_document(title: str, body: str, *, stylesheet: str, description: str, lang: str = "en") -> str:
@@ -745,7 +747,7 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str, 
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>{html.escape(title)} | CEPT Education</title>
+  <title>{html.escape(title)} | CEPT Power Studio</title>
   <link rel="stylesheet" href="{stylesheet}">
 </head>
 <body>
@@ -768,9 +770,9 @@ def _header(*, home_href: str, repository_url: str, home: bool) -> str:
     return f'''
 <header class="site-header">
   <div class="shell header-inner">
-    <a class="brand" href="{home_href}" aria-label="CEPT Education home">
+    <a class="brand" href="{home_href}" aria-label="CEPT Power Studio home">
       <span class="brand-mark" aria-hidden="true">C</span>
-      <span class="brand-text"><strong>CEPT</strong><small>Education</small></span>
+      <span class="brand-text"><strong>CEPT</strong><small>Power Studio</small></span>
     </a>
     <nav aria-label="Primary">{links}<a class="nav-source" href="{html.escape(repository_url, quote=True)}">Source</a></nav>
   </div>
@@ -781,7 +783,7 @@ def _header(*, home_href: str, repository_url: str, home: bool) -> str:
 def _footer(repository_url: str, *, note: str = "Demonstration results; not field validation.") -> str:
     return f'''
 <footer class="site-footer"><div class="shell">
-  <span>CEPT Education · Apache-2.0</span>
+  <span>CEPT Power Studio · Apache-2.0</span>
   <span class="footer-note">{html.escape(note)}</span>
   <span class="footer-links"><a href="{html.escape(repository_url, quote=True)}">Source</a><a href="{html.escape(repository_url, quote=True)}/blob/main/LICENSE">License</a></span>
 </div></footer>
@@ -797,7 +799,7 @@ def _track_label(track: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _lesson_rail(current: Lesson) -> str:
+def _lesson_rail(current: Lesson, toc: str = "") -> str:
     groups: list[str] = []
     for key, label, _ in TRACKS:
         items = []
@@ -816,9 +818,9 @@ def _lesson_rail(current: Lesson) -> str:
                 )
         groups.append(f'<div class="rail-group"><div class="rail-track">{html.escape(label)}</div><ol>{"".join(items)}</ol></div>')
     return (
-        '<aside class="lesson-aside" aria-label="Course">'
+        '<aside class="lesson-aside" aria-label="Course and contents">'
         f'<details class="rail" open><summary><span>Course</span><small>{len(LESSONS)} lessons</small></summary>'
-        f'<nav aria-label="Lessons">{"".join(groups)}</nav></details></aside>'
+        f'<nav aria-label="Lessons">{"".join(groups)}</nav></details>{toc}</aside>'
     )
 
 
@@ -865,11 +867,12 @@ def _lesson_page(
         else ""
     )
     optional_block = f'<div class="optional">{optional}</div>' if optional.strip() else ""
+    rail_placeholder = "<!--course-rail-->"
     body = f'''
 {_header(home_href="../index.html", repository_url=repository_url, home=False)}
 <main id="content" class="shell lesson-page">
   <div class="lesson-layout">
-    {_lesson_rail(lesson)}
+    {rail_placeholder}
     <article class="lesson-main">
       <header class="lesson-hero">
         <p class="kicker"><span>Lesson {html.escape(lesson.number)}</span> · {html.escape(_track_label(lesson.track))}</p>
@@ -898,9 +901,13 @@ def _lesson_page(
 </main>
 {_footer(repository_url)}
 '''
+    # The rail carries the contents list, and the contents list is read out of
+    # the finished page -- so the rail goes in as a placeholder and is filled
+    # once the rest of the page exists to be read.
+    body = body.replace(rail_placeholder, _lesson_rail(lesson, _toc_html(body)))
     page = _page_document(
         lesson.title,
-        _insert_toc(body),
+        body,
         stylesheet="../assets/education.css",
         description=lesson.question,
     )
@@ -954,6 +961,16 @@ ADVANCE_SECTION_COPY: dict[str, str] = {
     "packaged lane workers (launched as ``python -m <module>``)": "Workers for dynamic jobs and for parity comparison",
 }
 
+#: Reader-facing edition names for the comparison table. Keyed by the derived
+#: distribution name, so a renamed wheel fails the build instead of quietly
+#: printing a label that no longer matches the artifact it describes. The
+#: distribution itself stays on the page underneath: the table compares the two
+#: editions, but the wheels a reader would install are these names.
+EDITION_LABEL: dict[str, str] = {
+    "cept-power-studio": "cept-free",
+    "cept-advance": "cept-advance",
+}
+
 
 def _edition_boundary(staging_root: Path) -> dict[str, Any]:
     """Load the derived edition boundary, or refuse to build a partial table."""
@@ -975,6 +992,9 @@ def _edition_boundary(staging_root: Path) -> dict[str, Any]:
     for verb in boundary.get("free", {}).get("verbs", []):
         if verb.get("name") not in FREE_VERB_COPY:
             raise SiteBuildError(f"no wording for derived public verb {verb.get('name')!r}")
+    for name in (boundary["free"]["distribution"], boundary["advance"]["distribution"]):
+        if name not in EDITION_LABEL:
+            raise SiteBuildError(f"no edition label for derived distribution {name!r}")
     return boundary
 
 
@@ -1006,7 +1026,7 @@ def _edition_table(boundary: dict[str, Any]) -> str:
 <div class="table-scroll">
 <table class="editions">
   <caption class="sr-only">What each edition can do, taken from the code boundary that was actually derived</caption>
-  <thead><tr><th scope="col">Capability</th><th scope="col">Declared in<br><small>{html.escape(free["distribution"])}</small></th><th scope="col">Declared in<br><small>{html.escape(advance["distribution"])}</small></th></tr></thead>
+  <thead><tr><th scope="col">Capability</th><th scope="col">{html.escape(EDITION_LABEL[free["distribution"]])}<br><small>{html.escape(free["distribution"])}</small></th><th scope="col">{html.escape(EDITION_LABEL[advance["distribution"]])}<br><small>{html.escape(advance["distribution"])}</small></th></tr></thead>
   <tbody>{body}</tbody>
 </table>
 </div>
