@@ -760,13 +760,12 @@ def _page_document(title: str, body: str, *, stylesheet: str, description: str, 
 
 
 def _header(*, home_href: str, repository_url: str, home: bool) -> str:
-    if home:
-        links = (
-            '<a href="#start">Start</a><a href="#how">Five steps</a>'
-            '<a href="#editions">Free / Advance</a><a href="#course">Lessons</a><a href="#limits">Limits</a>'
-        )
-    else:
-        links = f'<a href="{home_href}#course">Course</a>'
+    # The masthead carries no section links. It used to list Start, Five steps,
+    # Free / Advance, Lessons and Limits, which are the same destinations the
+    # contents sidebar already names: two lists of the same page, maintained by
+    # hand, and the navbar drifted the moment a heading was renamed. A lesson page
+    # keeps its single link back to the course, because that leaves the page.
+    links = "" if home else f'<a href="{home_href}#course">Course</a>'
     return f'''
 <header class="site-header">
   <div class="shell header-inner">

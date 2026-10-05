@@ -345,7 +345,8 @@ th { color: var(--navy); background: var(--bg); }
   .page-toc { top: 0; }
   .site-header nav { gap: 0; }
   .site-header nav a { padding: 10px 9px; }
-  .site-header .nav-source { display: none; }
+  /* Source is the only link left in the masthead, so it stays visible. */
+  .site-header .nav-source { display: inline-flex; }
   .benefits { grid-template-columns: 1fr; }
   .pagination { grid-template-columns: 1fr; }
   .page-next { grid-column: 1; text-align: left; }
