@@ -63,7 +63,7 @@ TRACKS: tuple[tuple[str, str, str], ...] = (
     ("build", "Build", "Describe a network, then meet unbalance and missing data."),
     ("apply", "Apply", "Ask two planning questions: how much solar, and what fault current."),
     ("trust", "Trust", "Trace a result back to the inputs that produced it."),
-    ("assist", "Assist", "Let an AI drive the commands, and see what still decides."),
+    ("assist", "Assist", "Let an AI drive the commands, and make the run repeatable."),
 )
 
 LESSONS: tuple[Lesson, ...] = (
@@ -138,6 +138,14 @@ LESSONS: tuple[Lesson, ...] = (
         "An AI can issue the same commands you would. The checks, not the transcript, decide.",
         "A recorded session; not a live or repeatable model run.",
         "assist-verdict",
+    ),
+    Lesson(
+        "09_workflow_recipe", "09", "assist", "Write a workflow recipe",
+        "Can I make this run happen again, exactly the same way?",
+        ("A recipe file", "A real run", "The receipt"),
+        "A recipe names the operations, their inputs and their artifacts. It never edits a Case value or promotes a claim.",
+        "A completed workflow is not engineering or project validation.",
+        "recipe-receipt",
     ),
 )
 
@@ -970,6 +978,14 @@ EDITION_LABEL: dict[str, str] = {
     "cept-advance": "cept-advance",
 }
 
+#: What each derived validation state says in the table. A bare tick read as
+#: "this works"; for the paid tier nobody had run it. Keyed by the derived state
+#: so a state the page has no wording for fails the build.
+EDITION_STATE_COPY: dict[str, str] = {
+    "runs_on_this_host": '<span class="state">ran here</span>',
+    "not_validated_here": '<span class="state state-wip">in development</span>',
+}
+
 
 def _edition_boundary(staging_root: Path) -> dict[str, Any]:
     """Load the derived edition boundary, or refuse to build a partial table."""
@@ -994,23 +1010,38 @@ def _edition_boundary(staging_root: Path) -> dict[str, Any]:
     for name in (boundary["free"]["distribution"], boundary["advance"]["distribution"]):
         if name not in EDITION_LABEL:
             raise SiteBuildError(f"no edition label for derived distribution {name!r}")
+    for side in ("free", "advance"):
+        state = boundary[side].get("validation", {}).get("state")
+        if state not in EDITION_STATE_COPY:
+            raise SiteBuildError(
+                f"the derived boundary states {side} validation {state!r}, which has no "
+                "wording on this page; a capability would reach the table with no honest label"
+            )
     return boundary
 
 
-def _edition_table(boundary: dict[str, Any]) -> str:
-    """Render the Free-vs-Advance feature table from the derived boundary."""
+def _edition_table(boundary: dict[str, Any], tips: _Tips) -> str:
+    """Render the Free-vs-Advance table, with what was measured rather than a tick.
+
+    The table used to print a bare tick for every row each edition declared. A
+    tick reads as "this works", and for the paid tier nobody had run it: this
+    build has no licensed PowerFactory session. The state now comes from the
+    derived boundary, which states it because it can be evaluated from the code
+    -- an OpenDSS-backed free wheel runs here, and every Advance capability is
+    implemented behind a licence this build does not have.
+    """
 
     free, advance = boundary["free"], boundary["advance"]
+    runs = EDITION_STATE_COPY[free["validation"]["state"]]
+    pending = EDITION_STATE_COPY[advance["validation"]["state"]]
     rows: list[tuple[str, str, str]] = [
-        (f"{command} — {detail}", "✓", "–")
+        (f"{command} — {detail}", runs, "–")
         for command, detail in (FREE_VERB_COPY[verb["name"]] for verb in free["verbs"])
     ]
-    rows.append((FREE_STUDY_COPY, "✓", "–"))
-    rows.append((f"{FREE_RECIPE_COPY}, {len(free['recipes'])} in all", "✓", "–"))
-    rows.append((f"{FREE_LESSON_COPY}, {free['lesson_count']} in all", "✓", "–"))
-    rows.extend(
-        (ADVANCE_SECTION_COPY[section["label"]], "–", "✓") for section in advance["sections"]
-    )
+    rows.append((FREE_STUDY_COPY, runs, "–"))
+    rows.append((f"{FREE_RECIPE_COPY}, {len(free['recipes'])} in all", runs, "–"))
+    rows.append((f"{FREE_LESSON_COPY}, {free['lesson_count']} in all", runs, "–"))
+    rows.extend((ADVANCE_SECTION_COPY[section["label"]], "–", pending) for section in advance["sections"])
 
     body = "".join(
         f'<tr><th scope="row">{_inline_markdown(label)}</th><td class="yes">{yes}</td>'
@@ -1029,8 +1060,11 @@ def _edition_table(boundary: dict[str, Any]) -> str:
   <tbody>{body}</tbody>
 </table>
 </div>
-<p class="editions-note">A <strong>–</strong> means that edition does not declare that capability for itself.
-It does not mean the feature is broken: the two editions install separately, and an installed Free wheel cannot call Advance's capabilities.</p>
+<p class="editions-note"><strong>ran here</strong> — executed on this host. {html.escape(free["validation"]["why"])}.</p>
+<p class="editions-note"><strong>in development</strong> — the code exists and is declared, and it has <em>not</em>
+been run: {html.escape(advance["validation"]["why"])}.</p>
+<p class="editions-note">A <strong>–</strong> means that edition does not declare the capability at all, not that
+the feature is broken. The two editions install separately and cannot call each other.</p>
 <p class="editions-note">Left out of the Free wheel from the start: {html.escape(excluded)}</p>
 '''
 
@@ -1232,9 +1266,9 @@ def _index_page(
   <section id="start" class="band band-start" aria-labelledby="start-heading">
     <div class="shell">
       <h2 id="start-heading">Start in 5 minutes</h2>
-      <p class="section-sub">Open it in Colab with nothing to install, or run it here with Python 3.10 — lesson 00 has the install</p>
+      <p class="section-sub">Open it in Colab with nothing to install, or run it here with Python 3.10 — see lesson 00</p>
       <ol class="start">{start_html}</ol>
-      <p class="start-note">Then open <code lang="en">run1/case.json</code> — the real Case the program wrote — change it to your own data,
+      <p class="start-note">Then open <code lang="en">run1/case.json</code> — the Case the program wrote — change it to your own data,
         then run <code lang="en">cept run my-case.json --out run2</code></p>
     </div>
   </section>
@@ -1267,8 +1301,7 @@ def _index_page(
   <section id="editions" class="band band-editions" aria-labelledby="editions-heading">
     <div class="shell">
       <h2 id="editions-heading">Free wheel vs Advance</h2>
-      <p class="section-sub">Derived from the real code boundary of both editions at build time, not written by hand.</p>
-      {_edition_table(boundary)}
+      {_edition_table(boundary, tips)}
       <p class="limits-claim">Claim level for everything on this page:
         {tips.tip(boundary["free"]["claim"], "The workflow runs to the end and the checks recorded for these examples pass. Nothing on this page claims more than that.", extra_class="tip-code")}</p>
     </div>

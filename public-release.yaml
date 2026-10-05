@@ -19,6 +19,7 @@ education:
     - public/notebooks/06_fault_study.ipynb
     - public/notebooks/07_digital_evidence.ipynb
     - public/notebooks/08_ask_in_plain_words.ipynb
+    - public/notebooks/09_workflow_recipe.ipynb
   runner: tools/run_public_notebooks.py
 
 source:

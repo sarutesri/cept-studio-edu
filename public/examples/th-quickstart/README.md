@@ -20,7 +20,7 @@ cept run case.json --out run
 cept verify run
 ```
 
-These are Public OpenDSS commands. The Public package does not include `physics audit` or `report open`; the evidence to check is `passed: true` from `study verify` and the files saved under `run`.
+These are Public OpenDSS commands. The physics audit is not a separate command in the Public package: it is an option on the verifier, `cept verify run --physics`. What to check is the literal `passed: true` that `cept verify run` reports, plus the files it saved under `run`.
 
 ## Full Windows preview
 
@@ -40,4 +40,4 @@ The Full preview includes these commands. Do not copy the full-preview command s
 - An engine other than `opendss` → this Public release supports OpenDSS only.
 - An old result after changing an input → choose a new `--out` directory or use `--force` in the Full preview, then run again.
 
-The Public path teaches Case → run → verify. It does not claim that the Public package includes a physics audit, SLD viewer, or report server; the Full preview may open a report with `cept report run`.
+The Public path teaches Case → run → verify, plus the audits that hang off those same verbs (`--per-unit` on `cept check`, `--physics` on `cept verify`). It does not claim an SLD viewer or a report server in the Public package; the Full preview may open a report with `cept report run`.

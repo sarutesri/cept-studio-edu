@@ -1,7 +1,7 @@
 {
   "schema": "cept-edition-boundary-v1",
   "derived_from": {
-    "public-release.yaml": "7fb3aabebc3019a5eddb2d2019a3ae054bd81e6b22551fb16b13620f14c1235f",
+    "public-release.yaml": "1150660c4d7caf9c9029fa4be5c1c9352cfc111588dc2aa5837a57be236eb5de",
     "src/cept/public.py": "9860916bfe7e4fa98992761124e7ecc8b286b1f4fde5a8b3c678b6658e074f94",
     "src/cept/public_cli.py": "3aab6f5c68f2ab524dce40ae7c9ea4d32e6a109cac08a8d2c3cced796670ad36",
     "src/cept_advanced/registry.py": "a61664a8b7b24c859dc4dc0c76aaf3d212f9adcedfdee1a85ec843a5d470938f"
@@ -69,9 +69,14 @@
       "05_solar_hosting_capacity",
       "06_fault_study",
       "07_digital_evidence",
-      "08_ask_in_plain_words"
+      "08_ask_in_plain_words",
+      "09_workflow_recipe"
     ],
-    "lesson_count": 9
+    "lesson_count": 10,
+    "validation": {
+      "state": "runs_on_this_host",
+      "why": "The free wheel's engine is OpenDSS, which needs no licence"
+    }
   },
   "advance": {
     "package": "cept_advanced",
@@ -171,6 +176,11 @@
         ]
       }
     ],
-    "capability_count": 43
+    "capability_count": 43,
+    "validation": {
+      "state": "not_validated_here",
+      "why": "Every capability below is implemented behind a licensed PowerFactory session (13 declared targets), and this build has no such host, so none of them was executed here",
+      "licensed_target_count": 13
+    }
   }
 }

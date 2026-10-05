@@ -15,6 +15,7 @@ visible. The lessons are concise, icon-led, and designed for Colab.
 | Apply | [`06_fault_study.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/06_fault_study.ipynb) | Short-circuit current for one declared fault |
 | Trust | [`07_digital_evidence.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/07_digital_evidence.ipynb) | Trace a result |
 | Assist | [`08_ask_in_plain_words.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/08_ask_in_plain_words.ipynb) | Ask in plain words (a recorded AI session) |
+| Assist | [`09_workflow_recipe.ipynb` — open in Google Colab](https://colab.research.google.com/github/sarutesri/cept-studio-edu/blob/main/public/notebooks/09_workflow_recipe.ipynb) | Write a workflow recipe (and run one that ships) |
 
 
 Notebooks 00-07 use the same `cept` commands as a terminal; notebook 08 replays a recorded session and runs none.

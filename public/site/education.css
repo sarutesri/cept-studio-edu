@@ -169,6 +169,11 @@ h2[id], section[id], .key-result { scroll-margin-top: 96px; }
 .editions td.yes { color: var(--teal); font-weight: 700; }
 .editions td.no { color: var(--muted); }
 .editions-note { margin-top: 14px; color: var(--muted); font-size: .9rem; }
+.editions .state { display: inline-block; padding: 2px 9px; border-radius: 4px; background: #e4f3ec; color: #10603f; font-size: .78rem; font-weight: 700; white-space: nowrap; }
+/* "in development" must not read like a result. Amber, not the green a pass
+   wears, so the eye separates the two states without reading the words. */
+.editions .state-wip { background: var(--warn-bg); color: var(--warn-ink); }
+.editions-note strong { color: var(--navy); }
 
 .band-flow { margin-top: 64px; background: var(--navy); color: var(--on-dark); }
 .band-flow h2 { color: var(--on-dark); }
