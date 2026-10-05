@@ -962,7 +962,7 @@ def _edition_table(boundary: dict[str, Any]) -> str:
 </table>
 </div>
 <p class="editions-note">เครื่องหมาย <strong>–</strong> หมายถึงชุดนั้นไม่ได้ประกาศความสามารถนี้ในตัวมันเอง
-ไม่ใช่แปลว่าใช้ไม่ได้เลย สองชุดนี้ติดตั้งแยกกัน และ Free wheel ที่ติดตั้งจาก PyPI เรียกของ Advance ไม่ได้</p>
+ไม่ใช่แปลว่าใช้ไม่ได้เลย สองชุดนี้ติดตั้งแยกกัน และ Free wheel ที่ติดตั้งไว้เรียกของ Advance ไม่ได้</p>
 <p class="editions-note">ตัดออกตั้งแต่ต้นใน Free wheel: {html.escape(excluded)}</p>
 '''
 
@@ -1053,7 +1053,29 @@ def _course_card(lesson: Lesson, *, tips: _Tips, missing_count: int, repository:
 '''
 
 
-def _index_page(statuses: dict[str, tuple[int, int]], repository: str, boundary: dict[str, Any]) -> str:
+def _lesson_wheel(staging_root: Path) -> tuple[str, str]:
+    """The wheel URL and digest the shipped lesson bootstrap pins.
+
+    Read from ``public/notebooks/_lesson.py`` rather than restated, so this page
+    cannot point at a different artifact from the one the notebooks fetch.
+    """
+    source = (staging_root / "public" / "notebooks" / "_lesson.py").read_text(encoding="utf-8")
+    url = re.search(r'DEFAULT_WHEEL_URL = \(\s*"([^"]+)"', source)
+    digest = re.search(r'DEFAULT_WHEEL_SHA256 = \(\s*"([0-9a-f]{64})"', source)
+    if not url or not digest:
+        raise SiteBuildError(
+            "the lesson bootstrap no longer pins a wheel URL and digest; the start "
+            "steps cannot name an artifact the notebooks would not fetch"
+        )
+    return url.group(1), digest.group(1)
+
+
+def _index_page(
+    statuses: dict[str, tuple[int, int]],
+    repository: str,
+    boundary: dict[str, Any],
+    staging_root: Path,
+) -> str:
     tips = _Tips()
     repository_url = f"https://github.com/{repository}"
     tracks_html: list[str] = []
@@ -1069,6 +1091,10 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str, boundary:
             f'<div class="cards">{cards}</div></section>'
         )
 
+    # These three assume the wheel is already installed. The zero-install path a
+    # newcomer should take first is Colab, and the pinned terminal install lives
+    # in lesson 00; repeating either here would make the landing page longer
+    # without making the first step executable.
     start_steps = (
         ("cept doctor", "เช็คว่าเครื่องนี้มี OpenDSS ใช้งานได้", "READY"),
         ("cept run --demo load-flow --network ieee13 --out run1", "รันเคสตัวอย่างที่แนบมากับโปรแกรม", "FINISHED"),
@@ -1138,7 +1164,7 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str, boundary:
   <section id="start" class="band band-start" aria-labelledby="start-heading">
     <div class="shell">
       <h2 id="start-heading">เริ่มใช้ใน 5 นาที</h2>
-      <p class="section-sub">ติดตั้ง public wheel ให้เสร็จ แล้วพิมพ์สามบรรทัดนี้ที่เทอร์มินัล</p>
+      <p class="section-sub">เปิดใน Colab ได้เลยโดยไม่ต้องติดตั้งอะไร — รันในเครื่องด้วย Python 3.10 ติดตั้งตามบทเรียน 00</p>
       <ol class="start">{start_html}</ol>
       <p class="start-note">ต่อไปเปิด <code lang="en">run1/case.json</code> ซึ่งเป็น Case จริงที่โปรแกรมเขียนออกมา
         แก้เป็นข้อมูลของคุณ แล้วรัน <code lang="en">cept run my-case.json --out run2</code></p>
@@ -1265,7 +1291,9 @@ def build_site(
         (lesson_dir / f"{lesson.stem}.html").write_text(page, encoding="utf-8", newline="\n")
 
     (output_dir / "index.html").write_text(
-        _index_page(statuses, repository, boundary), encoding="utf-8", newline="\n"
+        _index_page(statuses, repository, boundary, staging_root),
+        encoding="utf-8",
+        newline="\n",
     )
     return {
         "schema": "cept-education-site-v1",
