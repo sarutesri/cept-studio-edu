@@ -46,6 +46,23 @@ p { margin: 0; }
 .skip-link { position: absolute; left: 12px; top: -60px; z-index: 50; padding: 10px 14px; background: var(--navy); color: #fff; border-radius: 6px; }
 .skip-link:focus { top: 12px; }
 
+/* Contents ---------------------------------------------------------------
+   A strip under the header that folds away. Built from each page's own h2
+   anchors, so the list cannot point at a heading the page does not have. The
+   sticky offset for anchor jumps has to clear both this strip and the header. */
+.toc-bar { position: sticky; top: 64px; z-index: 25; width: min(1120px, calc(100% - 40px)); margin-inline: auto; background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.toc > summary { display: flex; align-items: center; gap: 10px; padding: 11px 2px; cursor: pointer; color: var(--navy); font-weight: 700; list-style: none; }
+.toc > summary::-webkit-details-marker { display: none; }
+.toc > summary::after { content: "▾"; color: var(--teal); font-size: .8rem; transition: transform .15s ease; }
+.toc[open] > summary::after { transform: rotate(180deg); }
+.toc > summary small { color: var(--muted); font-weight: 500; font-size: .82rem; }
+.toc-list { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0; padding: 0 0 14px; list-style: none; }
+.toc-list a { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--body); font-size: .9rem; text-decoration: none; }
+.toc-list a:hover { border-color: var(--navy); color: var(--navy); }
+.toc-list a[aria-current="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+/* Anchor jumps must land below the two sticky bars, not under them. */
+h2[id], section[id], .key-result { scroll-margin-top: 150px; }
+
 /* Header and footer ------------------------------------------------------ */
 .site-header { position: sticky; top: 0; z-index: 30; background: rgba(255, 255, 255, .94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .header-inner { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
@@ -219,7 +236,7 @@ p { margin: 0; }
 /* Lesson page ------------------------------------------------------------ */
 .lesson-page { padding-top: 32px; }
 .lesson-layout { display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: 48px; align-items: start; }
-.lesson-aside { position: sticky; top: 84px; max-height: calc(100vh - 100px); overflow: auto; }
+.lesson-aside { position: sticky; top: 132px; max-height: calc(100vh - 150px); overflow: auto; }
 .rail { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
 .rail > summary { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; cursor: pointer; color: var(--navy); font-weight: 700; list-style: none; }
 .rail > summary::-webkit-details-marker { display: none; }
@@ -309,12 +326,17 @@ th { color: var(--navy); background: var(--bg); }
   .lesson-aside { position: static; max-height: none; }
   .lesson-layout { gap: 20px; }
   .compare-section { gap: 20px; }
+  /* Two columns no longer fit: the chips go vertical and scroll rather than
+     pushing the whole page's worth of headings onto the screen. */
+  .toc-list { flex-direction: column; max-height: 44vh; overflow: auto; padding-right: 4px; }
+  .toc-list a { width: 100%; }
 }
 @media (max-width: 560px) {
   body { font-size: 1rem; }
   .shell { width: calc(100% - 28px); }
   .header-inner { flex-wrap: wrap; padding-block: 6px; }
   .site-header { position: static; }
+  .toc-bar { position: sticky; top: 0; }
   .site-header nav { gap: 0; }
   .site-header nav a { padding: 10px 9px; }
   .site-header .nav-source { display: none; }
