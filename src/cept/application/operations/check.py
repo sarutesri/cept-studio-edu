@@ -1,6 +1,6 @@
 """Neutral application operation for checking one typed Case's readiness.
 
-``cept case check`` and the ``case.check`` recipe stage both call
+``cept check`` and the ``case.check`` recipe stage both call
 :func:`check_case_operation`, so the Case load, the hash-bound build-receipt
 gate, the readiness policy, and the reported facts have exactly one
 implementation.

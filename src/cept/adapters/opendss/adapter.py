@@ -16,6 +16,36 @@ from cept.schema.result import (
 )
 
 
+
+def _import_study_lane(name: str) -> Any:
+    """Import one study module, or refuse the lane by name when it is not shipped.
+
+    These lanes are feature-gated: the free wheel's public allowlist stages
+    `dynamics` but not `qsts`, `harmonics`, `protection`, `gic` or
+    `dynamics_rms`. Letting the raw ``ModuleNotFoundError`` escape told a reader
+    the install was broken, when the correct answer is that this edition does
+    not carry the lane and produced no result for it. That is the same refusal
+    :func:`cept.application.worker.run_packaged_worker` already makes for a
+    comparison lane it does not ship, and it names the lane rather than a
+    module path.
+
+    A ``ModuleNotFoundError`` raised *inside* the lane module is re-raised
+    unchanged: a missing dependency there is a real defect, not an edition
+    boundary, and reporting it as "not part of this edition" would hide it.
+    """
+
+    qualified = f"cept.adapters.opendss.{name}"
+    try:
+        return importlib.import_module(qualified)
+    except ModuleNotFoundError as exc:
+        if exc.name != qualified:
+            raise
+        raise ModuleNotFoundError(
+            f"study lane '{name}' is not part of this CEPT edition; "
+            "no result was produced and no claim is made for it"
+        ) from exc
+
+
 class OpenDSSAdapter:
     """Stateless-per-call wrapper around a single OpenDSSDirect context."""
 
@@ -70,8 +100,9 @@ class OpenDSSAdapter:
         from cept.adapters.opendss.experiment import apply_experiment_actions
         from cept.adapters.opendss.fault import run_fault
         from cept.adapters.opendss.hosting_capacity import run_hosting_capacity
+
         def optional(name: str):
-            return importlib.import_module(f"cept.adapters.opendss.{name}")
+            return _import_study_lane(name)
 
         st = case.study.type
         if solver not in {"native", "ybus-nr"}:

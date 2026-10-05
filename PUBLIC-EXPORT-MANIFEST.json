@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "79e0cf86e2d572e34de242a50eb5fcda63509070",
+  "canonical_source_commit": "eeb793b0dbef0b6e19054f4438b7ec021cdad3c2",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -85,6 +85,7 @@
     "src/cept/reporting/notebook.py",
     "src/cept/reporting/render.py",
     "src/cept/reporting/reports.py",
+    "src/cept/reporting/sld_evidence.py",
     "src/cept/reporting/templates/*.html",
     "src/cept/reporting/static/*.js",
     "src/cept/adapters/opendss/translation.py",
@@ -96,7 +97,7 @@
     "src/cept/validation/harness.py",
     "src/cept/validation/papers.py",
     "src/cept/validation/references.py",
-    "src/cept/validation/sld_fidelity.py",
+    "src/cept/domain/sld/sld_fidelity.py",
     "src/cept/validation/thai_grid_code.py",
     "src/cept/validation/time_series.py",
     "src/cept/validation/waveform.py",
@@ -179,7 +180,7 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "de6a395d3060d0a6ce11e1d54c0196210fe55601ff9b33d76dc54692a76f5139"
+      "sha256": "7fb3aabebc3019a5eddb2d2019a3ae054bd81e6b22551fb16b13620f14c1235f"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
@@ -219,7 +220,7 @@
     {
       "path": "public/examples/kundur_smib_classical_case.json",
       "source": "public/examples/kundur_smib_classical_case.json",
-      "sha256": "bbccdfd5fcd75bb5d79cccd0509bb68516fe8cc5c329c9fc73355fbcb7c2101d"
+      "sha256": "38488c3a3bec27220b4f9457808017b0232d30d4bdc2239a7173262bfe049701"
     },
     {
       "path": "public/examples/th-quickstart/README.md",
@@ -284,7 +285,7 @@
     {
       "path": "public/site/edition-boundary.json",
       "source": "public/site/edition-boundary.json",
-      "sha256": "ec80911ce023dc20ec75385b59a9155fca83faa08998e9e3932c3c75d9f5a797"
+      "sha256": "ffdbea792fcd7bfbcb0d8a626b7a12292e46ea3323a8eee2d34793266af1cf93"
     },
     {
       "path": "public/site/education.css",
@@ -339,7 +340,7 @@
     {
       "path": "src/cept/adapters/opendss/adapter.py",
       "source": "src/cept/adapters/opendss/adapter.py",
-      "sha256": "3a0b7f4d7cb063bd18430c2784fcb8ee89e42df324610d231c339c54f7725c31"
+      "sha256": "5585df1b7d4fd501ac4ddb0df3bbbb343ac5107af9a5694d5412c6dc8f66447b"
     },
     {
       "path": "src/cept/adapters/opendss/der.py",
@@ -379,7 +380,7 @@
     {
       "path": "src/cept/adapters/opendss/network.py",
       "source": "src/cept/adapters/opendss/network.py",
-      "sha256": "acb9154716b2fe218c1537c2f0543c77c8570a2aef9abdd3c7db48028cae1363"
+      "sha256": "4837e4694264b4cb34edbbde7f767cb550643025bf5e99b91b4c6ca0c521de1b"
     },
     {
       "path": "src/cept/adapters/opendss/readback.py",
@@ -399,7 +400,7 @@
     {
       "path": "src/cept/adapters/opendss/user_models.py",
       "source": "src/cept/adapters/opendss/user_models.py",
-      "sha256": "50df70b12284b7410c66797bd5297057b18c4db136ab5a22b57a95d9b0663a7b"
+      "sha256": "eab3c6c5a41f945d9e97d5707d40f0e981f968b8af730bb16c42a9afeacd08a1"
     },
     {
       "path": "src/cept/adapters/opendss/utils.py",
@@ -424,7 +425,7 @@
     {
       "path": "src/cept/application/artifacts.py",
       "source": "src/cept/application/artifacts.py",
-      "sha256": "2e80adef22653d31b70d074b0b781585b5b86b72525575b7f4a7da3501ff7bcc"
+      "sha256": "7e493e7c976a246f3ed29e772afe676236beee7215237333c600ac79fb6889c2"
     },
     {
       "path": "src/cept/application/environment_identity.py",
@@ -454,12 +455,12 @@
     {
       "path": "src/cept/application/operations/audit.py",
       "source": "src/cept/application/operations/audit.py",
-      "sha256": "fd6fbdeded0f5594a5c2f656c4b75b7d9846544fc05a854fa5cc25553ec3fe9b"
+      "sha256": "a899fa10efe3b92601fe678f84f4e77c01ed06eeb74c54e212b60a79a8e9ff6d"
     },
     {
       "path": "src/cept/application/operations/check.py",
       "source": "src/cept/application/operations/check.py",
-      "sha256": "b1560a34e5757bcab3d1342a795aa25fa4103613a8864498a5706d1041841706"
+      "sha256": "04a7e92284190c5afaf60f7a8b4c523e5bbae3f0c19cccae40f4bb3b1fb21aa0"
     },
     {
       "path": "src/cept/application/operations/compare.py",
@@ -474,7 +475,7 @@
     {
       "path": "src/cept/application/operations/report.py",
       "source": "src/cept/application/operations/report.py",
-      "sha256": "f5dc8f8f90a95d44d5c7486631d55bafa93493a580eb079f41b1af99f7484474"
+      "sha256": "f5e5fb0ede4470780e77cbeb519e116c8be3498b2ebb4a6c9eba021236917d40"
     },
     {
       "path": "src/cept/application/operations/run.py",
@@ -489,7 +490,7 @@
     {
       "path": "src/cept/application/operations/verify.py",
       "source": "src/cept/application/operations/verify.py",
-      "sha256": "476219b5a59b0a5344dd82606a8eed4dc709ed73c21d48fbe6878640aea872d8"
+      "sha256": "7c7c2a934ae7cc5975e1d51dbf47b54756878ba576f3846dc64608b4df70388d"
     },
     {
       "path": "src/cept/application/readiness.py",
@@ -592,9 +593,14 @@
       "sha256": "114deb599a3208e2c562ed61c3b14e4ed718c9622ec80e7e337233d72a210b0c"
     },
     {
+      "path": "src/cept/domain/sld/sld_fidelity.py",
+      "source": "src/cept/domain/sld/sld_fidelity.py",
+      "sha256": "c5aac4e15733b26ad5c249ceeb9eb3c69877255bd1bf670dc11d2cafffefb535"
+    },
+    {
       "path": "src/cept/dynamics_contract.py",
       "source": "src/cept/dynamics_contract.py",
-      "sha256": "53add16cb2e2d678edc0785e8f94aaf93eb33241f8cc95a14f15c502c5b381a4"
+      "sha256": "96206eb489056996fe999b046ed64e8384ef2fc76f24f7f5aa96995d953e5d3c"
     },
     {
       "path": "src/cept/engine_passports.json",
@@ -689,7 +695,7 @@
     {
       "path": "src/cept/public_cli.py",
       "source": "src/cept/public_cli.py",
-      "sha256": "5ec15d78e800de2b0460d48b353955b6ca4a0652103df2db4ad3a8cc200e3f87"
+      "sha256": "3aab6f5c68f2ab524dce40ae7c9ea4d32e6a109cac08a8d2c3cced796670ad36"
     },
     {
       "path": "src/cept/public_notebook.py",
@@ -714,7 +720,7 @@
     {
       "path": "src/cept/recipes/registry.py",
       "source": "src/cept/recipes/registry.py",
-      "sha256": "df8286e10c6e8d7f5ed056ff65d6fed4ddb032d3cc42fa19f80761380c80e8a8"
+      "sha256": "ff2feebbde59c75bf0cad4b8838f404dd089c3a42f7f6dc1476019befe2b9491"
     },
     {
       "path": "src/cept/recipes/run_result.py",
@@ -724,7 +730,7 @@
     {
       "path": "src/cept/recipes/runner.py",
       "source": "src/cept/recipes/runner.py",
-      "sha256": "39355a7300e0d33a3254b842052d4c241481dd7a79866b0337f2133de2b1e6a8"
+      "sha256": "8c252ddaf119cfe87a7771bb65209cf3df9624cbfe3a1b84e7a91bd9a53944e1"
     },
     {
       "path": "src/cept/recipes/schema.py",
@@ -764,12 +770,12 @@
     {
       "path": "src/cept/reporting/notebook.py",
       "source": "src/cept/reporting/notebook.py",
-      "sha256": "cd77944605b6f85c8306ef33457af792c894efe28b7d967024491292ac714857"
+      "sha256": "cfbd65de8ae032af88b4b8c5a81a3f4064d9e90c2bc1907e7f7cf3ff0b9ce435"
     },
     {
       "path": "src/cept/reporting/render.py",
       "source": "src/cept/reporting/render.py",
-      "sha256": "400c96da5fc1931277b66e6608ab5cb95b1493676803c70d63efeed8b50fc3a9"
+      "sha256": "50d58db33ee119a51db6ca624a5040a24cbcaf9812d3d6af63118489cf4244ad"
     },
     {
       "path": "src/cept/reporting/reports.py",
@@ -780,6 +786,11 @@
       "path": "src/cept/reporting/sld.py",
       "source": "src/cept/reporting/sld.py",
       "sha256": "338598812064fb7276835417491d6d61da3e78722bd6941ae3e16308b7cb39ae"
+    },
+    {
+      "path": "src/cept/reporting/sld_evidence.py",
+      "source": "src/cept/reporting/sld_evidence.py",
+      "sha256": "096f40fa4e700463cc1e2cf909d58dccda352dfe53468c30144f719e7baa57ff"
     },
     {
       "path": "src/cept/reporting/sld_plan.py",
@@ -914,7 +925,7 @@
     {
       "path": "src/cept/schema/case/network.py",
       "source": "src/cept/schema/case/network.py",
-      "sha256": "92f297270eed9b1d5b6e49e26882ed40c26573f78d2b5e1d65d1dd9942e31543"
+      "sha256": "0aad715e8fc49668964598cdd6397a7ecc983a665f1ae16ca4823a2bafb71b32"
     },
     {
       "path": "src/cept/schema/intake_provenance.py",
@@ -1039,12 +1050,12 @@
     {
       "path": "src/cept/validation/__init__.py",
       "source": "src/cept/validation/__init__.py",
-      "sha256": "b036c993a99d1536e471bdd1948b4b111e351033fa2cf0c4bf030a527f6ef458"
+      "sha256": "9515f4f2fc5a3b52e2c923d1a0f5dc3e468924ade7d0d77d93f5a5284f4883a3"
     },
     {
       "path": "src/cept/validation/acceptance.py",
       "source": "src/cept/validation/acceptance.py",
-      "sha256": "5948c546b520b1eb8311723f57c460bbfdb6b0691adbd4b76490157f933805df"
+      "sha256": "b66de46fab51785beb3d5ab357b3a9ff1d2ef0452b3c153edab77cff4d3609f9"
     },
     {
       "path": "src/cept/validation/harness.py",
@@ -1060,11 +1071,6 @@
       "path": "src/cept/validation/references.py",
       "source": "src/cept/validation/references.py",
       "sha256": "7b5b6d9798d4b9f49fa2332bd19301d3eb966b99b4c949e1d4bf073dd884048b"
-    },
-    {
-      "path": "src/cept/validation/sld_fidelity.py",
-      "source": "src/cept/validation/sld_fidelity.py",
-      "sha256": "c5aac4e15733b26ad5c249ceeb9eb3c69877255bd1bf670dc11d2cafffefb535"
     },
     {
       "path": "src/cept/validation/thai_grid_code.py",
@@ -1099,7 +1105,7 @@
     {
       "path": "src/cept/verification/audits/physics.py",
       "source": "src/cept/verification/audits/physics.py",
-      "sha256": "412d30bcb1ed5604aab4606711893ce60fdd1c512db01d1be45d8280690b80b5"
+      "sha256": "21a63cd739a3205f1114e32d33dd2e24213b78cdac7b78b1d635be292f74b256"
     },
     {
       "path": "src/cept/verification/audits/topology_audit.py",
@@ -1109,7 +1115,7 @@
     {
       "path": "src/cept/verification/audits/torque_power_audit.py",
       "source": "src/cept/verification/audits/torque_power_audit.py",
-      "sha256": "1c9ecfe801d2e4a94bd8189ff8b2d2d3877a0a58dfaa049c05fc5e7e86d65385"
+      "sha256": "97be0dc0b1b6d6ae927849ddb8e72d0ce738e2b8211b8a66c1699577ce390bac"
     },
     {
       "path": "src/cept/verification/audits/usermodel_callback_audit.py",
@@ -1119,12 +1125,12 @@
     {
       "path": "src/cept/verification/run_set.py",
       "source": "src/cept/verification/run_set.py",
-      "sha256": "96c11c37cc54a2df37e8bfbc0043f50885744a21ec61825c6f62126925299a3a"
+      "sha256": "3322445c597914a69c75a661890e08d8f804d571c6a66dbf4a2828c80501e36b"
     },
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "a7bac56c64be6f8a5ec90cfb11bfc6c12ac44a86f24a89d97d8fa864022969c6"
+      "sha256": "3ac6c7d622265dfc8ee3dea2c277b27c6268e1d9ccd6a8d2566dfe6be9256a93"
     },
     {
       "path": "tools/run_public_notebooks.py",

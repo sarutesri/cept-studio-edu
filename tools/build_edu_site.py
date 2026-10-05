@@ -873,8 +873,15 @@ EDITION_BOUNDARY = Path("public/site/edition-boundary.json")
 # unwritten and a retired one cannot be left behind.
 FREE_VERB_COPY: dict[str, tuple[str, str]] = {
     "doctor": ("`cept doctor`", "ดูว่าเครื่องนี้รัน OpenDSS ได้ไหม และขอบเขตที่รองรับอะไรบ้าง"),
+    "check": (
+        "`cept check`",
+        "อ่านไฟล์ Case ก่อนรัน — บอกว่าขาดอะไร และตรวจฐาน per-unit ด้วย `--per-unit`",
+    ),
     "run": ("`cept run`", "รัน Case หนึ่งไฟล์ หรือเคสตัวอย่างที่แนบมากับโปรแกรม"),
-    "verify": ("`cept verify`", "ตรวจหลักฐานของการรันที่บันทึกไว้"),
+    "verify": (
+        "`cept verify`",
+        "ตรวจหลักฐานของการรันที่บันทึกไว้ และตรวจ physics ของ run นั้นด้วย `--physics`",
+    ),
 }
 FREE_STUDY_COPY = "4 การศึกษาบน OpenDSS — load flow, unbalanced load flow, hosting capacity, fault"
 FREE_RECIPE_COPY = "สูตร workflow ที่ติดมากับ wheel"
@@ -892,6 +899,7 @@ ADVANCE_SECTION_COPY: dict[str, str] = {
     "licensed reference runs": "รัน reference ด้วยตัวเอง และอ่าน PDF ให้เป็น inventory",
     "research runtime": "รันงานวิจัยผ่าน model package",
     "comparison lanes": "เทียบผลข้ามเอนจิน และเทียบ PFD กับ PDF",
+    "PowerFactory QSTS benchmark evidence producer": "สูตร QSTS ที่รันบน PowerFactory — ผลลัพธ์เป็น cross-engine diagnostic จนกว่าจะเทียบข้ามเครื่องและผ่านการตรวจทานตามลำดับ",
     "benchmark harness": "benchmark และ catalogue ที่รับรองไว้แล้ว",
     "source-to-Case fidelity": "กฎการลดระบบ (Kron) สำหรับเทียบไฟล์ต้นทางของ PowerFactory กับ Case",
     "packaged lane workers (launched as ``python -m <module>``)": "worker สำหรับงาน dynamic และงานเทียบ parity",
@@ -1108,7 +1116,7 @@ def _index_page(statuses: dict[str, tuple[int, int]], repository: str, boundary:
         "การตัดสินว่าผ่านเกณฑ์ grid code หรือมาตรฐานใดมาตรฐานหนึ่ง — และการตัดสินว่าเคสไหน (รวมถึง BESS) ต้องทำการศึกษาหรือไม่ เป็นหน้าที่ของเจ้าของระบบและหน่วยงานกำกับดูแล ไม่ใช่ของโปรแกรม",
         "การเทียบผลกับ PowerFactory ใน Free wheel — ไม่มี และเราไม่อ้างว่าผลตรงกัน",
         "ค่าที่วัดจากระบบจริง — ทุกตัวเลขบนเว็บนี้มาจากเคสตัวอย่างที่แนบมากับโปรแกรม",
-        "การรันสูตร workflow บนผลการรันของ public wheel — สูตรติดมากับ wheel แต่ cept run --recipe ยังรันไม่จบบนผลการรันที่ได้จาก cept run",
+        "สูตร workflow ที่ติดมากับ wheel รันได้จริงบนผลการรันของ public wheel — ผ่าน cept run --recipe แล้วตรวจรับรองหลักฐานของ run นั้นเอง",
         "การเรียกโมเดล AI สด ๆ — บทที่ 8 คือ session ที่บันทึกไว้แล้วเล่นซ้ำ ไม่มีการต่อกับโมเดลใด",
     )
     body = f'''

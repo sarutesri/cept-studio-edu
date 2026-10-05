@@ -189,6 +189,14 @@ export:
     - src/cept/reporting/notebook.py
     - src/cept/reporting/render.py
     - src/cept/reporting/reports.py
+    # The native-SLD provenance receipt. `cept_advanced.adapters.pf.sld` and
+    # `native_export` import it at module scope, so the licensed tier cannot
+    # reach PowerFactory at all from an installed free wheel without it: the
+    # capability import raised `ModuleNotFoundError: No module named
+    # 'cept.reporting.sld_evidence'`. Measured 2026-10-04 building the Phase 11
+    # installed-product gate. The module itself carries no licensed code; it
+    # writes the artifact the PowerFactory lane produces.
+    - src/cept/reporting/sld_evidence.py
     # The Jinja2 HTML report templates and the vendored plotly bundle the report
     # renderer loads from the package at runtime. `reporting/render.py` builds a
     # FileSystemLoader over `templates/`, so these data files ship with the wheel
@@ -205,7 +213,7 @@ export:
     - src/cept/validation/harness.py
     - src/cept/validation/papers.py
     - src/cept/validation/references.py
-    - src/cept/validation/sld_fidelity.py
+    - src/cept/domain/sld/sld_fidelity.py
     - src/cept/validation/thai_grid_code.py
     - src/cept/validation/time_series.py
     - src/cept/validation/waveform.py

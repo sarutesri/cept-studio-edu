@@ -660,6 +660,15 @@ class InlineExternalGrid(BaseModel):
     )
     x_r_ratio: float = Field(10.0, gt=0, description="X/R ratio of the source impedance.")
 
+#: Machine-dynamics keys this version removed, mapped to what replaced them.
+#: The machine models keep ``extra`` allowed (they carry vendor-shaped optional
+#: fields on purpose), so a retired spelling would otherwise validate and be
+#: dropped without a word. ``GenrouDynamics`` refuses them by name instead. Add
+#: an entry here whenever a key is renamed.
+_RETIRED_DYNAMICS_KEYS: tuple[tuple[str, str], ...] = (
+    ("powerfactory_xstr", "reference_xstr"),
+)
+
 
 class GenrouDynamics(BaseModel):
     """Round-rotor synchronous-machine dynamic model parameters, on the
@@ -727,6 +736,39 @@ class GenrouDynamics(BaseModel):
             "transient state, so Xq' is degenerate with Xq."
         ),
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _retired_keys_are_named(cls, data: Any) -> Any:
+        """Refuse a retired Case key by name instead of dropping it silently.
+
+        Phase 6 renamed the canonical field ``powerfactory_xstr`` to
+        ``reference_xstr`` (owner decision 2026-10-03, `DECISION_LOG.md`). This
+        model does not set ``extra="forbid"`` — the machine models here carry
+        vendor-shaped optional fields on purpose — and pydantic's default
+        ``extra="ignore"`` discards an unknown key without keeping it, so a Case
+        that still spelled the old key validated, the key was thrown away, and
+        ``reference_xstr`` stayed ``None``. The GENCLS gate then refused with a
+        message about a missing reference reactance, which points at the Case's
+        data rather than at the key that was dropped. A Case that selects no
+        ``dynamic_model`` had no gate at all, so there the old key vanished
+        without anything saying so.
+
+        This runs *before* field parsing for exactly that reason: after
+        validation the key is gone and cannot be named. Naming it is the
+        difference between "your data is wrong" and "this file uses a spelling
+        this version removed", so the message carries both spellings.
+        """
+        if not isinstance(data, dict):
+            return data
+        for retired, replacement in _RETIRED_DYNAMICS_KEYS:
+            if retired in data:
+                raise ValueError(
+                    f"'{retired}' was retired and is now '{replacement}'; "
+                    f"rename it. Retired dynamics keys are rejected here "
+                    f"rather than silently dropped."
+                )
+        return data
 
     @model_validator(mode="after")
     def _reactances_decrease(self) -> "GenrouDynamics":
@@ -890,6 +932,16 @@ class InlineGenerator(BaseModel):
     kw: float = Field(0.0, description="Scheduled active power output.")
     q_mvar: Optional[float] = Field(
         None, description="Optional explicit reactive power setpoint/output (MVar)."
+    )
+    reactive_limit_mvar: Optional[float] = Field(
+        None,
+        ge=0,
+        description=(
+            "Source-disclosed reactive capability limit in MVar, symmetric about "
+            "zero: the machine may absorb up to this much and supply up to this "
+            "much. None means the source disclosed no limit, and the adapter must "
+            "then leave the machine unlimited rather than derive one."
+        ),
     )
     control_mode: Optional[Literal["pq", "pv", "slack", "droop_pinned"]] = Field(
         None, description="Detailed control mode, e.g. droop_pinned for source-snapshot pinned generators."

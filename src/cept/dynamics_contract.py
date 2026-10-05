@@ -67,6 +67,21 @@ def requested_dynamic_model(case: Case) -> str | None:
     inline = case.network.inline
     if inline is None:
         raise ValueError("The GENCLS benchmark contract requires an inline Case network.")
+    if len(inline.generators) > 1:
+        # N05 (CEPT_DELIVERY_PLAN.md 11.3): a classical single-mass contract
+        # defines one rotor angle against one internal-emf reference. Both
+        # engines implement it that way, so several machines would silently each
+        # get their own reference and no declared common rotor reference — a
+        # relative-angle claim this lane cannot support. Refuse rather than
+        # approximate. Multi-machine relative-angle studies belong to the
+        # full-order lane, which declares a reference machine.
+        raise ValueError(
+            "The GENCLS benchmark contract is a single-machine reduced lane and "
+            f"refuses a {len(inline.generators)}-machine Case: it defines one rotor "
+            "angle against one internal-emf reference and cannot support a "
+            "multi-machine relative-angle request without a declared reference. "
+            "Use the full-order dynamic model for multi-machine studies."
+        )
     for generator in inline.generators:
         if generator.bus_type == "slack":
             continue

@@ -538,14 +538,14 @@ class StageRun:
 #
 # Every registered operation is ``owner: python`` and every handler below calls
 # the neutral application function in ``cept.application.operations.*`` — the
-# exact same function the matching CLI handler imports. ``cept case check``
-# dispatches to ``check_case_operation``; ``cept study run`` to
-# ``run_case_operation``; ``cept study verify`` to ``verify_run_operation``;
-# ``cept report compare`` to ``compare_runs_operation``; ``cept report
-# export`` to ``render_report_operation``; ``cept report serve`` to
-# ``serve_report_operation``; ``cept report notebook`` to
-# ``assemble_notebook_operation``. ``receipt.write`` is inherently in-process
-# because the runner itself owns ``recipe-run.json``.
+# exact same function the matching CLI handler imports. ``cept check``
+# dispatches to ``check_case_operation``, ``cept run`` to
+# ``run_case_operation``, and ``cept verify`` to ``verify_run_operation``; the
+# compare/export/serve/notebook stages have no CLI verb and dispatch to
+# ``compare_runs_operation``, ``render_report_operation``,
+# ``serve_report_operation`` and ``assemble_notebook_operation``.
+# ``receipt.write`` is inherently in-process because the runner itself owns
+# ``recipe-run.json``.
 #
 # There is therefore no command line to render, no subprocess to spawn, and no
 # second interpretation of a Case fingerprint or validation verdict: a recipe

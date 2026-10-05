@@ -198,7 +198,7 @@ def audit_run(run_dir: str | Path) -> dict[str, Any]:
                 f"({collision['overlap_count']} total) - symbols/labels cover each other "
                 "in the rendered single-line diagram"
             )
-        from cept.validation.sld_fidelity import sld_fidelity
+        from cept.domain.sld.sld_fidelity import sld_fidelity
 
         fidelity = sld_fidelity(case, result)
         if not fidelity["passed"]:

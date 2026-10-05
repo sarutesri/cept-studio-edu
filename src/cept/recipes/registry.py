@@ -97,7 +97,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         owner="python",
         summary=(
             "Render the run's HTML report through the reporting owner, through "
-            "cept.application.operations.report. `cept study run` writes report.html "
+            "cept.application.operations.report. `cept run` writes report.html "
             "during the run; this operation renders an existing run on demand."
         ),
         required_inputs=("run_dir",),

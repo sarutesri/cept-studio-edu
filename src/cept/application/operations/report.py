@@ -113,12 +113,12 @@ EXPERIMENT_BINDING_KEYS = (
     "manifest_sha256",
     "claim",
 )
-"""Run-context keys that only ``cept experiment run`` ever writes.
+"""Run-context keys that only an experiment-batched run ever writes.
 
-``cept experiment run`` builds one context dict and hands it to every run in
+An experiment run builds one context dict and hands it to every run in
 the experiment (``cli/commands/run/experiment.py``): ``experiment_id``,
 ``classification``, ``manifest_sha256``, ``claim``, and per-run ``manifest_ref``
-and ``model_packages``. No plain ``cept study run`` writes any of these.
+and ``model_packages``. No plain ``cept run`` writes any of these.
 
 ``experiment_id`` is deliberately NOT here. ``cli/commands/run/study.py``
 already reuses that key for an unrelated study-program node id, so it is a
@@ -132,10 +132,10 @@ classifiable — i.e. what the gate can actually enforce.
 def _declares_experiment_identity(context: Mapping[str, Any]) -> bool:
     """Whether a run's recorded context carries an experiment binding.
 
-    A plain ``cept study run`` ALWAYS records an ``experiment`` block, but that
+    A plain ``cept run`` ALWAYS records an ``experiment`` block, but that
     block holds only derived bookkeeping: the canonical case pointer plus the
     empty model-package sets that ``execute_study_to_artifacts`` adds. Only
-    ``cept experiment run`` records the manifest binding itself.
+    An experiment-batched run records the manifest binding itself.
 
     Keying on block *presence* made every ordinary run look experiment-bound
     and demanded a ``manifest_ref`` no ordinary run can carry, which is why

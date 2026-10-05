@@ -55,6 +55,16 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"cept-power-studio {public_version()}")
     verbs = parser.add_subparsers(dest="verb", required=True)
 
+    check = verbs.add_parser("check", help="read a Case before running it")
+    check.add_argument("case", type=Path)
+    check.add_argument(
+        "--per-unit",
+        dest="per_unit",
+        action="store_true",
+        help="also audit the Case's declared per-unit and kV bases for internal consistency",
+    )
+    _add_format(check)
+
     doctor = verbs.add_parser("doctor", help="check the CEPT teaching environment")
     doctor.add_argument(
         "--capabilities",
@@ -105,6 +115,11 @@ def _parser() -> argparse.ArgumentParser:
 
     verify = verbs.add_parser("verify", help="verify a persisted public run")
     verify.add_argument("run_dir", type=Path)
+    verify.add_argument(
+        "--physics",
+        action="store_true",
+        help="also run the physics audit over this run and write physics-audit.json beside its evidence",
+    )
     _add_format(verify)
     return parser
 
@@ -177,6 +192,10 @@ MEANING_ATTENTION = (
 
 MEANING_VERIFY_OK = (
     "The saved result matches its Case, solver run, and saved evidence.",
+    "It does NOT approve a real project or field installation.",
+)
+MEANING_CHECK_OK = (
+    "The Case is readable and its declared values are internally consistent.",
     "It does NOT approve a real project or field installation.",
 )
 
@@ -318,6 +337,25 @@ def _print_terminal(kind: str, payload: dict[str, Any]) -> None:
         _terminal_next("cept doctor --format text")
         return
 
+    if kind == "check":
+        ok = payload.get("status") == "PASS"
+        _terminal_header(f"CEPT Case check: {'PASSED' if ok else 'NEEDS ATTENTION'}")
+        for line in payload.get("lines") or ():
+            print(line)
+        audit = payload.get("per_unit_audit")
+        if isinstance(audit, dict):
+            reasons = audit.get("reasons") or []
+            print()
+            _terminal_row(
+                "Per-unit audit",
+                "passed" if audit.get("passed") is True else f"{len(reasons)} problem(s) found",
+            )
+            for reason in reasons[:5]:
+                print(f"    - {reason}")
+        _terminal_meaning(*(MEANING_CHECK_OK if ok else MEANING_ATTENTION))
+        _terminal_next("cept run <case.json> --out <run-dir>")
+        return
+
     if kind in {"run", "demo"}:
         ok = payload.get("status") == "PASS"
         state = "FINISHED" if ok else "NEEDS ATTENTION"
@@ -359,12 +397,25 @@ def _print_terminal(kind: str, payload: dict[str, Any]) -> None:
             for label, count, group_ok in grouped:
                 print(f"  [{'PASS' if group_ok else 'FAIL'}] {label} ({count} checks)")
         run_dir = payload.get("run_dir")
+        physics = payload.get("physics_audit")
+        if isinstance(physics, dict):
+            audit_ok = physics.get("passed") is True
+            reasons = physics.get("reasons") or []
+            detail = "passed" if audit_ok else f"{len(reasons)} problem(s) found"
+            _terminal_row("Physics audit", detail)
+            if not audit_ok:
+                for reason in reasons[:5]:
+                    print(f"    - {reason}")
         _terminal_meaning(*(MEANING_VERIFY_OK if ok else MEANING_ATTENTION))
         if run_dir:
             print()
             display_run = _display_path(run_dir)
             _terminal_row("Saved evidence", Path(display_run) / "public-verification.json")
             _terminal_detail(f"cept verify {display_run} --format json")
+            if not isinstance(physics, dict):
+                _terminal_next(f"cept verify {display_run} --physics --format text")
+            else:
+                _terminal_row("Audit record", Path(display_run) / str(physics.get("record_path")))
         return
 
     raise ValueError(f"unknown terminal payload kind: {kind}")
@@ -427,10 +478,10 @@ def main(argv: list[str] | None = None) -> int:
             returncode, payload = _environment_check_payload()
             _emit("environment", payload, args.format)
             return returncode
+        if args.verb == "check":
+            return _check_verb(args)
         if args.verb == "verify":
-            result = verify_study(args.run_dir)
-            _emit("verify", result, args.format)
-            return 0 if result.get("passed") is True else 1
+            return _verify_verb(args)
         if args.verb == "run":
             return _run_verb(args)
     except (PublicBoundaryError, FileExistsError, OSError, ValueError) as exc:
@@ -439,6 +490,82 @@ def main(argv: list[str] | None = None) -> int:
         print("Next: fix the issue above, then run the command again.", file=sys.stderr)
         return 1
     raise RuntimeError("unhandled public CLI route")
+
+
+def _check_verb(args: argparse.Namespace) -> int:
+    """``cept check``: read one typed Case before anything runs on it.
+
+    The same neutral operations the internal verb calls, so the two front doors
+    cannot describe a Case differently. ``--per-unit`` adds the base audit as a
+    separate verdict: a readiness pass is not an audit pass.
+    """
+    from cept.application.operations.audit import (
+        PerUnitAuditRequest,
+        per_unit_audit_operation,
+    )
+    from cept.application.operations.check import (
+        CheckCaseRequest,
+        check_case_operation,
+    )
+
+    case_path = Path(args.case)
+    readiness = check_case_operation(CheckCaseRequest(case_path=case_path))
+    audit = None
+    if args.per_unit:
+        audit = per_unit_audit_operation(PerUnitAuditRequest(case_path=case_path))
+    payload: dict[str, Any] = {
+        "status": "PASS" if readiness.exit_code == 0 else "BLOCKED",
+        "lines": readiness.lines,
+    }
+    if audit is not None:
+        payload["per_unit_audit"] = {
+            **audit.record,
+            "error": audit.error,
+        }
+    _emit("check", payload, args.format)
+    statuses = [readiness.exit_code]
+    if audit is not None:
+        statuses.append(0 if (audit.error is None and audit.passed) else 1)
+    return 0 if all(code == 0 for code in statuses) else 1
+
+
+def _verify_verb(args: argparse.Namespace) -> int:
+    """``cept verify``: verify one persisted run, and with ``--physics`` audit it.
+
+    The two verdicts stay separate claims in one payload. ``passed`` is still
+    the verification's own verdict over its own artifacts; ``physics_audit`` is
+    the audit's separate verdict. They are never merged into one flag, because
+    a verification pass is not an audit pass.
+
+    The audit runs only over a run that verified. An unverified run has no
+    artifact set the audit could honestly read, so it is refused instead of
+    audited and no record is written.
+    """
+    result = verify_study(args.run_dir)
+    if not args.physics:
+        _emit("verify", result, args.format)
+        return 0 if result.get("passed") is True else 1
+    if result.get("passed") is not True:
+        print(
+            "error: --physics needs a run that passed verification; an unverified "
+            "run is not audited and no physics-audit.json is written.",
+            file=sys.stderr,
+        )
+        _emit("verify", result, args.format)
+        return 1
+    from cept.application.operations.audit import (
+        PHYSICS_AUDIT_RECORD,
+        PhysicsAuditRequest,
+        physics_audit_operation,
+    )
+
+    run_dir = Path(args.run_dir).resolve()
+    outcome = physics_audit_operation(
+        PhysicsAuditRequest(run_dir=run_dir, out=run_dir / PHYSICS_AUDIT_RECORD)
+    )
+    result["physics_audit"] = {**outcome.record, "record_path": PHYSICS_AUDIT_RECORD}
+    _emit("verify", result, args.format)
+    return 0 if outcome.passed else 1
 
 
 def _run_verb(args: argparse.Namespace) -> int:

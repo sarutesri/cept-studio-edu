@@ -2,7 +2,7 @@
 
 :func:`verify_run_operation` is the single entry point that decides whether an
 explicitly supplied set of run directories is complete, self-consistent, and
-safe to claim.  ``cept study verify`` is a thin CLI wrapper over it, so a
+safe to claim.  ``cept verify`` is a thin CLI wrapper over it, so a
 recipe runner, a notebook, or a future package reaches the same verifier
 instead of re-implementing it.
 
@@ -56,7 +56,7 @@ _REFERENCE_CLAIMS = frozenset({"powerfactory_reference", "independent-reference"
 class VerifyRunRequest:
     """Explicit, typed inputs for one :func:`verify_run_operation` call.
 
-    The fields mirror exactly what ``cept study verify`` accepts: the explicit
+    The fields mirror exactly what ``cept verify`` accepts: the explicit
     run directories, an optional JSON summary destination, and the ``--refresh``
     rebuild flag.  No tolerance, engine, or claim flag is accepted here -- the
     verification policy is not a caller-supplied input.

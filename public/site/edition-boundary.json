@@ -1,10 +1,10 @@
 {
   "schema": "cept-edition-boundary-v1",
   "derived_from": {
-    "public-release.yaml": "de6a395d3060d0a6ce11e1d54c0196210fe55601ff9b33d76dc54692a76f5139",
+    "public-release.yaml": "7fb3aabebc3019a5eddb2d2019a3ae054bd81e6b22551fb16b13620f14c1235f",
     "src/cept/public.py": "9860916bfe7e4fa98992761124e7ecc8b286b1f4fde5a8b3c678b6658e074f94",
-    "src/cept/public_cli.py": "5ec15d78e800de2b0460d48b353955b6ca4a0652103df2db4ad3a8cc200e3f87",
-    "src/cept_advanced/registry.py": "3deb3d9b8aca15d6d0502f2b1c0c164b5223943f05b7dc96b22ef843d884ccbd"
+    "src/cept/public_cli.py": "3aab6f5c68f2ab524dce40ae7c9ea4d32e6a109cac08a8d2c3cced796670ad36",
+    "src/cept_advanced/registry.py": "a61664a8b7b24c859dc4dc0c76aaf3d212f9adcedfdee1a85ec843a5d470938f"
   },
   "free": {
     "distribution": "cept-power-studio",
@@ -23,6 +23,12 @@
       "powerfactory": "pro_only"
     },
     "verbs": [
+      {
+        "name": "check",
+        "options": [
+          "--per-unit"
+        ]
+      },
       {
         "name": "doctor",
         "options": [
@@ -43,7 +49,9 @@
       },
       {
         "name": "verify",
-        "options": []
+        "options": [
+          "--physics"
+        ]
       }
     ],
     "recipes": [
@@ -115,6 +123,13 @@
         ]
       },
       {
+        "label": "PowerFactory QSTS benchmark evidence producer",
+        "capabilities": [
+          "run_powerfactory_qsts",
+          "validate_qsts_clock"
+        ]
+      },
+      {
         "label": "comparison lanes",
         "capabilities": [
           "compare_runs",
@@ -156,6 +171,6 @@
         ]
       }
     ],
-    "capability_count": 41
+    "capability_count": 43
   }
 }

@@ -672,7 +672,7 @@ def _render_section(evidence: _StoredEvidence) -> str:
         "What that view does not include is the public verification summary that `"
         f"{_FULL_RUN_VIEW}` adds alongside the result. `{_PUBLIC_VERIFICATION}` is written by "
         "the CEPT Public API `cept.public.run_study(...)`, and by nothing else. In the CEPT "
-        "Public edition that entry point is the `cept run` / `cept study demo` route — "
+        "Public edition that entry point is the `cept run` / `cept run --demo` route — "
         "the public edition installs `cept = cept.public_cli:main`, so it is reachable as "
         "`python -m cept.public_cli study run <case.json> --out <run-dir>`. The internal "
         "`cept run` execution path that produced this run directory does not write that "

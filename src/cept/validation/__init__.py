@@ -4,11 +4,17 @@ The package keeps validation-specific checks here while comparison machinery
 is imported from its canonical :mod:`cept.verification.comparison` home.
 
 Re-exports load lazily (PEP 562). They used to be imported eagerly here, which
-meant importing a single check such as :mod:`cept.validation.sld_fidelity` also
-loaded the cross-engine / PFD comparison machinery. The public recipe wheel
-runs SLD-fidelity and grid-code checks but must not ship the cross-engine
-comparison surface, so each name now resolves its source module on first
-attribute access. ``from cept.validation import <name>`` is unchanged.
+meant importing a single check also loaded the cross-engine / PFD comparison
+machinery. The public recipe wheel runs SLD-fidelity and grid-code checks but
+must not ship the cross-engine comparison surface, so each name now resolves
+its source module on first attribute access. ``from cept.validation import
+<name>`` is unchanged.
+
+Phase 14 moved :mod:`cept.validation.sld_fidelity` to
+:mod:`cept.domain.sld.sld_fidelity`: it judges the drawn diagram against the
+Case, which is the domain's subject, and it was the only cross-package import
+this package had (``verification/audits/physics.py``). It is no longer
+re-exported from here — import it from its new home.
 
 The PFD/PDF and cross-engine comparison lanes belong to the CEPT Advance tier.
 Those names are listed here as **public names only** and resolved through

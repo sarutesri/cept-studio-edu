@@ -683,9 +683,17 @@ def compile_inline(
         pf = gen.pf if gen.bus_type == "pq" else 1.0
         model = "3" if gen.bus_type == "pv" else "1"
         kv = gen.kv
-        q_limit = math.sqrt(max((gen_mva * 1000.0) ** 2 - gen_kw**2, 0.0))
+        # The reactive limit is a declared engineering input, like every other
+        # machine datum. It used to be derived here as sqrt(mva^2 - P^2), which
+        # invented a limit the source never stated and, with Pvfactor=0.1, put a
+        # pv machine into a permanent period-2 control cycle: the minimal repro
+        # is two buses, one pv machine and no load, and it failed to converge
+        # with a NaN phase voltage. An undeclared limit now means no limit.
+        declared_limit = gen.reactive_limit_mvar
         pv_limits = (
-            f" Maxkvar={q_limit:.6g} Minkvar={-q_limit:.6g} Pvfactor=0.1" if gen.bus_type == "pv" else ""
+            f" Maxkvar={declared_limit * 1000.0:.6g} Minkvar={-declared_limit * 1000.0:.6g}"
+            if gen.bus_type == "pv" and declared_limit is not None
+            else (" Pvfactor=0.1" if gen.bus_type == "pv" else "")
         )
         conn_option = " conn=delta" if gen.bus in delta_conn_buses else ""
         machine = gen.dynamics

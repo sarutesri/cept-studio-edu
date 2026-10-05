@@ -37,6 +37,14 @@ from cept.util import read_json, sha256_file
 from cept.verification.audits.physics import audit_run
 
 
+#: The one artifact name a physics audit record is written under inside the run
+#: directory it audits. `cept verify <run-dir> --physics` writes this name, and
+#: `recipes/run-audit.yaml` pins the same default, so the verb, the recipe, and
+#: the operation cannot drift onto different filenames. The destination is
+#: always the run that was audited: no run is ever selected by mtime, by
+#: "latest", or by a caller claim.
+PHYSICS_AUDIT_RECORD = "physics-audit.json"
+
 @dataclass(frozen=True)
 class PhysicsAuditRequest:
     """Explicit inputs for one physics audit.
@@ -287,6 +295,7 @@ def _encode(record: dict[str, Any]) -> str:
 
 
 __all__ = [
+    "PHYSICS_AUDIT_RECORD",
     "ArtifactsAuditOutcome",
     "ArtifactsAuditRequest",
     "PerUnitAuditOutcome",

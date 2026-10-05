@@ -1,6 +1,6 @@
 """Fail-closed verification of an explicit CEPT run set.
 
-This module is the single verdict owner for a run set. ``cept study verify``
+This module is the single verdict owner for a run set. ``cept verify``
 reaches it through :mod:`cept.application.operations.verify`, so the CLI, a
 recipe, and a notebook all read the same verdict instead of re-deriving one.
 
@@ -40,6 +40,56 @@ def _read_json(path: Path) -> dict[str, Any] | None:
     except (OSError, json.JSONDecodeError):
         return None
     return payload if isinstance(payload, dict) else None
+
+
+def _verify_public_run(
+    run: Path, receipt: dict[str, Any], reasons: list[str]
+) -> dict[str, Any]:
+    """Verify a public-edition run directory against its own receipt.
+
+    ``cept.public.run_study`` writes ``public-verification.json``: an explicit
+    ``passed``, a ``claim`` with a ``claim_boundary``, per-check results, and the
+    SHA-256 of every artifact the verdict depends on. That is the same evidence
+    contract the internal receipt carries, so it is checked the same way rather
+    than being refused for not looking like ``validation-record.json``.
+
+    The digests are re-hashed here. Reading ``passed: true`` without re-checking
+    the bytes it claims to cover would make this a copy of the writer's own
+    verdict instead of an independent verification of it.
+    """
+
+    if receipt.get("passed") is not True:
+        reasons.append("public-verification.json does not explicitly report passed=true")
+    if not receipt.get("claim_boundary"):
+        reasons.append("public-verification.json does not state its claim boundary")
+    checks = receipt.get("checks")
+    if not isinstance(checks, list) or not checks:
+        reasons.append("public-verification.json carries no checks")
+    elif any(item.get("passed") is not True for item in checks if isinstance(item, dict)):
+        reasons.append("a public-verification.json check did not pass")
+
+    digests = receipt.get("artifact_sha256")
+    if not isinstance(digests, dict) or not digests:
+        reasons.append("public-verification.json binds no artifact digests")
+    else:
+        for name, expected in sorted(digests.items()):
+            path = run / name
+            if not path.is_file():
+                reasons.append(f"missing public artifact: {name}")
+            elif sha256_file(path) != expected:
+                reasons.append(f"public artifact hash mismatch: {name}")
+
+    return {
+        "run_dir": str(run),
+        "status": "pass" if not reasons else "incomplete",
+        "manifest_status": None,
+        "claim": receipt.get("claim"),
+        "reasons": reasons,
+        "case_fingerprint": receipt.get("case_fingerprint"),
+        "identity_map_present": False,
+        "semantic_registry_version": None,
+        "edition": "public",
+    }
 
 
 _VERIFIED_REPORT_RE = re.compile(r"__ceptVerifiedReport=(\{.*?\});")
@@ -322,6 +372,17 @@ def verify_run_set(run_dirs: list[str | Path]) -> dict[str, Any]:
                     "case_fingerprint": result.get("case_fingerprint") if result else None,
                 }
             )
+            continue
+        # A public-edition run writes `public-verification.json` instead of the
+        # internal `report.html` + `validation-record.json` pair, so it has no
+        # manifest status, no report and no validation record to check. It has
+        # its own receipt, which states `passed` explicitly and binds the
+        # artifact digests. Verifying that is the same contract with a
+        # different file shape; refusing it made every shipped recipe block at
+        # its first stage over a run the learner had just completed.
+        public_receipt = _read_json(run / "public-verification.json")
+        if public_receipt is not None:
+            entries.append(_verify_public_run(run, public_receipt, reasons))
             continue
         if manifest is None:
             reasons.append("missing or invalid manifest.json")

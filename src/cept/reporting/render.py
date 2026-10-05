@@ -68,7 +68,7 @@ class _LazyVendorJs:
     This was a module-level global, so merely importing this module read the
     file, base64-encoded it, and held the payload for the life of the process.
     `cept.cli.main` imports the reporting stack transitively, so `cept doctor`,
-    `cept case show` and every conduct subprocess paid it too.
+    `cept check` and every recipe subprocess paid it too.
 
     Jinja renders `{{ plotly_js_b64 }}` through `escape()`, which honours
     `__html__`; base64 contains no HTML-special characters, so the emitted

@@ -344,15 +344,15 @@ def _write_sld_fidelity(run_dir: Path, case: Case, result: StudyResult) -> None:
     Proves the diagram faithfully depicts the solved Case (buses, devices,
     grid connection, branch endpoints, collision, fingerprint) —
     deterministic and engine-agnostic, so correctness is re-derivable rather
-    than a drawn claim.  See `src/cept/validation/sld_fidelity.py`.
+    than a drawn claim.  See `src/cept/domain/sld/sld_fidelity.py`.
     """
-    from cept.validation.sld_fidelity import sld_fidelity
+    from cept.domain.sld.sld_fidelity import sld_fidelity
 
     _write_json(run_dir / "sld-fidelity.json", sld_fidelity(case, result))
 
 
 def _sld_fidelity_record(case: Case, result: StudyResult) -> dict[str, Any]:
-    from cept.validation.sld_fidelity import sld_fidelity
+    from cept.domain.sld.sld_fidelity import sld_fidelity
 
     return sld_fidelity(case, result)
 
