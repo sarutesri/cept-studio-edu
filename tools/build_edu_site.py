@@ -688,11 +688,18 @@ _SCRIPT = """
   var rail = document.querySelector('.rail');
   if (rail && window.matchMedia('(max-width: 900px)').matches) { rail.open = false; }
 
-  // The contents list starts open on a wide screen and folded away on a narrow
-  // one, so a phone opens the lesson rather than a wall of links.
+  // The contents strip is sticky, so an open list that wraps costs screen the
+  // reader cannot use. Fold it away when it would wrap, and when the screen is
+  // too narrow for the chips to be worth showing unasked.
   var toc = document.querySelector('.toc');
   if (!toc) { return; }
-  if (window.matchMedia('(max-width: 760px)').matches) { toc.open = false; }
+  var chips = Array.prototype.slice.call(toc.querySelectorAll('.toc-list a'));
+  if (chips.length && window.matchMedia('(max-width: 760px)').matches) { toc.open = false; }
+  else {
+    var firstTop = Math.round(chips[0].getBoundingClientRect().top);
+    var wraps = chips.some(function (c) { return Math.round(c.getBoundingClientRect().top) !== firstTop; });
+    if (wraps) { toc.open = false; }
+  }
 
   var links = Array.prototype.slice.call(toc.querySelectorAll('.toc-list a'));
   var targets = links.map(function (a) { return document.getElementById(decodeURIComponent(a.hash.slice(1))); });

@@ -57,6 +57,10 @@ p { margin: 0; }
 .toc[open] > summary::after { transform: rotate(180deg); }
 .toc > summary small { color: var(--muted); font-weight: 500; font-size: .82rem; }
 .toc-list { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0; padding: 0 0 14px; list-style: none; }
+/* Folded to a single pill: still sticky, but it costs one row instead of the
+   height of the whole list. The script folds it whenever the chips would wrap,
+   so a narrow window costs the same as a wide one. */
+.toc:not([open]) { border-bottom: 0; }
 .toc-list a { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--body); font-size: .9rem; text-decoration: none; }
 .toc-list a:hover { border-color: var(--navy); color: var(--navy); }
 .toc-list a[aria-current="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
