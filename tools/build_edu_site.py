@@ -700,23 +700,6 @@ _SCRIPT = """
     var wraps = chips.some(function (c) { return Math.round(c.getBoundingClientRect().top) !== firstTop; });
     if (wraps) { toc.open = false; }
   }
-
-  var links = Array.prototype.slice.call(toc.querySelectorAll('.toc-list a'));
-  var targets = links.map(function (a) { return document.getElementById(decodeURIComponent(a.hash.slice(1))); });
-  if (!('IntersectionObserver' in window) || targets.indexOf(null) !== -1) { return; }
-  var lit = [];
-  var spy = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      var at = targets.indexOf(entry.target);
-      if (at > -1) { lit[at] = entry.isIntersecting; }
-    });
-    var here = lit.indexOf(true);
-    if (here === -1) { return; }
-    links.forEach(function (a, i) {
-      if (here === i) { a.setAttribute('aria-current', 'true'); } else { a.removeAttribute('aria-current'); }
-    });
-  }, { rootMargin: '-150px 0px -65% 0px' });
-  targets.forEach(function (el) { spy.observe(el); });
 })();
 """
 
