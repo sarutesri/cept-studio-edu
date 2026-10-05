@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "67aa4824bcdd516cd1f39c9bc10f6e5767683689",
+  "canonical_source_commit": "88fc4c41893c309f220356ef4dfd29f6f4ae6903",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -1130,7 +1130,7 @@
     {
       "path": "tools/build_edu_site.py",
       "source": "tools/build_edu_site.py",
-      "sha256": "d5e74219fe68ef0d219c016b3904161ffeb353faa6d7850d194ea4bf93aa75a5"
+      "sha256": "f704fdc61dbf84f5ece2d24b37cadff007393f423ed829d6beea1642b6815e39"
     },
     {
       "path": "tools/run_public_notebooks.py",

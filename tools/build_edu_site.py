@@ -1201,7 +1201,7 @@ def _index_page(
         "Deciding grid code compliance, and which cases (including BESS) have to be studied — that belongs to the system owner and the regulator, not to the program",
         "Agreement with PowerFactory in the Free wheel — there is none, and we do not claim the results match",
         "Values measured from a real system — every number on this site comes from the demo cases that ship with the program",
-        "The bundled workflow recipes do run on the public wheel's own run results: `cept run --recipe` completes and then checks that run's own evidence",
+        "The bundled workflow recipes do run on the public wheel's own run results: cept run --recipe completes and then checks that run's own evidence",
         "A live AI model call — lesson 8 is a recorded session that is replayed, with no model connection",
     )
     body = f'''
@@ -1240,7 +1240,7 @@ def _index_page(
   <section class="shell compare-section" aria-labelledby="cmp-heading">
     <div class="compare-copy">
       <p class="kicker">A real example from lesson 1</p>
-      <h2 id="cmp-heading">Same network, only the declared voltage base is different</h2>
+      <h2 id="cmp-heading">Same network, different voltage base</h2>
       <a class="text-link" href="lessons/01_why_solvers_lie.html">See both runs in lesson 1 <span aria-hidden="true">→</span></a>
     </div>
     {_comparison_chart()}
@@ -1273,7 +1273,7 @@ def _index_page(
 
   <section id="limits" class="band band-limits" aria-labelledby="limits-heading">
     <div class="shell limits">
-      <h2 id="limits-heading">What we claim, and what we do not claim</h2>
+      <h2 id="limits-heading">What we do and do not claim</h2>
       <div class="limits-grid">
         <div class="limit limit-yes"><h3>We claim</h3><ul>{"".join(f"<li>{item}</li>" for item in shows)}</ul></div>
         <div class="limit limit-no"><h3>We do not claim</h3><ul>{"".join(f"<li>{item}</li>" for item in not_shows)}</ul></div>
