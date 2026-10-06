@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "c3151dea3e6c2b4f3f5fddbdb704d9e6c4c596e5",
+  "canonical_source_commit": "0aaf8c826b182bed691b9a8e46755f56d80bab34",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -275,7 +275,7 @@
     {
       "path": "public/notebooks/09_workflow_recipe.ipynb",
       "source": "public/notebooks/09_workflow_recipe.ipynb",
-      "sha256": "76841a2cc2f186ee695e186388f88fd1fd78d4fa41b8a13a36f78bfbcd18d768"
+      "sha256": "efa290631cc36b025cb933772a759f2465db83f027a9ca937e62fdee8c691eb0"
     },
     {
       "path": "public/notebooks/README.md",
@@ -290,7 +290,7 @@
     {
       "path": "public/site/edition-boundary.json",
       "source": "public/site/edition-boundary.json",
-      "sha256": "bee7ebf6baf11249ffbf569a38061460c3fda628f5772a5ee3b288de7a6b3d58"
+      "sha256": "88398f253b84d7c0169012ada1c647c89e51e04d9f8bf849a759ee1d464d3fb8"
     },
     {
       "path": "public/site/education.css",
@@ -305,7 +305,7 @@
     {
       "path": "recipes/release-qualification.yaml",
       "source": "recipes/release-qualification.yaml",
-      "sha256": "320312a93ea71e134dd5afa6832ae8a1d5ed6454a8972b0ab387679996174409"
+      "sha256": "2c7a0cff854c2f15ae2619648931259326bc27e30989f0bf5c6ba022a78d895e"
     },
     {
       "path": "recipes/report-preparation.yaml",
@@ -315,7 +315,7 @@
     {
       "path": "recipes/run-audit.yaml",
       "source": "recipes/run-audit.yaml",
-      "sha256": "9711992277ae08f66a9c0877e218d25563fe5ef26aacf49722447ea42bab9db0"
+      "sha256": "7186a16ae13e39fd89b10287ce1c4085c5ba90caf7f837b9dd5004e2842981cc"
     },
     {
       "path": "recipes/study-evidence.yaml",
@@ -625,7 +625,7 @@
     {
       "path": "src/cept/export/dss_script.py",
       "source": "src/cept/export/dss_script.py",
-      "sha256": "1489cc6dbcd37ef99bdaf69558b5e535151686312469aeb5a7d8652ab049577d"
+      "sha256": "cb9095f7bf109df1a0bb06f3754b0376ef4f02bbe9f3665f152bd0ca3b30d02b"
     },
     {
       "path": "src/cept/fidelity/__init__.py",
@@ -725,7 +725,7 @@
     {
       "path": "src/cept/recipes/registry.py",
       "source": "src/cept/recipes/registry.py",
-      "sha256": "ff2feebbde59c75bf0cad4b8838f404dd089c3a42f7f6dc1476019befe2b9491"
+      "sha256": "b555cd48f7d254619ad1e60e34fff13ee4572cb7724932f6179310363c6bfae4"
     },
     {
       "path": "src/cept/recipes/run_result.py",
@@ -735,7 +735,7 @@
     {
       "path": "src/cept/recipes/runner.py",
       "source": "src/cept/recipes/runner.py",
-      "sha256": "8c252ddaf119cfe87a7771bb65209cf3df9624cbfe3a1b84e7a91bd9a53944e1"
+      "sha256": "4ab2fa76b2f904e28e378774f7f8bb26d973b2954545af10bc20e51deaa98b90"
     },
     {
       "path": "src/cept/recipes/schema.py",

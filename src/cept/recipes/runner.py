@@ -842,10 +842,10 @@ PYTHON_OPERATIONS: Mapping[str, Callable[[PlannedStage, PythonStageContext], Pyt
     "report.render": _render_report,
     "report.serve": _serve_report,
     "report.notebook": _assemble_notebook,
-    "physics.audit": _physics_audit,
-    "artifacts.audit": _artifacts_audit,
-    "perunit.audit": _per_unit_audit,
-    "release.qualify": _release_qualify,
+    "audit.physics": _physics_audit,
+    "audit.artifacts": _artifacts_audit,
+    "audit.perunit": _per_unit_audit,
+    "audit.release": _release_qualify,
     "receipt.write": _write_receipt,
 }
 

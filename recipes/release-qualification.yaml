@@ -90,7 +90,7 @@ stages:
         entered into a qualification record.
 
   - id: qualify-release
-    operation: release.qualify
+    operation: audit.release
     owner: python
     inputs:
       qualify_root: qualify_root

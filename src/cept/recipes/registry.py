@@ -52,6 +52,12 @@ class Operation:
 
 
 _OPERATIONS: tuple[Operation, ...] = (
+    # Declared in family order so a reader scanning this file sees one audit
+    # family rather than four singletons in four namespaces: all four reach the
+    # same application function, all read evidence that already exists, and none
+    # runs a solver or promotes a claim. `study.verify` is deliberately not an
+    # audit: it produces the run's own verdict, and an audit passing is
+    # explicitly not a correctness proof.
     Operation(
         id="case.check",
         owner="python",
@@ -135,7 +141,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=("recipe-run.json",),
     ),
     Operation(
-        id="physics.audit",
+        id="audit.physics",
         owner="python",
         summary=(
             "Audit one persisted run directory for identity, finiteness, and self-consistency, "
@@ -145,7 +151,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=("physics-audit.json",),
     ),
     Operation(
-        id="artifacts.audit",
+        id="audit.artifacts",
         owner="python",
         summary=(
             "Inventory run directories under an explicit root and hash their bound evidence "
@@ -155,7 +161,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=("artifacts-audit.json",),
     ),
     Operation(
-        id="perunit.audit",
+        id="audit.perunit",
         owner="python",
         summary=(
             "Check one typed Case's declared per-unit and kV bases for internal consistency, "
@@ -165,7 +171,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=("per-unit-audit.json",),
     ),
     Operation(
-        id="release.qualify",
+        id="audit.release",
         owner="python",
         summary=(
             "Build a release-qualification record from explicitly named, already-existing "

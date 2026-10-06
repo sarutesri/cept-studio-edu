@@ -381,12 +381,19 @@ def _inline_network(L: list[str], case: Case) -> None:
             continue
         model = 3 if generator.bus_type == "pv" else 1
         pf = generator.pf if generator.bus_type == "pq" else 1.0
-        q_limit = math.sqrt(max((gen_mva * 1000.0) ** 2 - gen_kw**2, 0.0))
-        limits = (
-            f" Maxkvar={q_limit:.12g} Minkvar={-q_limit:.12g} Pvfactor=0.1"
-            if generator.bus_type == "pv"
-            else ""
-        )
+        # The reactive capability is a declared engineering input, and the live
+        # adapter stopped inventing one (see network.py): an undeclared limit
+        # means no limit. This exporter had kept deriving sqrt(mva^2 - P^2),
+        # so the review package disagreed with the model that produced the run.
+        declared_limit = generator.reactive_limit_mvar
+        if generator.bus_type == "pv":
+            limits = (
+                f" Maxkvar={declared_limit * 1000.0:.12g} Minkvar={-declared_limit * 1000.0:.12g}"
+                if declared_limit is not None
+                else " Pvfactor=0.1"
+            )
+        else:
+            limits = ""
         machine = generator.dynamics
         if machine is None:
             dynamic_props = f" Xdp={generator.xdpp_pu} Xdpp={generator.xdpp_pu}"
@@ -405,6 +412,36 @@ def _inline_network(L: list[str], case: Case) -> None:
             f"kVA={gen_mva * 1000} model={model} Vpu={generator.pu}{limits}"
             f"{dynamic_props}"
         )
+
+    # Shunts were missing from this exporter entirely: a Case carrying capacitor
+    # banks or reactors produced a review package without them, so the exported
+    # network was not the network the run solved. Mirrors compile_inline.
+    for shunt in inline.shunts or []:
+        kv = shunt.kv if shunt.kv is not None else bus_kv[shunt.bus]
+        connected = shunt.steps if shunt.steps_in_service is None else shunt.steps_in_service
+        nodes = getattr(shunt, "phase_nodes", None)
+        if nodes and len(nodes) < 3:
+            phase_count = len(nodes)
+            bus_ref = shunt.bus + "." + ".".join(str(node) for node in nodes)
+            kv_value = kv / math.sqrt(3)
+        else:
+            phase_count = 3
+            bus_ref = shunt.bus
+            kv_value = kv
+        disabled = "" if shunt.in_service else " enabled=n"
+        if shunt.q_mvar >= 0:
+            L.append(
+                f"New {_dss_object('Capacitor', shunt.name)} bus1={_dss_quote(bus_ref)} "
+                f"phases={phase_count} kv={kv_value} "
+                f"kvar={shunt.q_mvar * shunt.steps * 1000.0} numsteps={shunt.steps} "
+                f"states={connected}{disabled}"
+            )
+        else:
+            L.append(
+                f"New {_dss_object('Reactor', shunt.name)} bus1={_dss_quote(bus_ref)} "
+                f"phases={phase_count} kv={kv_value} kvar={abs(shunt.q_mvar) * 1000.0}"
+                f"{disabled}"
+            )
     L += [
         "Set VoltageBases=["
         + " ".join(sorted({str(bus.kv) for bus in inline.buses}, key=float, reverse=True))

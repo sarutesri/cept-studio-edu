@@ -4,7 +4,7 @@
     "public-release.yaml": "1150660c4d7caf9c9029fa4be5c1c9352cfc111588dc2aa5837a57be236eb5de",
     "src/cept/public.py": "9860916bfe7e4fa98992761124e7ecc8b286b1f4fde5a8b3c678b6658e074f94",
     "src/cept/public_cli.py": "3aab6f5c68f2ab524dce40ae7c9ea4d32e6a109cac08a8d2c3cced796670ad36",
-    "src/cept_advanced/registry.py": "a61664a8b7b24c859dc4dc0c76aaf3d212f9adcedfdee1a85ec843a5d470938f"
+    "src/cept_advanced/registry.py": "edd9e06f827658916848000d466a2d8ad9598dd42a18228f3a97255873c59ba4"
   },
   "free": {
     "distribution": "cept-power-studio",
@@ -130,6 +130,19 @@
       {
         "label": "PowerFactory QSTS benchmark evidence producer",
         "capabilities": [
+          "gridcode_evaluate_criteria",
+          "gridcode_plan_interconnection",
+          "gridcode_ingest_grid_code",
+          "gridcode_pea_2016_profile",
+          "gridcode_review_grid_code_profile",
+          "gridcode_create_research_signoff",
+          "gridcode_validate_custom_manifest",
+          "gridcode_custom_manifest_diagnostics",
+          "gridcode_models",
+          "gridcode_resolve_custom_path",
+          "gridcode_resolve_custom_project_root",
+          "gridcode_vet_entrypoint_commands",
+          "gridcode_extract_grid_code_pages",
           "run_powerfactory_qsts",
           "validate_qsts_clock"
         ]
@@ -176,7 +189,7 @@
         ]
       }
     ],
-    "capability_count": 43,
+    "capability_count": 56,
     "validation": {
       "state": "not_validated_here",
       "why": "Every capability below is implemented behind a licensed PowerFactory session (13 declared targets), and this build has no such host, so none of them was executed here",
