@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "97e5a201c14f63df938c0e1e1acf8f6d09700412",
+  "canonical_source_commit": "f07b0f30a5d3a7017e0da2c8521789d60628875a",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -270,12 +270,12 @@
     {
       "path": "public/notebooks/08_ask_in_plain_words.ipynb",
       "source": "public/notebooks/08_ask_in_plain_words.ipynb",
-      "sha256": "44056c94d6418c046e36b33f8042d0e92db177d42c288ef294d1557d36f7cae8"
+      "sha256": "c9a4c578cbcacc258a08ec7fbe26af2b71fef0c1a00346a9c5c51500a38eb076"
     },
     {
       "path": "public/notebooks/09_workflow_recipe.ipynb",
       "source": "public/notebooks/09_workflow_recipe.ipynb",
-      "sha256": "efa290631cc36b025cb933772a759f2465db83f027a9ca937e62fdee8c691eb0"
+      "sha256": "74d3efa7fccfd55e0ad8da614d021a42aea46e7535a48cff98d7c7a3c32631d8"
     },
     {
       "path": "public/notebooks/README.md",
@@ -305,22 +305,22 @@
     {
       "path": "recipes/release-qualification.yaml",
       "source": "recipes/release-qualification.yaml",
-      "sha256": "2c7a0cff854c2f15ae2619648931259326bc27e30989f0bf5c6ba022a78d895e"
+      "sha256": "417ad4e85b8ec6b6a30afc79efdce1744105ba9c57b3ef2da4e5f80d5155d587"
     },
     {
       "path": "recipes/report-preparation.yaml",
       "source": "recipes/report-preparation.yaml",
-      "sha256": "885be68db3bca382b29b15ffd337ce2d3572d844f8e59f53713ea213e266ebc8"
+      "sha256": "0d32deb5ab4df1bcfc0b5bb7749cd597e41bb2575220bf1df3827dea0e9dd9e9"
     },
     {
       "path": "recipes/run-audit.yaml",
       "source": "recipes/run-audit.yaml",
-      "sha256": "7186a16ae13e39fd89b10287ce1c4085c5ba90caf7f837b9dd5004e2842981cc"
+      "sha256": "8ad70c4d228ea813c089887b86e42bd493878cfacd00c7ac4698a29295ea2532"
     },
     {
       "path": "recipes/study-evidence.yaml",
       "source": "recipes/study-evidence.yaml",
-      "sha256": "1e733cbb234e8780eef15ac72df0562fc9e3cc33d51a0c8bed1fe98891543009"
+      "sha256": "6c845a33005c01f3c489e2007fe2300a427d70eedb843f2127e76a1e251fb9b3"
     },
     {
       "path": "src/cept/__init__.py",
@@ -725,22 +725,22 @@
     {
       "path": "src/cept/recipes/registry.py",
       "source": "src/cept/recipes/registry.py",
-      "sha256": "b555cd48f7d254619ad1e60e34fff13ee4572cb7724932f6179310363c6bfae4"
+      "sha256": "ecfb26d6b8b9326670a16e3326723a0e011a99eb3f11ba8e6a336210379ad81e"
     },
     {
       "path": "src/cept/recipes/run_result.py",
       "source": "src/cept/recipes/run_result.py",
-      "sha256": "5394688dd37ad66a58f0f4c754c8c8c5a2022152c11e67e0298e3106458ad377"
+      "sha256": "ec89b5b1acbfab53191030ec2955865a0e27139beac80ba82d9e30fb8a6e4225"
     },
     {
       "path": "src/cept/recipes/runner.py",
       "source": "src/cept/recipes/runner.py",
-      "sha256": "4ab2fa76b2f904e28e378774f7f8bb26d973b2954545af10bc20e51deaa98b90"
+      "sha256": "4b28165e31ffd13e593054608de7b43a39a30d634076a5e7f6a72d13402f3294"
     },
     {
       "path": "src/cept/recipes/schema.py",
       "source": "src/cept/recipes/schema.py",
-      "sha256": "b353a639a05d506dfcedaedd3a053d84e7252c7f7c4532149d4cb36d856bf520"
+      "sha256": "0d1b55125ee55461b0f83f3ee0e4a5169322b1ec51abc766244d528b50052199"
     },
     {
       "path": "src/cept/report_server.py",
@@ -950,7 +950,7 @@
     {
       "path": "src/cept/schema/recipe-v1.schema.json",
       "source": "src/cept/schema/recipe-v1.schema.json",
-      "sha256": "64279c619bad6fbbdb9e4f85e39ad4d707aaae90afa1d38e0fe2250d647fd97f"
+      "sha256": "2a25bf5722d5e943bad02612c3fd0aa3e44a7918b22ceabb5d4310e3439dabe5"
     },
     {
       "path": "src/cept/schema/reference_topologies.py",

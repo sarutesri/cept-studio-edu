@@ -112,7 +112,7 @@ inputs:
 
 stages:
   - id: check-case
-    operation: case.check
+    operation: check.case
     owner: python
     inputs:
       case: case
@@ -133,7 +133,7 @@ stages:
         infers a missing engineering input.
 
   - id: run-study
-    operation: study.run
+    operation: run.study
     owner: python
     inputs:
       case: case
@@ -169,7 +169,7 @@ stages:
         re-executes to obtain a cleaner result and never edits the Case.
 
   - id: verify-run
-    operation: study.verify
+    operation: verify.study
     owner: python
     inputs:
       run_dir: run_dir
@@ -241,7 +241,7 @@ stages:
         missing report, failed verification, or failed notebook assembly.
 
   - id: write-receipt
-    operation: receipt.write
+    operation: write.receipt
     owner: python
     inputs:
       receipt_path: receipt_path

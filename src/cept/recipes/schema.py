@@ -461,7 +461,7 @@ def _load_sub_recipe(base_dir: Path, name: str) -> Recipe:
     if any(isinstance(stage, RecipeIncludeStage) for stage in child.stages):
         raise RecipeError(f"includes: sub-recipe '{name}' declares nested includes")
     if any(
-        stage.operation == "receipt.write"
+        stage.operation == "write.receipt"
         for stage in child.stages
         if isinstance(stage, RecipeStage)
     ):

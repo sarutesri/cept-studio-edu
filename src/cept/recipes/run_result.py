@@ -171,7 +171,7 @@ class VerificationEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     stage_id: str = Field(min_length=1)
-    operation: Literal["study.verify"]
+    operation: Literal["verify.study"]
     artifact: str = Field(min_length=1)
     artifact_path: str
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -306,10 +306,10 @@ class RecipeRunResult(BaseModel):
                 raise ValueError("passed: requires non-empty hashed expected artifact evidence")
             evidence = self.verification_evidence
             if evidence is None:
-                raise ValueError("passed: requires explicit study.verify verification_evidence")
+                raise ValueError("passed: requires explicit verify.study verification_evidence")
             stage = completed.get(evidence.stage_id)
             if stage is None or stage.operation != evidence.operation:
-                raise ValueError("passed: verification evidence must name a completed study.verify")
+                raise ValueError("passed: verification evidence must name a completed verify.study")
             if (
                 evidence.artifact not in stage.outputs
                 or stage.artifact_hashes.get(evidence.artifact) != evidence.sha256
@@ -348,7 +348,7 @@ def write_run_result(path: Path, result: RecipeRunResult) -> None:
     protected.extend(root / name for name in result.missing_expected_artifacts)
     run_dirs = {root}
     for stage in result.stages:
-        if stage.operation == "receipt.write":
+        if stage.operation == "write.receipt":
             continue
         stage_root = Path(stage.inputs.get("run_dir", str(root)))
         run_dirs.add(stage_root)

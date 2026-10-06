@@ -162,14 +162,14 @@
         "operation": {
           "description": "Exactly one registered operation id.",
           "enum": [
-            "case.check",
-            "study.run",
-            "study.verify",
-            "compare.runs",
-            "report.render",
-            "report.serve",
-            "report.notebook",
-            "receipt.write"
+            "check.case",
+            "run.study",
+            "verify.study",
+            "audit.artifacts", "audit.perunit", "audit.physics", "audit.release", "compare.runs",
+            "render.report",
+            "serve.report",
+            "assemble.notebook",
+            "write.receipt"
           ]
         },
         "owner": {

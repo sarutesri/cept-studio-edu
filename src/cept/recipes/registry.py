@@ -59,7 +59,7 @@ _OPERATIONS: tuple[Operation, ...] = (
     # audit: it produces the run's own verdict, and an audit passing is
     # explicitly not a correctness proof.
     Operation(
-        id="case.check",
+        id="check.case",
         owner="python",
         summary=(
             "Validate a typed Case and its build receipt before any study runs, through "
@@ -69,7 +69,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=(),
     ),
     Operation(
-        id="study.run",
+        id="run.study",
         owner="python",
         summary=(
             "Execute the Case's declared studies through the one execution owner, through "
@@ -79,7 +79,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=("results.json", "manifest.json", "validation_report.json", "report.html"),
     ),
     Operation(
-        id="study.verify",
+        id="verify.study",
         owner="python",
         summary=(
             "Verify an explicit set of run artifacts before claiming completion, through "
@@ -99,7 +99,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=(),
     ),
     Operation(
-        id="report.render",
+        id="render.report",
         owner="python",
         summary=(
             "Render the run's HTML report through the reporting owner, through "
@@ -110,7 +110,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=("report.html",),
     ),
     Operation(
-        id="report.serve",
+        id="serve.report",
         owner="python",
         summary=(
             "Serve an already rendered run report over localhost for review, through "
@@ -120,7 +120,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=(),
     ),
     Operation(
-        id="report.notebook",
+        id="assemble.notebook",
         owner="python",
         summary=(
             "Assemble notebook output from persisted run artifacts, through "
@@ -131,7 +131,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         required_outputs=("run-notebook.ipynb",),
     ),
     Operation(
-        id="receipt.write",
+        id="write.receipt",
         owner="python",
         summary=(
             "Write the deterministic workflow completion receipt (recipe-run.json) from the "

@@ -98,7 +98,7 @@ inputs:
 
 stages:
   - id: verify-run
-    operation: study.verify
+    operation: verify.study
     owner: python
     inputs:
       run_dir: run_dir
@@ -186,7 +186,7 @@ stages:
         could not see.
 
   - id: write-receipt
-    operation: receipt.write
+    operation: write.receipt
     owner: python
     inputs:
       receipt_path: receipt_path

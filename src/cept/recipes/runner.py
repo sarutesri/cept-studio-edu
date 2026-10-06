@@ -109,7 +109,7 @@ RUN_DIR_RELATIVE_INPUTS = frozenset({"notebook_output"})
 #: Operations whose completion is verification evidence. The registry owns the
 #: operation vocabulary but carries no verification flag, so the runner reads
 #: these ids explicitly rather than guessing from a summary string.
-VERIFICATION_OPERATION_IDS = frozenset({"study.verify"})
+VERIFICATION_OPERATION_IDS = frozenset({"verify.study"})
 
 #: Named failure transitions in the order the runner evaluates them.
 FAILURE_TRANSITION_PRIORITY = ("blocked", "review", "next")
@@ -427,10 +427,10 @@ def plan_stages(recipe: Recipe, values: dict[str, str], base_dir: Path) -> list[
     )
     protected.extend(
         item.output_root / name for item in planned
-        if item.operation.id != "receipt.write" for name in item.outputs
+        if item.operation.id != "write.receipt" for name in item.outputs
     )
     for item in planned:
-        if item.operation.id == "receipt.write" and item.blocked_reason is None:
+        if item.operation.id == "write.receipt" and item.blocked_reason is None:
             destination = resolve_bound_path(item.inputs["receipt_path"], item.output_root)
             payload = read_json(destination)
             existing_receipt = isinstance(payload, dict) and payload.get("schema") == RUN_RESULT_SCHEMA_ID
@@ -835,18 +835,18 @@ def _write_receipt(item: PlannedStage, context: PythonStageContext) -> PythonSta
 #: Exactly the operation ids this runner can execute in process. A registered
 #: operation absent here fails closed at planning time.
 PYTHON_OPERATIONS: Mapping[str, Callable[[PlannedStage, PythonStageContext], PythonStageOutcome]] = {
-    "case.check": _check_case,
-    "study.run": _run_study,
-    "study.verify": _verify_run,
+    "check.case": _check_case,
+    "run.study": _run_study,
+    "verify.study": _verify_run,
     "compare.runs": _compare_runs,
-    "report.render": _render_report,
-    "report.serve": _serve_report,
-    "report.notebook": _assemble_notebook,
+    "render.report": _render_report,
+    "serve.report": _serve_report,
+    "assemble.notebook": _assemble_notebook,
     "audit.physics": _physics_audit,
     "audit.artifacts": _artifacts_audit,
     "audit.perunit": _per_unit_audit,
     "audit.release": _release_qualify,
-    "receipt.write": _write_receipt,
+    "write.receipt": _write_receipt,
 }
 
 
@@ -1044,7 +1044,7 @@ def verification_evidence(runs: list[StageRun]) -> VerificationEvidence | None:
             ):
                 return VerificationEvidence(
                     stage_id=run.stage_id,
-                    operation="study.verify",
+                    operation="verify.study",
                     artifact=name,
                     artifact_path=str(path),
                     sha256=digest,

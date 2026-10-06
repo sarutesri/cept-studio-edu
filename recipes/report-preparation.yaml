@@ -49,7 +49,7 @@ inputs:
 
 stages:
   - id: verify-run
-    operation: study.verify
+    operation: verify.study
     owner: python
     inputs:
       run_dir: run_dir
@@ -69,7 +69,7 @@ stages:
         pass counts, and this fragment never presents a run that lacks one.
 
   - id: render-report
-    operation: report.render
+    operation: render.report
     owner: python
     inputs:
       run_dir: run_dir
@@ -88,7 +88,7 @@ stages:
         presenting a run without its report.
 
   - id: prepare-notebook
-    operation: report.notebook
+    operation: assemble.notebook
     owner: python
     inputs:
       run_dir: run_dir
