@@ -1013,7 +1013,16 @@ class InlineShunt(BaseModel):
     powerfactory_bcap: Optional[float] = Field(
         None,
         ge=0,
-        description="Source ElmShnt.bcap input, retained verbatim for LAY mode.",
+        description=(
+            "Source ElmShnt.bcap input, retained verbatim for LAY mode. "
+            "PowerFactory's unit is micro-Siemens at the bank's rated voltage, "
+            "so a declared rating converts as bcap[uS] = 1e6 * q_mvar / kv^2 "
+            "(a 200 MVAr bank at 230 kV is 3780.72, not 3.78). Stating this "
+            "matters: LAY mode makes bcap the input and qcapn a computed "
+            "result, and a bank given in the wrong unit is built and then "
+            "contributes nothing -- no error, no reactive support, just a "
+            "network that quietly lost it."
+        ),
     )
     series_reactor_r_ohm: Optional[float] = Field(None, ge=0)
     series_reactor_x_ohm: Optional[float] = Field(None, ge=0)

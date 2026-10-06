@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "ed8aa229eeafb1bf0704808f408a4d03a3aa39dd",
+  "canonical_source_commit": "97e5a201c14f63df938c0e1e1acf8f6d09700412",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -930,7 +930,7 @@
     {
       "path": "src/cept/schema/case/network.py",
       "source": "src/cept/schema/case/network.py",
-      "sha256": "0aad715e8fc49668964598cdd6397a7ecc983a665f1ae16ca4823a2bafb71b32"
+      "sha256": "0e486547e40e22e86a2c490b36f317fd93cd88ec7bde526ec7491029b564c791"
     },
     {
       "path": "src/cept/schema/intake_provenance.py",
