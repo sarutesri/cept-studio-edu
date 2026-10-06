@@ -38,6 +38,12 @@ from cept.recipes.schema import (
 
 SCHEMA = "workflow-recipe-v2"
 
+#: Every top-level key a v2 document may carry. Anything else is refused: a
+#: misspelt `limit:` or `must_produces:` would otherwise vanish without a word.
+_DOCUMENT_KEYS = frozenset(
+    {"schema", "id", "version", "title", "description", "needs", "steps", "must_produce", "limits"}
+)
+
 #: What a step may say after the operation. `optional` is derived: a stage that
 #: may continue is optional, and a stage that stops is required.
 _STEP_KEYS = frozenset({"on_failure", "reason", "needs", "include", "operation", "id"})
@@ -77,7 +83,7 @@ def _input(name: str, declaration: Any) -> RecipeInput:
         return RecipeInput(name=name, type="string", required=False, description="", default=declaration)
     if not isinstance(declaration, dict):
         raise RecipeError(f"needs.{name}: must be a mapping or a default value, got {declaration!r}")
-    unknown = set(declaration) - {"type", "default", "optional"}
+    unknown = set(declaration) - {"type", "default", "optional", "description"}
     if unknown:
         raise RecipeError(f"needs.{name}: unknown key(s): {', '.join(sorted(unknown))}")
     kind = declaration.get("type", "string")
@@ -90,7 +96,7 @@ def _input(name: str, declaration: Any) -> RecipeInput:
         name=name,
         type=kind,
         required=not (has_default or bool(declaration.get("optional"))),
-        description="",
+        description=str(declaration.get("description", "")),
         default=declaration.get("default"),
     )
 
@@ -217,9 +223,8 @@ def _step(entry: Any, index: int, known: set[str]) -> RecipeStage | RecipeInclud
 def translate(document: dict[str, Any]) -> dict[str, Any]:
     """Render a v2 document as the shape the typed models already accept.
 
-    The output is a v1 document because the models, the runner, the plan, the
-    receipt and `--explain` all speak it. v2 changes what a person writes, not
-    what runs.
+    The output is the typed shape the models, the runner, the plan, the receipt
+    and `--explain` all speak. v2 changes what a person writes, not what runs.
 
     Two things the writer no longer states are filled in here. The runner walks
     the workflow through each stage's success transition, so the chain of
@@ -229,6 +234,12 @@ def translate(document: dict[str, Any]) -> dict[str, Any]:
     the receipt does not require it.
     """
 
+    unknown = sorted(set(document) - _DOCUMENT_KEYS)
+    if unknown:
+        raise RecipeError(
+            f"unknown top-level key(s): {', '.join(unknown)}; a v2 recipe may declare "
+            f"{', '.join(sorted(_DOCUMENT_KEYS))}"
+        )
     needs = document.get("needs") or {}
     if not isinstance(needs, dict):
         raise RecipeError("needs: must be a mapping of input name to its declaration")
@@ -284,7 +295,7 @@ def translate(document: dict[str, Any]) -> dict[str, Any]:
         )
 
     return {
-        "schema": "workflow-recipe-v1",
+        "schema": SCHEMA,
         "id": document["id"],
         "version": document.get("version", "1.0.0"),
         "title": document["title"],

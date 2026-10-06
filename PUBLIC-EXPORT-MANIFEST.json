@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "db55339db8993eab637dd11e44d8dcfbb76fddb8",
+  "canonical_source_commit": "bebed4c703fced9a7b0904e11f981d2e36cf1a87",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -38,7 +38,7 @@
     "src/cept/schema/intake_provenance.py",
     "src/cept/schema/intake_resolution.py",
     "src/cept/schema/provenance.py",
-    "src/cept/schema/recipe-v1.schema.json",
+    "src/cept/schema/recipe-v2.schema.json",
     "src/cept/schema/reference_topologies.py",
     "src/cept/schema/result.py",
     "src/cept/schema/sld.py",
@@ -182,7 +182,7 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "4b75f1c1fdb1437d17efc4834f4a68e40f4974b390c2ff07c21293efe905d5cd"
+      "sha256": "3cae70d0d3a71ec18e64d0069355be0d67058dc70fca0798f7ef551a3558c39a"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
@@ -292,7 +292,7 @@
     {
       "path": "public/site/edition-boundary.json",
       "source": "public/site/edition-boundary.json",
-      "sha256": "954fd832cfc916bef156ef79c54b215c8d88da8282f77996a0e230b789dc3f0b"
+      "sha256": "6e8d32fcf1cacc88fefd50f9c22b98a8fc115f6fe04038e229fded9d4f8545f0"
     },
     {
       "path": "public/site/education.css",
@@ -302,7 +302,7 @@
     {
       "path": "pyproject.toml",
       "source": "packaging/public/pyproject.toml",
-      "sha256": "ea8edcd7a8ba0819239635693a82edc441f11dd25d59caac4d448f04be3b1598"
+      "sha256": "811433f2ae48b3aa00983739c74934e40bae50aae9582b78fa41e8bfe3194013"
     },
     {
       "path": "recipes/release-qualification.yaml",
@@ -702,7 +702,7 @@
     {
       "path": "src/cept/public_cli.py",
       "source": "src/cept/public_cli.py",
-      "sha256": "578ef6b3381ba8a0b6efdbb6a4d06a782b51a904d228ccbf28c8c5b4c2067eda"
+      "sha256": "6cfec6dc1dc123613cf7b7e3d2b0d8a75c422b4611cf4327044f319c9191ec69"
     },
     {
       "path": "src/cept/public_notebook.py",
@@ -747,12 +747,12 @@
     {
       "path": "src/cept/recipes/schema.py",
       "source": "src/cept/recipes/schema.py",
-      "sha256": "b06932a9fefda43b6f510bcceab71e483a6dc8fd36c64668d57668a8ae9d5d29"
+      "sha256": "dc7123fb453d95fb85899171585265784c108482be4f066347c05eae29040253"
     },
     {
       "path": "src/cept/recipes/v2.py",
       "source": "src/cept/recipes/v2.py",
-      "sha256": "593600ef1b3bd71892df1ba0064b48c6d02eea08725362bde58c0bd68cdef1a0"
+      "sha256": "eef7e0fb6692e447b22e266ec7424964b4e01880997e3cf864380759b697cd49"
     },
     {
       "path": "src/cept/report_server.py",
@@ -960,9 +960,9 @@
       "sha256": "3abbcd25c4a06efe5e4ecae4f6b37bba5b842b961f42d0664a6ed06b22c8b814"
     },
     {
-      "path": "src/cept/schema/recipe-v1.schema.json",
-      "source": "src/cept/schema/recipe-v1.schema.json",
-      "sha256": "2a25bf5722d5e943bad02612c3fd0aa3e44a7918b22ceabb5d4310e3439dabe5"
+      "path": "src/cept/schema/recipe-v2.schema.json",
+      "source": "src/cept/schema/recipe-v2.schema.json",
+      "sha256": "c599574ed6163491920bfd467f11959d01ccfbf257445dc7b7b4b576438f6719"
     },
     {
       "path": "src/cept/schema/reference_topologies.py",

@@ -109,7 +109,7 @@ export:
     # `**` entry would copy unrelated schema modules into the public tree
     # silently. This wheel now ships the recipe runtime (owner decision
     # 2026-10-03, T-028: both `study-evidence` and `report-preparation` ship),
-    # so `recipe-v1.schema.json` and the intake/topology modules the recipe
+    # so `recipe-v2.schema.json` and the intake/topology modules the recipe
     # surface reaches are public contract. Only the schema modules the shipped
     # recipe closure actually reaches are listed.
     - src/cept/schema/__init__.py
@@ -120,7 +120,7 @@ export:
     - src/cept/schema/intake_provenance.py
     - src/cept/schema/intake_resolution.py
     - src/cept/schema/provenance.py
-    - src/cept/schema/recipe-v1.schema.json
+    - src/cept/schema/recipe-v2.schema.json
     - src/cept/schema/reference_topologies.py
     - src/cept/schema/result.py
     - src/cept/schema/sld.py

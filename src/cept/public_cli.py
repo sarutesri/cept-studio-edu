@@ -99,11 +99,17 @@ def _parser() -> argparse.ArgumentParser:
     )
     run.add_argument(
         "--input",
+        "--inputs",
         dest="inputs",
         action="append",
         default=None,
         metavar="NAME=VALUE",
         help="supply one declared recipe input; repeatable, e.g. case=case.json",
+    )
+    run.add_argument(
+        "--verbose",
+        action="store_true",
+        help="with --recipe: print each stage's operation, status, exit code and transition",
     )
     run.add_argument(
         "--explain",
@@ -580,6 +586,22 @@ def _run_verb(args: argparse.Namespace) -> int:
     """``cept run``: exactly one of a Case path or ``--demo``, never a guess."""
     if args.recipe:
         return _run_recipe(args)
+    # Recipe-only options on a Case or demo run would be silently ignored, and a
+    # caller who wrote `--dry-run` would get a real run. Refuse, as the full CLI does.
+    stray = [
+        flag
+        for flag, used in (
+            ("--input", args.inputs),
+            ("--dry-run", args.dry_run),
+            ("--explain", args.explain),
+            ("--verbose", args.verbose),
+        )
+        if used
+    ]
+    if stray:
+        return _refuse(
+            f"`cept run` was given recipe-only option(s) {' '.join(stray)} without --recipe."
+        )
     if args.case and args.demo:
         return _refuse(
             "`cept run` was given both a Case path and --demo. Use "
@@ -627,6 +649,13 @@ def _run_recipe(args: argparse.Namespace) -> int:
 
     from cept.recipes.runner import main as recipe_main
 
+    # A run writes evidence, so where it lands is the caller's decision, as it
+    # is for `cept run <case.json>`. `--explain` writes nothing and needs none.
+    if args.out is None and not getattr(args, "explain", False):
+        return _refuse(
+            "`cept run --recipe` needs `--out <dir>` for the workflow receipt; "
+            "`--explain` alone reads the recipe and writes nothing."
+        )
     argv = [str(args.recipe)]
     for item in args.inputs or ():
         argv += ["--input", item]
@@ -636,6 +665,8 @@ def _run_recipe(args: argparse.Namespace) -> int:
         argv.append("--explain")
     if args.dry_run:
         argv.append("--dry-run")
+    if args.verbose:
+        argv.append("--verbose")
     return recipe_main(argv)
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
 {
   "schema": "cept-edition-boundary-v1",
   "derived_from": {
-    "public-release.yaml": "4b75f1c1fdb1437d17efc4834f4a68e40f4974b390c2ff07c21293efe905d5cd",
+    "public-release.yaml": "3cae70d0d3a71ec18e64d0069355be0d67058dc70fca0798f7ef551a3558c39a",
     "src/cept/public.py": "9860916bfe7e4fa98992761124e7ecc8b286b1f4fde5a8b3c678b6658e074f94",
-    "src/cept/public_cli.py": "578ef6b3381ba8a0b6efdbb6a4d06a782b51a904d228ccbf28c8c5b4c2067eda",
+    "src/cept/public_cli.py": "6cfec6dc1dc123613cf7b7e3d2b0d8a75c422b4611cf4327044f319c9191ec69",
     "src/cept_advanced/registry.py": "edd9e06f827658916848000d466a2d8ad9598dd42a18228f3a97255873c59ba4"
   },
   "free": {
@@ -45,7 +45,8 @@
           "--input",
           "--network",
           "--out",
-          "--recipe"
+          "--recipe",
+          "--verbose"
         ]
       },
       {

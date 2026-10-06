@@ -53,7 +53,7 @@ include = ["cept", "cept.*"]
 # the installed layout (share/cept/recipes) as well as a source checkout.
 [tool.setuptools.data-files]
 "share/cept/recipes" = ["recipes/study-evidence.yaml", "recipes/report-preparation.yaml", "recipes/run-audit.yaml", "recipes/release-qualification.yaml"]
-"share/cept/schemas" = ["src/cept/schema/recipe-v1.schema.json"]
+"share/cept/schemas" = ["src/cept/schema/recipe-v2.schema.json"]
 
 # The HTML report renderer (jinja2) loads its templates/static from the package.
 [tool.setuptools.package-data]

@@ -1,8 +1,8 @@
 """Typed workflow-recipe model and loader.
 
 A person writes a `workflow-recipe-v2` document (`cept.recipes.v2`);
-`load_recipe` translates it into the typed model below, whose internal
-discriminator is `workflow-recipe-v1`.
+`load_recipe` translates it into the typed model below, which carries the
+same `workflow-recipe-v2` name: there is one recipe format, not two.
 
 A recipe *describes* which registered operation to run, with which declared
 inputs, and which named transition to take afterwards. It never contains
@@ -10,8 +10,9 @@ executable content, loops, retries, parallelism, scheduling, or recursion.
 Those prohibitions are hard failures here, never warnings, so a malformed or
 over-capable recipe fails closed before a runner can act on it.
 
-The JSON Schema artifact that mirrors this module lives next to the rest of the
-typed schemas in ``src/cept/schema/recipe-v1.schema.json``.
+The JSON Schema a recipe *author* validates against is
+``src/cept/schema/recipe-v2.schema.json``; it describes the document, not this
+typed model.
 
 This module deliberately does not import the CLI. Operation ids come from
 :mod:`cept.recipes.registry` (imported lazily inside the validators to keep the
@@ -30,7 +31,7 @@ from typing import Any, Iterator, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-RECIPE_SCHEMA_ID = "workflow-recipe-v1"
+RECIPE_SCHEMA_ID = "workflow-recipe-v2"
 
 _YAML_SUFFIXES = frozenset({".yaml", ".yml"})
 _JSON_SUFFIXES = frozenset({".json"})
@@ -236,7 +237,7 @@ class RecipeIncludeStage(BaseModel):
                 yield f"{label}.{name}", target
 
 # The published contract names the discriminator field `schema`
-# (`schema: workflow-recipe-v1`). Pydantic warns that this shadows the
+# (`schema: workflow-recipe-v2`). Pydantic warns that this shadows the
 # deprecated `BaseModel.schema` classmethod; the field is what callers read and
 # `model_dump` still emits it, so the notice is noise for an imported package.
 warnings.filterwarnings(
@@ -252,7 +253,7 @@ class Recipe(BaseModel):
 
     # The published contract names the discriminator `schema`; mypy sees pydantic's
     # deprecated `BaseModel.schema` classmethod under that name.
-    schema: Literal["workflow-recipe-v1"]  # type: ignore[assignment]
+    schema: Literal["workflow-recipe-v2"]  # type: ignore[assignment]
     id: str
     version: str
     title: str
