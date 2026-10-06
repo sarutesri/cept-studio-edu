@@ -234,7 +234,7 @@ def hosting_capacity_figure(hc: HostingCapacityResult) -> str:
         "overvoltage": "#d62728",
         "thermal": "#9467bd",
         "maxed": "#2ca02c",
-        "baseline-violation": "#7f7f7f",
+        "none": "#7f7f7f",
     }
     fig = go.Figure()
     fig.add_trace(

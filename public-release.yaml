@@ -20,6 +20,8 @@ education:
     - public/notebooks/07_digital_evidence.ipynb
     - public/notebooks/08_ask_in_plain_words.ipynb
     - public/notebooks/09_workflow_recipe.ipynb
+    - public/notebooks/10_missing_line_rating.ipynb
+    - public/notebooks/11_first_dynamics.ipynb
   runner: tools/run_public_notebooks.py
 
 source:

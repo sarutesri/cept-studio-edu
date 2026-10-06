@@ -36,12 +36,13 @@ head buses are excluded from the voltage metric.</p>
 <p class="note summarised"><strong>Summarised:</strong> {{ items_summary_note }}. Full capacity curve: Section 3 chart.</p>
 {% endif %}
 <table>
-  <thead><tr><th>Bus</th><th>Hosting capacity (kW)</th><th>Limiting factor</th>
+  <thead><tr><th>Bus</th><th>Hosting capacity (kW)</th><th>Limiting factor</th><th>Limited by</th>
     <th>Max V at HC (pu)</th></tr></thead>
   <tbody>
   {% for it in items %}
     <tr><td>{{ it.bus }}</td><td>{{ '%.0f'|format(it.hc_kw) }}</td>
         <td>{{ it.limit }}</td>
+        <td>{{ it.limited_by or '—' }}</td>
         <td>{{ '%.4f'|format(it.v_at_hc) if it.v_at_hc is not none else '—' }}</td></tr>
   {% endfor %}
   </tbody>

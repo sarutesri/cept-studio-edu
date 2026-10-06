@@ -122,6 +122,10 @@ class HostingCapacityItem(BaseModel):
     hc_kw: float
     limit: str  # overvoltage | thermal | maxed | none
     v_at_hc: Optional[float] = None
+    #: The element a little more PV would push out of bounds: ``node <bus>.<phase>``
+    #: for the voltage ceiling, ``line <name>`` for a thermal limit. None when the
+    #: search hit its ceiling (``maxed``).
+    limited_by: Optional[str] = None
 
 
 class HostingCapacityResult(BaseModel):

@@ -25,71 +25,72 @@ or PowerFactory parity.
 
 ## Course path
 
-Follow five stages: start, build, apply, trust, and assist. Cells in the first
-eight lessons use the same `cept` commands as a terminal.
+Follow four tracks: start, answer feeder questions, trust a result, and
+automate. Every lesson except the last uses the same `cept` commands as a terminal.
 
 <div class="cept-course-path" markdown>
 
 <div class="cept-course-stage" markdown>
 <span class="cept-course-stage__index">Start</span>
 
-### Check your setup, then see why the voltage base matters
+### Check that the tools run
 
 **00 · Check your setup** — is the OpenDSS runtime ready, and what may a passing
 check claim?
 
-**01 · Same feeder, two voltage bases** — compare recorded outputs from an
-omitted and a declared downstream voltage base: 0.316 pu versus 0.948 pu.
-
-<span class="cept-course-stage__outcome">Outcome · See that a converged solve can still read a different voltage base.</span>
+<span class="cept-course-stage__outcome">Outcome · A working runtime, in Colab or on your computer.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Build</span>
+<span class="cept-course-stage__index">Answer feeder questions</span>
 
-### Describe a network, then meet unbalance and missing data
+### Build a feeder, then ask what it can take and what the answer rests on
 
-**02 · Build your first network** — define the IEEE 4-node feeder and inspect
+**01 · Build your first network** — define the IEEE 4-node feeder and inspect
 its single-line diagram.
 
-**03 · Unbalanced phases** — inspect each phase of IEEE13.
+**02 · Unbalanced phases** — inspect each phase of IEEE13.
 
-**04 · When data is missing** — separate source data, missing inputs, and
+**03 · Solar hosting capacity** — sweep PV against a declared voltage limit and
+see which node sets it.
+
+**04 · One missing rating, twice the solar** — with no line rating, plain
+OpenDSS assumes 400 A; CEPT refuses until the rating is stated.
+
+**05 · When data is missing** — separate source data, missing inputs, and
 approved resolutions from the bundled demonstrator.
-
-<span class="cept-course-stage__outcome">Outcome · Describe a network as data and keep missing inputs visible.</span>
-</div>
-
-<div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Apply</span>
-
-### Ask two planning questions
-
-**05 · Solar hosting capacity** — sweep PV against a declared voltage limit.
 
 **06 · Short-circuit current** — read solver-returned fault current, not a
 protection acceptance decision.
 
-<span class="cept-course-stage__outcome">Outcome · Read results against declared study criteria.</span>
+**07 · A first dynamics run** — one classical machine after one disturbance,
+with illustrative machine values.
+
+<span class="cept-course-stage__outcome">Outcome · Read results against declared criteria, and see what each answer rests on.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Trust</span>
+<span class="cept-course-stage__index">Trust a result</span>
 
-### Trace a result back to its inputs
+### Know what a result can and cannot show
 
-**07 · Trace a result** — inspect Case fingerprints, artifact hashes, and
+**08 · Same feeder, two voltage bases** — compare recorded outputs from an
+omitted and a declared downstream voltage base: 0.316 pu versus 0.948 pu.
+
+**09 · Trace a result** — inspect Case fingerprints, artifact hashes, and
 verification checks.
 
 <span class="cept-course-stage__outcome">Outcome · Tell workflow evidence apart from project validation.</span>
 </div>
 
 <div class="cept-course-stage" markdown>
-<span class="cept-course-stage__index">Assist</span>
+<span class="cept-course-stage__index">Automate</span>
 
-### Let an AI drive the commands, and see what still decides
+### Make a run repeatable, and let an AI drive it
 
-**08 · Ask in plain words** — replay a saved OpenCode session in which an agent
+**10 · Write a workflow recipe** — write a recipe and run one that ships.
+
+**11 · Ask in plain words** — replay a saved OpenCode session in which an agent
 issues `cept` commands, is refused once, and recovers. No model is called.
 
 <span class="cept-course-stage__outcome">Outcome · Separate what an agent says from what CEPT's checks establish.</span>
@@ -97,9 +98,9 @@ issues `cept` commands, is refused once, and recovers. No model is called.
 
 </div>
 
-## Real-world data in Lesson 04
+## Real-world data in Lesson 05
 
-Lesson 04 starts closer to real engineering work: the learner may have
+Lesson 05 starts closer to real engineering work: the learner may have
 incomplete information rather than a ready-made Case. It introduces the Case
 information resolution ledger and three explicit policies:
 

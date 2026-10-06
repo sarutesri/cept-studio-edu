@@ -1,7 +1,7 @@
 {
   "schema": "cept-edition-boundary-v1",
   "derived_from": {
-    "public-release.yaml": "3cae70d0d3a71ec18e64d0069355be0d67058dc70fca0798f7ef551a3558c39a",
+    "public-release.yaml": "4e5e1327f58026110f070f0961beb7c727186e3d7ae109879189624bb8205933",
     "src/cept/public.py": "9860916bfe7e4fa98992761124e7ecc8b286b1f4fde5a8b3c678b6658e074f94",
     "src/cept/public_cli.py": "6cfec6dc1dc123613cf7b7e3d2b0d8a75c422b4611cf4327044f319c9191ec69",
     "src/cept_advanced/registry.py": "edd9e06f827658916848000d466a2d8ad9598dd42a18228f3a97255873c59ba4"
@@ -72,9 +72,11 @@
       "06_fault_study",
       "07_digital_evidence",
       "08_ask_in_plain_words",
-      "09_workflow_recipe"
+      "09_workflow_recipe",
+      "10_missing_line_rating",
+      "11_first_dynamics"
     ],
-    "lesson_count": 10,
+    "lesson_count": 12,
     "validation": {
       "state": "runs_on_this_host",
       "why": "The free wheel's engine is OpenDSS, which needs no licence"

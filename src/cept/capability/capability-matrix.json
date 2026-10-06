@@ -237,6 +237,7 @@
                 "hosting_capacity.items[].hc_kw",
                 "hosting_capacity.items[].limit",
                 "hosting_capacity.items[].v_at_hc",
+                "hosting_capacity.items[].limited_by",
                 "hosting_capacity.min_hc"
               ],
               "unsupported": []

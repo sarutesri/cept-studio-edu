@@ -59,11 +59,10 @@ class Lesson:
 
 
 TRACKS: tuple[tuple[str, str, str], ...] = (
-    ("start", "Start", "Check your setup, then see why the voltage base matters."),
-    ("build", "Build", "Describe a network, then meet unbalance and missing data."),
-    ("apply", "Apply", "Ask two planning questions: how much solar, and what fault current."),
-    ("trust", "Trust", "Trace a result back to the inputs that produced it."),
-    ("assist", "Assist", "Let an AI drive the commands, and make the run repeatable."),
+    ("start", "Start", "Check that the tools run, in Colab or on your computer."),
+    ("core", "Answer feeder questions", "Build a feeder, then ask what it can take, what it rests on, and how it behaves."),
+    ("trust", "Trust a result", "See why a declared base matters, and trace a result to its inputs."),
+    ("automate", "Automate", "Make a run repeatable, and let an AI drive the same commands."),
 )
 
 LESSONS: tuple[Lesson, ...] = (
@@ -76,15 +75,7 @@ LESSONS: tuple[Lesson, ...] = (
         "environment-headline",
     ),
     Lesson(
-        "01_why_solvers_lie", "01", "start", "Same feeder, two voltage bases",
-        "Can a solve converge and still mislead?",
-        ("Two runs", "One feeder", "Node 4 voltage"),
-        "Declaring the voltage base moved the Node 4 readout from about 0.32 to about 0.95 pu.",
-        "A teaching example, not a field measurement.",
-        "comparison-table",
-    ),
-    Lesson(
-        "02_first_circuit_sld", "02", "build", "Build your first network",
+        "02_first_circuit_sld", "01", "core", "Build your first network",
         "How do I describe a small feeder as data?",
         ("Case file", "Automatic diagram", "Voltage plot"),
         "One structured input drives the run, the diagram and the saved results.",
@@ -92,7 +83,7 @@ LESSONS: tuple[Lesson, ...] = (
         "first-circuit-visual",
     ),
     Lesson(
-        "03_unbalanced_feeder", "03", "build", "Unbalanced phases",
+        "03_unbalanced_feeder", "02", "core", "Unbalanced phases",
         "Do all three phases see the same voltage?",
         ("Phase A, B and C", "Voltage spread", "Bus 671"),
         "Phases can differ. A single average would hide that.",
@@ -100,15 +91,7 @@ LESSONS: tuple[Lesson, ...] = (
         "ieee13-result",
     ),
     Lesson(
-        "04_incomplete_data", "04", "build", "When data is missing",
-        "What happens when required inputs are missing?",
-        ("Known and missing", "Three input policies", "A blocked run"),
-        "Missing inputs stay visible. A default needs explicit approval and is never treated as measured.",
-        "The demo run is separate from your own intake.",
-        "resolution-validate",
-    ),
-    Lesson(
-        "05_solar_hosting_capacity", "05", "apply", "Solar hosting capacity",
+        "05_solar_hosting_capacity", "03", "core", "Solar hosting capacity",
         "How much solar can this feeder take under one limit?",
         ("A PV sweep", "One voltage limit", "A capacity range"),
         "The answer is a range under one stated criterion, not a universal limit.",
@@ -116,7 +99,23 @@ LESSONS: tuple[Lesson, ...] = (
         "hosting-result",
     ),
     Lesson(
-        "06_fault_study", "06", "apply", "Short-circuit current",
+        "10_missing_line_rating", "04", "core", "One missing rating, twice the solar",
+        "What does a feeder's thermal limit rest on?",
+        ("A line with no rating", "Plain OpenDSS vs CEPT", "A refused run"),
+        "With no line rating, plain OpenDSS assumes 400 A and nearly doubles the answer. CEPT asks for the rating.",
+        "One example feeder; the 200 A rating is stated for the lesson, not taken from a datasheet.",
+        "rating-result",
+    ),
+    Lesson(
+        "04_incomplete_data", "05", "core", "When data is missing",
+        "What happens when required inputs are missing?",
+        ("Known and missing", "Three input policies", "A blocked run"),
+        "Missing inputs stay visible. A default needs explicit approval and is never treated as measured.",
+        "The demo run is separate from your own intake.",
+        "resolution-validate",
+    ),
+    Lesson(
+        "06_fault_study", "06", "core", "Short-circuit current",
         "What current flows for one declared fault?",
         ("Fault location", "Current by phase", "A comparison plot"),
         "A fault current for the declared case. It is not a protection setting.",
@@ -124,7 +123,23 @@ LESSONS: tuple[Lesson, ...] = (
         "fault-result",
     ),
     Lesson(
-        "07_digital_evidence", "07", "trust", "Trace a result",
+        "11_first_dynamics", "07", "core", "A first dynamics run",
+        "How does one machine swing after a fault?",
+        ("Classical machine", "Rotor angle", "Transient checks"),
+        "One machine, one disturbance, illustrative data: the swing, and the checks CEPT records for it.",
+        "Illustrative machine values; not a stability study of any real plant.",
+        "dyn-result",
+    ),
+    Lesson(
+        "01_why_solvers_lie", "08", "trust", "Same feeder, two voltage bases",
+        "Can a solve converge and still mislead?",
+        ("Two runs", "One feeder", "Node 4 voltage"),
+        "Declaring the voltage base moved the Node 4 readout from about 0.32 to about 0.95 pu.",
+        "A teaching example, not a field measurement.",
+        "comparison-table",
+    ),
+    Lesson(
+        "07_digital_evidence", "09", "trust", "Trace a result",
         "Can I show which inputs produced a result?",
         ("Two identical runs", "IDs and hashes", "An overlay plot"),
         "IDs and hashes show a run is unchanged. They do not show it is physically right.",
@@ -132,20 +147,20 @@ LESSONS: tuple[Lesson, ...] = (
         "receipt-table",
     ),
     Lesson(
-        "08_ask_in_plain_words", "08", "assist", "Ask in plain words",
-        "Can an AI drive CEPT without deciding the result?",
-        ("Saved agent session", "A blocked command", "The checks that decide"),
-        "An AI can issue the same commands you would. The checks, not the transcript, decide.",
-        "A recorded session; not a live or repeatable model run.",
-        "assist-verdict",
-    ),
-    Lesson(
-        "09_workflow_recipe", "09", "assist", "Write a workflow recipe",
+        "09_workflow_recipe", "10", "automate", "Write a workflow recipe",
         "Can I make this run happen again, exactly the same way?",
         ("A recipe file", "A real run", "The receipt"),
         "A recipe names the operations, their inputs and their artifacts. It never edits a Case value or promotes a claim.",
         "A completed workflow is not engineering or project validation.",
         "recipe-receipt",
+    ),
+    Lesson(
+        "08_ask_in_plain_words", "11", "automate", "Ask in plain words",
+        "Can an AI drive CEPT without deciding the result?",
+        ("Saved agent session", "A blocked command", "The checks that decide"),
+        "An AI can issue the same commands you would. The checks, not the transcript, decide.",
+        "A recorded session; not a live or repeatable model run.",
+        "assist-verdict",
     ),
 )
 
@@ -178,6 +193,13 @@ _TIP_ORDER = tuple(term for term, _ in sorted(GLOSSARY, key=lambda item: -len(it
 _TIP_TEXT = dict(GLOSSARY)
 
 _LESSON_BY_STEM = {lesson.stem: lesson for lesson in LESSONS}
+#: The first lesson that teaches something; lesson 00 only checks the setup.
+FIRST_LESSON = LESSONS[1]
+
+
+def _number(stem: str) -> str:
+    """The displayed number of a lesson, so no sentence hard-codes one."""
+    return _LESSON_BY_STEM[stem].number
 
 
 class SiteBuildError(ValueError):
@@ -946,7 +968,17 @@ FREE_VERB_COPY: dict[str, tuple[str, str]] = {
         "Check the evidence a run recorded, and check that run's physics with `--physics`",
     ),
 }
-FREE_STUDY_COPY = "4 OpenDSS studies — load flow, unbalanced load flow, hosting capacity, fault"
+#: Reader-facing names for the derived free studies. Keyed by the study id the
+#: code boundary produced, so the count and the list on the page come from the
+#: wheel, not from a sentence someone has to remember to update (it said "4"
+#: for a release that shipped five).
+FREE_STUDY_COPY: dict[str, str] = {
+    "load_flow": "load flow",
+    "unbalanced_load_flow": "unbalanced load flow",
+    "hosting_capacity": "hosting capacity",
+    "fault": "fault",
+    "dynamics": "classical-machine dynamics",
+}
 FREE_RECIPE_COPY = "Bundled workflow recipes"
 FREE_LESSON_COPY = "Colab lessons"
 
@@ -1004,6 +1036,9 @@ def _edition_boundary(staging_root: Path) -> dict[str, Any]:
     for name in boundary["free"]["excluded"]:
         if name not in EXCLUDED_COPY:
             raise SiteBuildError(f"no wording for derived exclusion {name!r}")
+    for name in boundary["free"].get("studies", []):
+        if name not in FREE_STUDY_COPY:
+            raise SiteBuildError(f"no wording for derived free study {name!r}")
     for verb in boundary.get("free", {}).get("verbs", []):
         if verb.get("name") not in FREE_VERB_COPY:
             raise SiteBuildError(f"no wording for derived public verb {verb.get('name')!r}")
@@ -1038,7 +1073,8 @@ def _edition_table(boundary: dict[str, Any], tips: _Tips) -> str:
         (f"{command} — {detail}", runs, "–")
         for command, detail in (FREE_VERB_COPY[verb["name"]] for verb in free["verbs"])
     ]
-    rows.append((FREE_STUDY_COPY, runs, "–"))
+    studies = [FREE_STUDY_COPY[name] for name in free["studies"]]
+    rows.append((f"{len(studies)} OpenDSS studies — {', '.join(studies)}", runs, "–"))
     rows.append((f"{FREE_RECIPE_COPY}, {len(free['recipes'])} in all", runs, "–"))
     rows.append((f"{FREE_LESSON_COPY}, {free['lesson_count']} in all", runs, "–"))
     rows.extend((ADVANCE_SECTION_COPY[section["label"]], "–", pending) for section in advance["sections"])
@@ -1067,6 +1103,52 @@ been run: {html.escape(advance["validation"]["why"])}.</p>
 the feature is broken. The two editions install separately and cannot call each other.</p>
 <p class="editions-note">Left out of the Free wheel from the start: {html.escape(excluded)}</p>
 '''
+
+
+def _free_summary(boundary: dict[str, Any]) -> str:
+    """One sentence for the homepage, derived from the same boundary as the table."""
+
+    free = boundary["free"]
+    studies = ", ".join(FREE_STUDY_COPY[name] for name in free["studies"])
+    return (
+        f"{len(free['studies'])} OpenDSS studies ({html.escape(studies)}), "
+        f"{len(free['recipes'])} workflow recipes and {free['lesson_count']} lessons; "
+        "no licence needed"
+    )
+
+
+def _editions_page(repository: str, boundary: dict[str, Any]) -> str:
+    """The full Free-vs-Advance table, on its own page.
+
+    It used to fill half the homepage with eleven rows of internal capability
+    names a learner cannot act on. The homepage keeps one derived sentence and a
+    link; this page keeps the whole derived table and every honesty note.
+    """
+
+    tips = _Tips()
+    repository_url = f"https://github.com/{repository}"
+    body = f'''
+{_header(home_href="index.html", repository_url=repository_url, home=False)}
+<main id="content" class="home">
+  <section id="editions" class="band band-editions" aria-labelledby="editions-heading">
+    <div class="shell">
+      <h1 id="editions-heading">Free wheel and Advance</h1>
+      <p class="section-sub">What each edition can do, taken from the code boundary that was actually derived</p>
+      {_edition_table(boundary, tips)}
+      <p class="limits-claim">Claim level for everything on this page:
+        {tips.tip(boundary["free"]["claim"], "The workflow runs to the end and the checks recorded for these examples pass. Nothing on this page claims more than that.", extra_class="tip-code")}</p>
+    </div>
+  </section>
+</main>
+{_footer(repository_url, note="Teaching examples, not field validation")}
+'''
+    return _page_document(
+        "Free wheel and Advance | CEPT Power Studio",
+        body,
+        stylesheet="assets/education.css",
+        lang="en",
+        description="What the free CEPT wheel runs today, and what the Advance edition declares, derived from the code.",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1099,7 +1181,7 @@ def _hero_terminal() -> str:
     the installed wheel.
     """
 
-    return '''
+    return f'''
 <figure class="terminal" aria-label="Three cept commands and their real output">
   <div class="terminal-bar" aria-hidden="true"><span></span><span></span><span></span></div>
 <pre lang="en"><code><span class="t-cmd">cept doctor</span>
@@ -1110,33 +1192,69 @@ def _hero_terminal() -> str:
 <span class="t-cmd">cept verify</span> <span class="t-out">run1</span>
 <span class="t-ok">[PASSED]</span> <span class="t-out">CEPT study check: PASSED</span>
 <span class="t-out">Checked   3 groups, 14 checks, all passed</span></code></pre>
-  <figcaption>Real output from the installed public wheel, recorded in lessons 00 and 04</figcaption>
+  <figcaption>Real output from the installed public wheel, recorded in lessons 00 and {_number("04_incomplete_data")}</figcaption>
 </figure>
 '''
 
 
-def _comparison_chart() -> str:
-    scale = 380.0
-    left = 170
-    direct = round(0.315818 * scale)
-    declared = round(0.947691 * scale)
-    tick = left + round(scale)
+RATING_LESSON = "10_missing_line_rating"
+RATING_ROWS = {
+    "plain OpenDSS default rating": "default_amps",
+    "plain OpenDSS, no rating given": "direct_default_kw",
+    "plain OpenDSS, 200 A stated": "direct_200a_kw",
+    "CEPT, 200 A stated": "cept_kw",
+    "CEPT limited by": "limited_by",
+}
+
+
+def _rating_example(staging_root: Path) -> dict[str, str]:
+    """The headline numbers, read from the lesson's saved key-result output.
+
+    The homepage repeats nothing by hand: every number in its example is the
+    text the executed notebook printed, so a re-recorded lesson moves the page
+    with it and a missing row refuses the build.
+    """
+    notebook = _read_json(staging_root / "public" / "notebooks" / f"{RATING_LESSON}.ipynb")
+    cell = next((c for c in notebook["cells"] if c.get("id") == "rating-result"), None)
+    if cell is None:
+        raise SiteBuildError(f"{RATING_LESSON} has no rating-result cell")
+    text = "".join(_text(output.get("text")) for output in cell.get("outputs", []))
+    found: dict[str, str] = {}
+    for line in text.splitlines():
+        for label, key in RATING_ROWS.items():
+            match = re.match(rf"^{re.escape(label)}\s{{2,}}(\S(?:.*\S)?)\s{{2,}}\S+\s*$", line)
+            if match:
+                found[key] = match.group(1)
+    missing = sorted(set(RATING_ROWS.values()) - set(found))
+    if missing:
+        raise SiteBuildError(f"{RATING_LESSON} saved output lacks the headline rows: {missing}")
+    return found
+
+
+def _kw(value: str) -> str:
+    return f"{float(value):,.0f} kW"
+
+
+def _rating_chart(example: dict[str, str]) -> str:
+    left, scale = 210, 300.0
+    default_kw, stated_kw = float(example["direct_default_kw"]), float(example["cept_kw"])
+    top = max(default_kw, stated_kw)
+    wide, narrow = round(default_kw / top * scale), round(stated_kw / top * scale)
+    amps = f"{float(example['default_amps']):.0f} A"
     return f'''
 <figure class="compare">
-  <svg viewBox="0 0 580 170" role="img" aria-labelledby="cmp-t cmp-d">
-    <title id="cmp-t">Voltage at Node 4 with and without a declared voltage base</title>
-    <desc id="cmp-d">A per-unit bar chart. A direct script that does not declare the voltage base reads about 0.316 at the far end, and the CEPT run that declares the base reads about 0.948. A dashed reference line marks 1.0.</desc>
-    <g class="cmp-grid"><line x1="{left}" y1="24" x2="{left}" y2="124"/><line class="cmp-ref" x1="{tick}" y1="24" x2="{tick}" y2="124"/></g>
-    <text class="cmp-lbl" x="{left - 12}" y="58" text-anchor="end">Direct script</text>
-    <text class="cmp-sub" x="{left - 12}" y="76" text-anchor="end">no base declared</text>
-    <rect class="cmp-bar cmp-bar--direct" x="{left}" y="40" width="{direct}" height="36" rx="3"/>
-    <text class="cmp-val" x="{left + direct + 10}" y="64">0.316 pu</text>
+  <svg viewBox="0 0 600 170" role="img" aria-labelledby="cmp-t cmp-d">
+    <title id="cmp-t">Solar a feeder can take before a line overheats, with and without the line's rating</title>
+    <desc id="cmp-d">Plain OpenDSS with no rating given assumes {amps} and answers {_kw(example["direct_default_kw"])}. CEPT refuses until the rating is stated; with 200 A it answers {_kw(example["cept_kw"])}.</desc>
+    <g class="cmp-grid"><line x1="{left}" y1="24" x2="{left}" y2="124"/></g>
+    <text class="cmp-lbl" x="{left - 12}" y="58" text-anchor="end">Plain OpenDSS</text>
+    <text class="cmp-sub" x="{left - 12}" y="76" text-anchor="end">no rating given, assumes {amps}</text>
+    <rect class="cmp-bar cmp-bar--direct" x="{left}" y="40" width="{wide}" height="36" rx="3"/>
+    <text class="cmp-val" x="{left + wide - 10}" y="64" text-anchor="end">{_kw(example["direct_default_kw"])}</text>
     <text class="cmp-lbl" x="{left - 12}" y="108" text-anchor="end">With CEPT</text>
-    <text class="cmp-sub" x="{left - 12}" y="126" text-anchor="end">base declared</text>
-    <rect class="cmp-bar cmp-bar--declared" x="{left}" y="90" width="{declared}" height="36" rx="3"/>
-    <text class="cmp-val" x="{left + declared - 10}" y="114" text-anchor="end">0.948 pu</text>
-    <text class="cmp-axis" x="{tick}" y="146" text-anchor="middle">1.0 pu</text>
-    <text class="cmp-axis" x="{left}" y="146" text-anchor="middle">0</text>
+    <text class="cmp-sub" x="{left - 12}" y="126" text-anchor="end">refused, then 200 A stated</text>
+    <rect class="cmp-bar cmp-bar--declared" x="{left}" y="90" width="{narrow}" height="36" rx="3"/>
+    <text class="cmp-val" x="{left + narrow - 10}" y="114" text-anchor="end">{_kw(example["cept_kw"])}</text>
   </svg>
 </figure>
 '''
@@ -1145,7 +1263,7 @@ def _comparison_chart() -> str:
 def _course_card(lesson: Lesson, *, tips: _Tips, missing_count: int, repository: str) -> str:
     _, colab_url = _urls(repository, f"public/notebooks/{lesson.stem}.ipynb")
     status = "no saved results yet" if missing_count else "results saved"
-    start = '<span class="badge">Start here</span>' if lesson.stem == "01_why_solvers_lie" else ""
+    start = '<span class="badge">Start here</span>' if lesson.stem == FIRST_LESSON.stem else ""
     return f'''
 <article class="course-card" data-lesson="{lesson.stem}">
   <div class="cc-top"><span class="cc-num">{lesson.number}</span>{start}{tips.info(lesson.takeaway, label=f"Summary of lesson {lesson.number}")}</div>
@@ -1180,6 +1298,7 @@ def _index_page(
 ) -> str:
     tips = _Tips()
     repository_url = f"https://github.com/{repository}"
+    example = _rating_example(staging_root)
     tracks_html: list[str] = []
     for key, label, note in TRACKS:
         cards = "".join(
@@ -1214,7 +1333,7 @@ def _index_page(
         ("repeat", "Ask what-if questions", "Change a value in the Case and run again — the same network gives a new answer",
          "Every Case file gets its own fingerprint, such as 748c8026c9d6. Edit the file and it changes, so you can tell the two runs apart"),
         ("limits", "Know whether you have enough data", "If you do not, it says what is missing and does not run in your place",
-         "Measured on the installed wheel: a Case asking for dynamics is refused with the message not in the CEPT Public scope; unsupported studies are blocked rather than approximated"),
+         "Measured on the installed wheel: a Case asking for RMS dynamics (dynamics_rms) is refused with the message not in the CEPT Public scope; unsupported studies are blocked rather than approximated"),
     )
     help_html = "".join(
         f'<li class="benefit">{_icon(icon)}<div><h3>{title}</h3><p>{line}</p></div>{tips.info(detail, label=f"More about {title}")}</li>'
@@ -1237,6 +1356,7 @@ def _index_page(
     shows = (
         "Examples actually run on OpenDSS, with the results saved in the lesson files",
         "A path from data to results to evidence, with no hidden step",
+        "The bundled workflow recipes run on the public wheel's own results: cept run --recipe completes and then checks that run's own evidence",
         "Where an assumption changes the answer, and by how much",
     )
     not_shows = (
@@ -1244,8 +1364,7 @@ def _index_page(
         "Deciding grid code compliance, and which cases (including BESS) have to be studied — that belongs to the system owner and the regulator, not to the program",
         "Agreement with PowerFactory in the Free wheel — there is none, and we do not claim the results match",
         "Values measured from a real system — every number on this site comes from the demo cases that ship with the program",
-        "The bundled workflow recipes do run on the public wheel's own run results: cept run --recipe completes and then checks that run's own evidence",
-        "A live AI model call — lesson 8 is a recorded session that is replayed, with no model connection",
+        f"A live AI model call — lesson {_number('08_ask_in_plain_words')} is a recorded session that is replayed, with no model connection",
     )
     body = f'''
 {_header(home_href="index.html", repository_url=repository_url, home=True)}
@@ -1256,11 +1375,24 @@ def _index_page(
       <h1 id="hero-heading">{HEADLINE}</h1>
       <p class="hero-lead">{SUBTITLE}</p>
       <div class="hero-actions">
-        <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start lesson 1 <span aria-hidden="true">→</span></a>
+        <a class="button button-primary" href="lessons/{FIRST_LESSON.stem}.html">Start the course <span aria-hidden="true">→</span></a>
         <a class="button button-quiet" href="#start">See how to start in 5 minutes</a>
       </div>
     </div>
     {_hero_terminal()}
+  </section>
+
+  <section id="example" class="shell compare-section" aria-labelledby="cmp-heading">
+    <div class="compare-copy">
+      <p class="kicker">A real example from lesson {_number(RATING_LESSON)}</p>
+      <h2 id="cmp-heading">One missing number, nearly twice the answer</h2>
+      <p>How much solar can a feeder take before a line overheats? The answer rests on the line's rating.
+        If nobody gave one, plain OpenDSS assumes {float(example["default_amps"]):.0f} A and answers anyway.
+        CEPT stops, names the missing rating, and answers once it is stated.</p>
+      <a class="text-link" href="lessons/{RATING_LESSON}.html">See both runs in lesson {_number(RATING_LESSON)} <span aria-hidden="true">→</span></a>
+    </div>
+    {_rating_chart(example)}
+    <p class="compare-note">From lesson {_number(RATING_LESSON)}'s saved output: a 12.47 kV example feeder; the 200 A rating is stated for the lesson, not a field measurement.</p>
   </section>
 
   <section id="start" class="band band-start" aria-labelledby="start-heading">
@@ -1280,15 +1412,7 @@ def _index_page(
     </div>
   </section>
 
-  <section class="shell compare-section" aria-labelledby="cmp-heading">
-    <div class="compare-copy">
-      <p class="kicker">A real example from lesson 1</p>
-      <h2 id="cmp-heading">Same network, different voltage base</h2>
-      <a class="text-link" href="lessons/01_why_solvers_lie.html">See both runs in lesson 1 <span aria-hidden="true">→</span></a>
-    </div>
-    {_comparison_chart()}
-    <p class="compare-note">Voltage at Node 4 from lesson 1's saved OpenDSS output — a teaching example, not a field measurement</p>
-  </section>
+
 
   <section id="how" class="band band-flow" aria-labelledby="how-heading">
     <div class="shell">
@@ -1300,8 +1424,9 @@ def _index_page(
 
   <section id="editions" class="band band-editions" aria-labelledby="editions-heading">
     <div class="shell">
-      <h2 id="editions-heading">Free wheel vs Advance</h2>
-      {_edition_table(boundary, tips)}
+      <h2 id="editions-heading">What the free wheel covers</h2>
+      <p class="section-sub">{_free_summary(boundary)}.
+        <a class="text-link" href="editions.html">Free wheel and Advance, side by side <span aria-hidden="true">→</span></a></p>
       <p class="limits-claim">Claim level for everything on this page:
         {tips.tip(boundary["free"]["claim"], "The workflow runs to the end and the checks recorded for these examples pass. Nothing on this page claims more than that.", extra_class="tip-code")}</p>
     </div>
@@ -1326,7 +1451,7 @@ def _index_page(
   <section class="shell final-cta">
     <h2 id="try-heading">See what your own data would say</h2>
     <div class="hero-actions">
-      <a class="button button-primary" href="lessons/01_why_solvers_lie.html">Start lesson 1 <span aria-hidden="true">→</span></a>
+      <a class="button button-primary" href="lessons/{FIRST_LESSON.stem}.html">Start the course <span aria-hidden="true">→</span></a>
       <a class="text-link" href="{html.escape(repository_url, quote=True)}">Browse the source <span aria-hidden="true">↗</span></a>
     </div>
   </section>
@@ -1398,6 +1523,9 @@ def build_site(
         _index_page(statuses, repository, boundary, staging_root),
         encoding="utf-8",
         newline="\n",
+    )
+    (output_dir / "editions.html").write_text(
+        _editions_page(repository, boundary), encoding="utf-8", newline="\n"
     )
     return {
         "schema": "cept-education-site-v1",

@@ -15,13 +15,6 @@ from cept.adapters.opendss.der import apply_ders, emit_pv
 from cept.adapters.opendss.load_flow import _solve
 
 
-def all_vpu(dss, exclude: Optional[set[str]] = None) -> list[float]:
-    exclude = exclude or set()
-    names = dss.Circuit.AllNodeNames()
-    vmag = dss.Circuit.AllBusMagPu()
-    return [v for n, v in zip(names, vmag) if n.split(".")[0].lower() not in exclude]
-
-
 def regulated_head_buses(dss) -> set[str]:
     """Source + substation/regulator transformer buses."""
     heads = {"sourcebus"}
@@ -36,18 +29,30 @@ def regulated_head_buses(dss) -> set[str]:
     return heads
 
 
-def thermal_violation(dss) -> bool:
+def highest_node(dss, exclude: Optional[set[str]] = None) -> tuple[float, str]:
+    """The highest per-unit node voltage and the node (``bus.phase``) carrying it."""
+    exclude = exclude or set()
+    names = dss.Circuit.AllNodeNames()
+    vmag = dss.Circuit.AllBusMagPu()
+    return max(
+        (v, n) for n, v in zip(names, vmag) if n.split(".")[0].lower() not in exclude
+    )
+
+
+def overloaded_line(dss) -> Optional[str]:
+    """The first line whose current exceeds its NormAmps, or None."""
     i = dss.Lines.First()
     while i:
         na = dss.Lines.NormAmps()
-        dss.Circuit.SetActiveElement(f"Line.{dss.Lines.Name()}")
+        name = dss.Lines.Name()
+        dss.Circuit.SetActiveElement(f"Line.{name}")
         mags = dss.CktElement.CurrentsMagAng()
         nc = dss.CktElement.NumConductors()
         imax = max(mags[0 : 2 * nc : 2]) if mags else 0.0
         if na and imax > na:
-            return True
+            return name
         i = dss.Lines.Next()
-    return False
+    return None
 
 
 def candidate_buses(dss, phases: int) -> list[str]:
@@ -86,35 +91,42 @@ def hc_for_bus(dss, case, bus, vmax, maxkw, criterion, phases, exclude, control=
             add_test_pv(dss, bus, kw, phases, control=control, state=state)
         _solve(dss)
         if not dss.Solution.Converged():
-            return False, None
-        vm = max(all_vpu(dss, exclude))
-        ov = vm > vmax
-        th = thermal_violation(dss) if criterion in ("thermal", "both") else False
-        if criterion == "overvoltage":
-            viol = ov
-        elif criterion == "thermal":
-            viol = th
-        else:
-            viol = ov or th
-        return (not viol), vm
+            return False, None, None
+        vm, node = highest_node(dss, exclude)
+        # Which limit is violated, and by which element. Overvoltage is checked
+        # first, so under criterion "both" a step that breaks both is attributed
+        # to the voltage ceiling; the element is recorded either way.
+        if criterion in ("overvoltage", "both") and vm > vmax:
+            return False, vm, ("overvoltage", f"node {node}")
+        if criterion in ("thermal", "both"):
+            line = overloaded_line(dss)
+            if line is not None:
+                return False, vm, ("thermal", f"line {line}")
+        return True, vm, None
 
-    ok_max, vm_max = feasible(maxkw)
+    ok_max, vm_max, _ = feasible(maxkw)
     if ok_max:
-        return maxkw, "maxed", vm_max
-    ok0, vm0 = feasible(0.0)
+        return maxkw, "maxed", vm_max, None
+    ok0, vm0, binding0 = feasible(0.0)
     if not ok0:
-        return 0.0, "baseline-violation", vm0
+        # Already beyond the limit with no PV: the capacity is zero and the
+        # element that is out of limit is the reason.
+        limit, element = binding0 or ("none", None)
+        return 0.0, limit, vm0, element
     lo, hi = 0.0, maxkw
     for _ in range(14):
         mid = (lo + hi) / 2
-        ok, _vm = feasible(mid)
+        ok, _vm, _binding = feasible(mid)
         if ok:
             lo = mid
         else:
             hi = mid
-    _ok, vm = feasible(lo)
-    limit = "thermal" if criterion == "thermal" else "overvoltage"
-    return lo, limit, vm
+    _ok, vm, _ = feasible(lo)
+    # The limit is named by the first infeasible step above the answer: that is
+    # the element a little more PV would push out of bounds.
+    _bad, _vm_hi, binding = feasible(hi)
+    limit, element = binding or ("none", None)
+    return lo, limit, vm, element
 
 
 def run_hosting_capacity(dss, case: Case, state: dict):
@@ -131,15 +143,21 @@ def run_hosting_capacity(dss, case: Case, state: dict):
     apply_ders(dss, case, state)
     _solve(dss)
     exclude = regulated_head_buses(dss)
-    base_vmax = max(all_vpu(dss, exclude))
+    base_vmax = highest_node(dss, exclude)[0]
 
     buses = opt.get("buses") or candidate_buses(dss, phases)
     items = []
     for bus in buses:
-        hc, limit, vhc = hc_for_bus(dss, case, bus, vmax, maxkw, criterion, phases, exclude, control, state)
+        hc, limit, vhc, element = hc_for_bus(
+            dss, case, bus, vmax, maxkw, criterion, phases, exclude, control, state
+        )
         items.append(
             HostingCapacityItem(
-                bus=bus, hc_kw=round(hc, 1), limit=limit, v_at_hc=round(vhc, 4) if vhc else None
+                bus=bus,
+                hc_kw=round(hc, 1),
+                limit=limit,
+                v_at_hc=round(vhc, 4) if vhc else None,
+                limited_by=element,
             )
         )
 

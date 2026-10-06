@@ -32,6 +32,11 @@ from cept.schema.case.models import (
 from cept.schema.case.network import Meta
 from cept.schema.provenance import CaseProvenance
 
+#: Fields the OpenDSS adapter does not write when they are missing, so the solver
+#: substitutes its own default (`normamps` is emitted only when `normal_amps` is
+#: set; otherwise OpenDSS uses 400 A). A missing value here is refused in every mode.
+_SOLVER_FILLED_WHEN_MISSING = frozenset({"normal_amps"})
+
 
 def _required_assumption_paths(case: "Case") -> set[str]:
     """Return defaulted input paths that materially affect this run."""
@@ -251,14 +256,52 @@ class Case(BaseModel):
 
         self.assumptions = list(merged.values())
 
-        if self.meta.mode == "research":
-            required = sorted(_required_assumption_paths(self))
-            if required:
-                raise ValueError(
-                    "research mode requires explicit engineering inputs: "
-                    + ", ".join(required)
-                    + ". Provide them explicitly or set meta.mode='demonstrator'."
-                )
+        # A *missing* value that CEPT does not fill passes nothing to the solver,
+        # which then uses its own unrecorded default (OpenDSS NormAmps=400 A for a
+        # line with no rating): the receipt said "missing" while the answer used
+        # 400. Measured 2026-10-06: thermal hosting capacity 8,837.6 kW against
+        # 4,444.9 kW with a stated 200 A rating. Demonstrator mode may run on a
+        # recorded default; it may not run on a gap the solver fills silently.
+        # Only fields the adapter leaves unset belong here; a missing machine MVA,
+        # for example, is filled by CEPT's own rule in the adapter (TECH_DEBT).
+        required = _required_assumption_paths(self)
+        if self.meta.mode == "research" and required:
+            raise ValueError(
+                "research mode requires explicit engineering inputs: "
+                + ", ".join(sorted(required))
+                + ". Provide them explicitly or set meta.mode='demonstrator'."
+            )
+        missing = sorted(
+            item.path
+            for item in self.assumptions
+            if item.path in required
+            and item.source == "missing"
+            and item.value is None
+            and item.path.rsplit(".", 1)[-1] in _SOLVER_FILLED_WHEN_MISSING
+        )
+        if missing:
+            raise ValueError(
+                "this study needs values that were not given: "
+                + ", ".join(missing)
+                + ". Without them the solver would use its own unstated default; "
+                "provide them in the Case."
+            )
+        # No bundled feeder declares a conductor rating: every `.dss` under
+        # cept/testsystems has zero `normamps`, the IEEE 13-node reference
+        # included. A thermal limit on one of them is OpenDSS's 400 A, which no
+        # source states (on IEEE 13 the trunk already carries 563-592 A, so the
+        # "answer" was 0 kW for every bus). Refuse rather than report it.
+        if (
+            self.network.kind == "builtin"
+            and self.study.type == "hosting_capacity"
+            and self.study.options.get("criterion") in {"thermal", "both"}
+        ):
+            raise ValueError(
+                f"builtin feeder {self.network.name!r} declares no conductor ratings, so a "
+                "thermal hosting-capacity limit would be the solver's default (400 A), not "
+                "a rating from any source; use criterion 'overvoltage', or an inline Case "
+                "with lines[].normal_amps."
+            )
         return self
 
     @model_validator(mode="after")
