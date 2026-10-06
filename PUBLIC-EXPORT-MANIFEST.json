@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "0aaf8c826b182bed691b9a8e46755f56d80bab34",
+  "canonical_source_commit": "ed8aa229eeafb1bf0704808f408a4d03a3aa39dd",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -650,7 +650,7 @@
     {
       "path": "src/cept/intent/schema.py",
       "source": "src/cept/intent/schema.py",
-      "sha256": "33211d21466b0fb556597608be1972ba57bcdd4ef869a3037d8b7529250a7385"
+      "sha256": "887585163aac9f511af5742f406217e327c291510e89cbfbdfa4cd5923a2187a"
     },
     {
       "path": "src/cept/model_package_identity.py",

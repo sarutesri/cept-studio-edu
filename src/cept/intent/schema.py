@@ -4,10 +4,10 @@ A Case types the network; an intent types the *question*.  An intent is a
 declarative acceptance predicate over solver results: it names the criteria
 that must hold and the connection context they apply to, and it is evaluated
 against ``results.json`` by :mod:`cept.intent.evaluate`, which reuses the
-existing grid-code criteria evaluation (:func:`cept.gridcode.evaluate_criteria`)
+existing grid-code criteria evaluation (the ``gridcode_evaluate_criteria`` capability)
 rather than inventing a second predicate language.
 
-This module is deliberately free of any ``cept.gridcode`` import: the grid-code
+This module is deliberately free of any grid-code import: the grid-code
 package depends on the Case schema (via ``cept.validation.thai_grid_code``), so
 the Case schema must stay importable without the grid-code chain.  The intent's
 criteria mirror ``Criterion`` field-for-field; ``evaluate_intent`` converts
@@ -23,7 +23,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-# Same criterion kinds as cept.gridcode.schema.Criterion.  Duplicated here
+# Same criterion kinds as the Advance grid-code Criterion.  Duplicated here
 # (instead of imported) so the Case schema never imports the grid-code chain;
 # the conversion in `cept.intent.evaluate` re-validates against Criterion, so a
 # drift between the two Literals fails closed at evaluation time.
@@ -75,7 +75,7 @@ _ASSET_TYPES = Literal[
 class IntentCriterion(BaseModel):
     """One acceptance limit of the typed study question.
 
-    Field-for-field mirror of ``cept.gridcode.schema.Criterion`` (minus the
+    Field-for-field mirror of the grid-code ``Criterion`` (minus the
     applicability rule, which is a grid-code ingestion concept and is always
     "applies" for an intent).  ``status`` defaults to ``draft`` so a criterion
     that was never explicitly marked verified fails closed as
@@ -113,7 +113,7 @@ class IntentCriterion(BaseModel):
 class IntentConnection(BaseModel):
     """Connection context the intent criteria are evaluated against.
 
-    Field-for-field mirror of ``cept.gridcode.schema.ConnectionContext``.
+    Field-for-field mirror of the grid-code ``ConnectionContext``.
     """
 
     model_config = ConfigDict(extra="forbid")
