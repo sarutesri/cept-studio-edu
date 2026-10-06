@@ -1,4 +1,8 @@
-"""Versioned workflow-recipe document schema (`workflow-recipe-v1`).
+"""Typed workflow-recipe model and loader.
+
+A person writes a `workflow-recipe-v2` document (`cept.recipes.v2`);
+`load_recipe` translates it into the typed model below, whose internal
+discriminator is `workflow-recipe-v1`.
 
 A recipe *describes* which registered operation to run, with which declared
 inputs, and which named transition to take afterwards. It never contains
@@ -92,7 +96,6 @@ _CODE_VALUE_PATTERNS: tuple[re.Pattern[str], ...] = (
 
 _NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
-
 class RecipeError(Exception):
     """Raised when a recipe document is unusable.
 
@@ -100,15 +103,12 @@ class RecipeError(Exception):
     model can fix the recipe without guessing.
     """
 
-
 # --------------------------------------------------------------------------- #
 # Document-level prohibitions
 # --------------------------------------------------------------------------- #
 
-
 def _format_location(path: str, suffix: str) -> str:
     return f"{path}.{suffix}" if path else suffix
-
 
 def _reject_forbidden_content(node: Any, path: str) -> None:
     """Reject inline executable content and loop/control keys anywhere in ``node``."""
@@ -141,11 +141,9 @@ def _reject_forbidden_content(node: Any, path: str) -> None:
                     "recipes declare an operation, they never carry code"
                 )
 
-
 # --------------------------------------------------------------------------- #
 # Typed recipe models
 # --------------------------------------------------------------------------- #
-
 
 class RecipeInput(BaseModel):
     """One declared recipe input (file, directory, string, integer, boolean)."""
@@ -157,7 +155,6 @@ class RecipeInput(BaseModel):
     required: bool = True
     description: str
     default: str | int | bool | None = None
-
 
 class RecipeTransition(BaseModel):
     """A bounded decision using only next, blocked, or review targets."""
@@ -183,7 +180,6 @@ class RecipeTransition(BaseModel):
                 targets[name] = getattr(self, name)
         targets["next"] = self.next
         return targets
-
 
 class RecipeStage(BaseModel):
     """One deterministic stage: exactly one operation, one implementation owner."""
@@ -214,7 +210,6 @@ class RecipeStage(BaseModel):
             for name, target in transition.named_targets().items():
                 yield f"{label}.{name}", target
 
-
 class RecipeIncludeStage(BaseModel):
     """One required, bounded invocation of an allowlisted one-level child."""
 
@@ -239,7 +234,6 @@ class RecipeIncludeStage(BaseModel):
         for label, transition in (("on_success", self.on_success), ("on_failure", self.on_failure)):
             for name, target in transition.named_targets().items():
                 yield f"{label}.{name}", target
-
 
 # The published contract names the discriminator field `schema`
 # (`schema: workflow-recipe-v1`). Pydantic warns that this shadows the
@@ -378,16 +372,13 @@ class Recipe(BaseModel):
             if state.get(stage.id, 0) == 0:
                 visit(stage.id)
 
-
 # --------------------------------------------------------------------------- #
 # Loading and validation
 # --------------------------------------------------------------------------- #
 
-
 def recipe_sha256(path: Path) -> str:
     """Return the sha256 of the raw recipe file bytes (identity, not content model)."""
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
 
 def _read_document(path: Path) -> Any:
     suffix = path.suffix.lower()
@@ -411,7 +402,6 @@ def _read_document(path: Path) -> Any:
     supported = ", ".join(sorted(_RECIPE_SUFFIXES))
     raise RecipeError(f"{path.name}: unsupported recipe file type (supported: {supported})")
 
-
 def validate_recipe_document(doc: dict, *, base_dir: Optional[Path] = None) -> Recipe:
     """Validate a parsed recipe mapping and return the typed recipe.
 
@@ -429,35 +419,77 @@ def validate_recipe_document(doc: dict, *, base_dir: Optional[Path] = None) -> R
         raise RecipeError(_format_validation_error(exc)) from exc
 
     if base_dir is not None:
-        for name in recipe.includes:
-            _load_sub_recipe(base_dir, name)
+        try:
+            for name in recipe.includes:
+                _load_sub_recipe(base_dir, name)
+        except RecursionError as exc:
+            raise RecipeError(
+                "includes: a sub-recipe's includes never resolve; an include refers "
+                "to itself, directly or through another recipe"
+            ) from exc
     return recipe
-
 
 def load_recipe(path: Path) -> Recipe:
     """Load and fully validate one recipe file (.yaml/.yml/.json)."""
     path = Path(path)
     if not path.is_file():
         raise RecipeError(f"{path}: recipe file not found")
-    return validate_recipe_document(_read_document(path), base_dir=path.resolve().parent)
+    try:
+        document = _read_document(path)
+    except RecursionError as exc:
+        raise RecipeError(
+            f"{path}: the recipe's includes never resolve; an include refers to "
+            "itself, directly or through another recipe"
+        ) from exc
+    return validate_recipe_document(
+        _translate_v2(document), base_dir=path.resolve().parent
+    )
 
+def _translate_v2(document: Any) -> dict:
+    """Refuse any schema this product does not run, and translate v2.
+
+    v2 is the only accepted schema. It is translated into the shape the typed
+    models describe, so the runner, the plan, the receipt and `--explain` speak
+    one vocabulary while a reader writes a much shorter document.
+    """
+    from cept.recipes import v2
+
+    declared = document.get("schema") if isinstance(document, dict) else None
+    if declared != v2.SCHEMA:
+        raise RecipeError(
+            f"schema is {declared!r}; this product reads {v2.SCHEMA!r}. "
+            "Read a recipe with: cept run --recipe <name> --explain"
+        )
+    return v2.translate(document)
 
 def _load_sub_recipe(base_dir: Path, name: str) -> Recipe:
     child_path = (Path(base_dir) / name).resolve()
     if not child_path.is_file():
         raise RecipeError(f"includes: '{name}' does not resolve to a recipe file")
     document = _read_document(child_path)
-    stages = document.get("stages") if isinstance(document, dict) else None
-    # Inspect before descent: self/cyclic includes must never recurse through load_recipe.
+    # Inspect before descent: a self- or cyclic include must never recurse through
+    # load_recipe. Both key spellings are read because the document is whichever
+    # schema the caller handed us: v2 writes its steps under `steps` and derives
+    # the allowlist from them, so a guard that only looked at `stages` and
+    # `includes` passed every v2 child through and a cycle recursed until Python
+    # gave up -- a raw RecursionError, not the fail-closed refusal the runner
+    # promises --writing a receipt.
+    steps = None
+    if isinstance(document, dict):
+        steps = document.get("steps")
+        if steps is None:
+            steps = document.get("stages")
     if isinstance(document, dict) and (
         document.get("includes")
         or (
-            isinstance(stages, list)
-            and any(isinstance(stage, dict) and "include" in stage for stage in stages)
+            isinstance(steps, list)
+            and any(isinstance(step, dict) and "include" in step for step in steps)
         )
     ):
         raise RecipeError(f"includes: sub-recipe '{name}' declares nested includes")
-    child = validate_recipe_document(document)
+    # The child goes through the same translation as any other recipe, or an
+    # included tail would be read as a v1 document and fail on a schema literal.
+    child = validate_recipe_document(_translate_v2(document), base_dir=base_dir)
     if any(isinstance(stage, RecipeIncludeStage) for stage in child.stages):
         raise RecipeError(f"includes: sub-recipe '{name}' declares nested includes")
     if any(
@@ -468,7 +500,6 @@ def _load_sub_recipe(base_dir: Path, name: str) -> Recipe:
         raise RecipeError(f"includes: sub-recipe '{name}' must not write a completion receipt")
     return child
 
-
 def _format_validation_error(exc: ValidationError) -> str:
     """Render pydantic failures as ``<document path>: <reason>`` lines."""
     parts = []
@@ -477,14 +508,12 @@ def _format_validation_error(exc: ValidationError) -> str:
         parts.append(f"{location}: {error['msg']}" if location else error["msg"])
     return "; ".join(parts)
 
-
 def _is_bare_recipe_name(name: str) -> bool:
     if not name or not _NAME_RE.match(name):
         return False
     if "/" in name or "\\" in name or ".." in name:
         return False
     return Path(name).suffix.lower() in _RECIPE_SUFFIXES
-
 
 __all__ = [
     "RECIPE_SCHEMA_ID",

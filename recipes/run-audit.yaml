@@ -1,237 +1,61 @@
-# recipes/run-audit.yaml
+# run-audit -- check evidence that already exists. Runs no solver.
 #
-# Read-only audit workflow over already-persisted evidence. This file is DATA:
-# ordered operations, their declared inputs, the artifacts each one writes, and
-# the declared transition out of each one. It carries no executable text, and it
-# never changes a Case value, a model setting, a tolerance, or an evidence
-# setting.
+# A recipe v2 document is a list of steps. Each step names a registered operation
+# and the inputs it reads; the owner, the outputs and what happens on failure come
+# from the registry. Read it with:
 #
-# Every stage runs in process through the neutral application function in
-# cept.application.operations.audit (and cept.application.operations.verify for
-# the run's own verdict), which is the same function the public audit routes
-# called. This recipe is what those audit routes became: `python -m cept.recipes
-# run-audit --input run_dir=<run-dir> --input case=<case.json> --input
-# audit_root=<root>` (from a source checkout: `cept run --recipe
-# recipes/run-audit.yaml ...`). The recipe spawns no CLI subprocess and cannot
-# describe a verdict differently from the application layer.
+#     cept run --recipe run-audit --explain
 #
-# Claim ceiling: WORKFLOW_VALIDATED. A physics audit is identity, finiteness, and
-# self-consistency. It is not a re-solve, not a correctness proof, and not
-# project validation.
-
-schema: workflow-recipe-v1
+schema: workflow-recipe-v2
 id: run-audit
 version: 1.0.0
-title: Read-only audit workflow over persisted run evidence and a typed Case
+title: Read-only audit over persisted run evidence and a typed Case
 
 description: >-
-  Audits evidence that already exists on disk. It verifies one explicit run
-  directory against its own stored artifacts, runs the physics audit over that
-  same directory, checks one typed Case's declared per-unit and kV bases, and
-  inventories the run directories under an explicit root, then writes the
-  deterministic workflow completion receipt. It runs no solver, invents no
-  engineering value, repairs nothing, and promotes no claim.
+  Verifies one run directory against its own stored artifacts, audits that same
+  directory, checks one Case's declared per-unit and kV bases, inventories the run
+  directories under an explicit root, and writes the completion receipt.
 
-inputs:
-  - name: run_dir
+needs:
+  run_dir:
     type: string
-    required: true
-    description: >-
-      Exact directory of the already-created run to audit. It is declared as a
-      path string because this recipe never creates it; a run directory that does
-      not exist fails closed at verification. Declared stage outputs and the
-      recipe's expected artifacts resolve against this directory. Nothing here is
-      ever selected by mtime, by "latest", or by a worker claim.
-
-  - name: case
+  case:
     type: file
-    required: true
-    description: >-
-      Path to the typed Case JSON the per-unit check reads. The recipe hands the
-      exact path to the audit and never rewrites the Case.
+  audit_root:
+    type: directory
 
-  - name: audit_root
-    type: string
-    required: true
-    description: >-
-      Exact directory root the artifact inventory walks. It must exist; the
-      inventory fails closed rather than reporting an empty inventory for a root
-      it could not read. The inventory is read-only: it reports paths and hashes
-      and never moves, prunes, or migrates anything.
+steps:
+  - verify.study run_dir
+  - audit.physics run_dir
+  - audit.perunit case run_dir
+  - audit.artifacts audit_root run_dir
+  - write.receipt
 
-  - name: physics_audit_out
-    type: string
-    required: false
-    default: physics-audit.json
-    description: >-
-      Name of the physics audit's record, written inside the declared run
-      directory. The audit operation takes an explicit destination from its
-      caller and defines no default filename of its own, so this recipe pins the
-      default and declares the artifact it produces at that default. Overriding
-      this value makes the declared audit output name no longer resolve.
-
-  - name: per_unit_audit_out
-    type: string
-    required: false
-    default: per-unit-audit.json
-    description: >-
-      Name of the per-unit audit's record, written inside the declared run
-      directory. Pinned here for the same reason as `physics_audit_out`.
-
-  - name: artifacts_audit_out
-    type: string
-    required: false
-    default: artifacts-audit.json
-    description: >-
-      Name of the artifact inventory's record, written inside the declared run
-      directory. Pinned here for the same reason as `physics_audit_out`.
-
-  - name: receipt_path
-    type: string
-    required: false
-    default: recipe-run.json
-    description: >-
-      Name of the workflow completion receipt. The receipt records the exact
-      stage results, exit codes, stderr, and artifact hashes of this run. It is
-      not a validation verdict and is not part of the run's own hash-bound
-      evidence set.
-
-stages:
-  - id: verify-run
-    operation: verify.study
-    owner: python
-    inputs:
-      run_dir: run_dir
-    outputs:
-      - validation_report.json
-    on_success:
-      next: physics-audit
-      reason: >-
-        The run verified against its own stored artifacts and its stored
-        validation report states a literal pass, so the audits below may be
-        reported against verified evidence.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        Verification did not produce a literal pass. Only a validation report
-        that explicitly states a pass counts, so no audit in this workflow is
-        presented as evidence over an unverified run.
-
-  - id: physics-audit
-    operation: audit.physics
-    owner: python
-    inputs:
-      run_dir: run_dir
-      audit_out: physics_audit_out
-    outputs:
-      - physics-audit.json
-    on_success:
-      next: per-unit-audit
-      reason: >-
-        The physics audit returned its literal pass verdict and wrote it to the
-        declared path, so the declared per-unit check may run against the same
-        run's Case.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        The physics audit did not pass. The audit is identity, finiteness, and
-        self-consistency: a non-pass means a required artifact is missing, a
-        quantity is non-finite, or the run does not identify itself. The
-        workflow stops here rather than continuing past a failed audit.
-
-  - id: per-unit-audit
-    operation: audit.perunit
-    owner: python
-    inputs:
-      case: case
-      run_dir: run_dir
-      audit_out: per_unit_audit_out
-    outputs:
-      - per-unit-audit.json
-    on_success:
-      next: artifacts-audit
-      reason: >-
-        Every declared per-unit and kV base on this Case is internally
-        consistent, so the artifact inventory may complete the workflow.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        A declared per-unit or kV base is internally inconsistent, or the Case
-        could not be read at all. An unreadable Case is reported as an error and
-        not as a verdict. The workflow stops either way.
-
-  - id: artifacts-audit
-    operation: audit.artifacts
-    owner: python
-    inputs:
-      audit_root: audit_root
-      run_dir: run_dir
-      audit_out: artifacts_audit_out
-    outputs:
-      - artifacts-audit.json
-    on_success:
-      next: write-receipt
-      reason: >-
-        The inventory exists and lists the run directories it found, sorted by
-        path, so the workflow may write its completion receipt.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        The declared inventory root does not exist or could not be read. The
-        inventory refuses rather than reporting an empty inventory for a root it
-        could not see.
-
-  - id: write-receipt
-    operation: write.receipt
-    owner: python
-    inputs:
-      receipt_path: receipt_path
-    outputs:
-      - recipe-run.json
-    on_success:
-      next: null
-      reason: >-
-        The completion receipt is written from the recorded stage results. The
-        workflow stops here, at the WORKFLOW_VALIDATED ceiling.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        The completion receipt could not be written, which means this workflow
-        produced no record of what actually happened. The workflow stops without
-        one.
-
-# Every name here must exist in the declared run directory for the workflow to
-# report a pass. The receipt is excluded because it is written after this check.
-expected_artifacts:
+must_produce:
   - validation_report.json
   - physics-audit.json
   - per-unit-audit.json
   - artifacts-audit.json
 
-blocked_conditions:
+limits:
   - >-
     This workflow audits persisted evidence and runs no solver. A run directory
     that does not already hold its own artifact set fails verification before any
     audit runs; the recipe never manufactures the evidence it is asked to audit.
   - >-
-    A passing physics audit is not engineering validation. It checks that the
-    run's quantities are finite, identified, and internally consistent. It does
-    not re-solve the system, does not compare against a reference, and does not
+    A passing physics audit is not engineering validation. It checks that the run's
+    quantities are finite, identified and internally consistent. It does not
+    re-solve the system, does not compare against a reference, and does not
     establish cross-engine or project agreement. See
     src/cept/verification/audits/physics.py and src/cept/public.py:34.
   - >-
-    The artifact inventory is read-only by construction. It reports where runs
-    are, whether they sit inside the configured artifact root, and the sha256 of
-    their bound evidence files. It performs no migration and treats "outside the
+    The artifact inventory is read-only by construction. It reports where runs are,
+    whether they sit inside the configured artifact root, and the sha256 of their
+    bound evidence files. It performs no migration and treats "outside the
     configured root" as a reported fact, never as a deletion. See
     src/cept/application/operations/audit.py and src/cept/artifacts.py:9.
   - >-
-    The per-unit audit reads one typed Case and checks the declared per-unit and
-    kV bases against each other. It does not fetch a missing base, does not
-    infer one from a neighbouring base, and does not widen a tolerance to make a
-    Case consistent. See src/cept/fidelity/perunit.py.
+    The per-unit audit reads one typed Case and checks the declared per-unit and kV
+    bases against each other. It does not fetch a missing base, does not infer one
+    from a neighbouring base, and does not widen a tolerance to make a Case
+    consistent. See src/cept/fidelity/perunit.py.

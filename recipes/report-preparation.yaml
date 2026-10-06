@@ -1,153 +1,37 @@
-# recipes/report-preparation.yaml
+# report-preparation -- verify a run, then render its report and notebook.
 #
-# One-level shared sub-recipe for recipes/study-evidence.yaml.
-#
-# Scope is deliberately narrow: verification, report preparation, and
-# notebook/package assembly only. It contains no Case construction, no
-# execution, no comparison, and no engineering content of its own. It must never
-# include another sub-recipe, so its own includes list stays empty.
-#
-# This file is DATA. It carries no executable text of any kind, and it never
-# changes a Case value, a model setting, a tolerance, or an evidence setting.
-#
-# Claim ceiling: WORKFLOW_VALIDATED.
-
-schema: workflow-recipe-v1
+# The shared tail of study-evidence. Included by name, so the two cannot drift.
+schema: workflow-recipe-v2
 id: report-preparation
 version: 1.0.0
-title: Report preparation fragment, verified run through notebook assembly
+title: Verify a run, then render its report and notebook
 
 description: >-
-  The shared preparation tail of the study-evidence workflow. It verifies an
-  already created run directory, renders that run's stored HTML report, and
-  assembles a notebook from the same stored artifacts. Every stage runs in
-  process through cept.application.operations.*, which is the same function the
-  matching public CLI verb handler calls.
+  Verifies one exact run directory, renders the HTML report, and assembles a
+  notebook from the stored artifacts.
 
-# A sub-recipe must not include another sub-recipe. This list stays empty.
-includes: []
-
-inputs:
-  - name: run_dir
+needs:
+  run_dir:
     type: string
-    required: true
-    description: >-
-      Exact directory of the already created run to present. It is declared as a
-      path string because this fragment never creates it; every stage that needs
-      it to exist fails closed when it is absent. Declared stage outputs are
-      resolved against this directory.
 
-  - name: notebook_output
-    type: string
-    required: false
-    default: run-notebook.ipynb
-    description: >-
-      Path of the notebook to assemble, placed inside the run directory. The
-      notebook assembler takes an explicit destination from its caller and
-      defines no default filename, so this fragment pins the default and
-      declares the artifact it produces at that default.
+steps:
+  - verify.study run_dir
+  - render.report run_dir
+  - assemble.notebook run_dir
 
-stages:
-  - id: verify-run
-    operation: verify.study
-    owner: python
-    inputs:
-      run_dir: run_dir
-    outputs:
-      - validation_report.json
-    on_success:
-      next: render-report
-      reason: >-
-        The run verifies against its own stored artifacts and its stored
-        validation report states a literal pass, so the report and the notebook
-        may be derived from it.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        The run did not verify. Only a validation report that explicitly states a
-        pass counts, and this fragment never presents a run that lacks one.
-
-  - id: render-report
-    operation: render.report
-    owner: python
-    inputs:
-      run_dir: run_dir
-    outputs:
-      - report.html
-    on_success:
-      next: prepare-notebook
-      reason: >-
-        The self-contained HTML report exists in the run directory, so the same
-        stored artifacts may be assembled into a notebook.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        The HTML report could not be produced. The fragment stops rather than
-        presenting a run without its report.
-
-  - id: prepare-notebook
-    operation: assemble.notebook
-    owner: python
-    inputs:
-      run_dir: run_dir
-      out_dir: notebook_output
-    outputs:
-      - run-notebook.ipynb
-    on_success:
-      next: null
-      reason: >-
-        A notebook was assembled from the stored artifacts only and carries the
-        run's stored verdict verbatim. The fragment stops here, at the
-        WORKFLOW_VALIDATED ceiling.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        Notebook assembly failed closed, which includes missing, malformed, or
-        self-contradictory stored evidence and any run whose engine is a
-        licensed host. No notebook is written in that case.
-
-# Every name here must exist in the declared run directory for the fragment to
-# report a pass. The parent owns Case readiness and the completion receipt.
-expected_artifacts:
+must_produce:
   - validation_report.json
   - report.html
   - run-notebook.ipynb
 
-blocked_conditions:
-  - >-
-    This fragment verifies and prepares reports from an existing run. It executes
-    no study and runs no solver. If the run directory does not already hold a
-    complete, byte-bound artifact set, verification stops the fragment rather
-    than creating simulation evidence.
-  - >-
-    Notebook assembly goes through
-    src/cept/application/operations/notebook.py, which is the only caller of
-    src/cept/reporting/notebook.py; the public `cept report <run-dir> --format
-    ipynb` route delegates to that same operation. Stored identity, verdict, and
-    canonical artifact verification must agree before any notebook is emitted.
-  - >-
-    The HTML report render operation has no standalone public verb. The
-    report is written by the execution owner during the study run, and the
-    registered presentation routes over it are the local review bridge. See
-    src/cept/application/artifacts.py:65, src/cept/cli/registry.py:105-119, and
-    src/cept/application/operations/report.py.
-  - >-
-    Only the plain notebook target is implemented. A declared Colab target
-    raises instead of writing a notebook, because no Colab runtime, pinned
-    dependency set, kernel behaviour, or executed-notebook acceptance evidence
-    exists in this repository. See src/cept/reporting/notebook.py:20-27 and
-    src/cept/reporting/notebook.py:62.
+limits:
   - >-
     Notebook assembly fails closed for any run whose stored engine is a licensed
     host, because representing such a run honestly would require that host's
-    internals and the reporting layer stays free of licensed-host imports. A
-    PowerFactory run therefore reaches report rendering and never reaches
-    notebook assembly. See src/cept/reporting/notebook.py:83 and
-    src/cept/reporting/notebook.py:325-329.
+    internals. A PowerFactory run therefore reaches report rendering and never
+    reaches notebook assembly. See src/cept/reporting/notebook.py:83 and :325-329.
   - >-
-    A completed fragment is not engineering validation and not project
-    validation. The claim ceiling stays WORKFLOW_VALIDATED. See
-    src/cept/public.py:34.
+    Only the plain notebook target is implemented. A declared Colab target raises
+    instead of writing a notebook, because no Colab runtime, pinned dependency
+    set, kernel behaviour or executed-notebook acceptance evidence exists in this
+    repository. See src/cept/reporting/notebook.py:20-27 and :62.

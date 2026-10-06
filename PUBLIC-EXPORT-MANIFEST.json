@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "export_schema": 1,
-  "canonical_source_commit": "f07b0f30a5d3a7017e0da2c8521789d60628875a",
+  "canonical_source_commit": "db55339db8993eab637dd11e44d8dcfbb76fddb8",
   "manifest": "public-release.yaml",
   "allowlist": [
     "public-release.yaml",
@@ -46,10 +46,12 @@
     "src/cept/recipes/__init__.py",
     "src/cept/recipes/__main__.py",
     "src/cept/recipes/composition.py",
+    "src/cept/recipes/explain.py",
     "src/cept/recipes/registry.py",
     "src/cept/recipes/run_result.py",
     "src/cept/recipes/runner.py",
     "src/cept/recipes/schema.py",
+    "src/cept/recipes/v2.py",
     "src/cept/application/artifacts.py",
     "src/cept/application/environment_identity.py",
     "src/cept/application/execution.py",
@@ -180,7 +182,7 @@
     {
       "path": "public-release.yaml",
       "source": "public-release.yaml",
-      "sha256": "1150660c4d7caf9c9029fa4be5c1c9352cfc111588dc2aa5837a57be236eb5de"
+      "sha256": "4b75f1c1fdb1437d17efc4834f4a68e40f4974b390c2ff07c21293efe905d5cd"
     },
     {
       "path": "public/agent/.opencode/commands/cept-edu.md",
@@ -270,12 +272,12 @@
     {
       "path": "public/notebooks/08_ask_in_plain_words.ipynb",
       "source": "public/notebooks/08_ask_in_plain_words.ipynb",
-      "sha256": "c9a4c578cbcacc258a08ec7fbe26af2b71fef0c1a00346a9c5c51500a38eb076"
+      "sha256": "daa1c97bc51b1d1cebb976f3c5ce2df0549404b63ed5217420b16f241c24375f"
     },
     {
       "path": "public/notebooks/09_workflow_recipe.ipynb",
       "source": "public/notebooks/09_workflow_recipe.ipynb",
-      "sha256": "74d3efa7fccfd55e0ad8da614d021a42aea46e7535a48cff98d7c7a3c32631d8"
+      "sha256": "ed65c8ccd315ee4d05a44d74115f1701984e143e811e7440d8286427e4fb22a9"
     },
     {
       "path": "public/notebooks/README.md",
@@ -290,7 +292,7 @@
     {
       "path": "public/site/edition-boundary.json",
       "source": "public/site/edition-boundary.json",
-      "sha256": "88398f253b84d7c0169012ada1c647c89e51e04d9f8bf849a759ee1d464d3fb8"
+      "sha256": "954fd832cfc916bef156ef79c54b215c8d88da8282f77996a0e230b789dc3f0b"
     },
     {
       "path": "public/site/education.css",
@@ -305,22 +307,22 @@
     {
       "path": "recipes/release-qualification.yaml",
       "source": "recipes/release-qualification.yaml",
-      "sha256": "417ad4e85b8ec6b6a30afc79efdce1744105ba9c57b3ef2da4e5f80d5155d587"
+      "sha256": "82250a93b1d221d9686dd7234c6a8e0d7878a323725cbb5aab9c4fe5e160577b"
     },
     {
       "path": "recipes/report-preparation.yaml",
       "source": "recipes/report-preparation.yaml",
-      "sha256": "0d32deb5ab4df1bcfc0b5bb7749cd597e41bb2575220bf1df3827dea0e9dd9e9"
+      "sha256": "904cbbb2564ebe8c42c2330537669ddaf4979adedcbf1670faacc8404f33709d"
     },
     {
       "path": "recipes/run-audit.yaml",
       "source": "recipes/run-audit.yaml",
-      "sha256": "8ad70c4d228ea813c089887b86e42bd493878cfacd00c7ac4698a29295ea2532"
+      "sha256": "ce5310403d98cd6a6c7d63afc30413e6ab7ca8fdee0678b868b2b33c1c03846d"
     },
     {
       "path": "recipes/study-evidence.yaml",
       "source": "recipes/study-evidence.yaml",
-      "sha256": "6c845a33005c01f3c489e2007fe2300a427d70eedb843f2127e76a1e251fb9b3"
+      "sha256": "066e4be046dd15bef36243bb56cb1c9ee0331d147f7a3e056b39c6238de53815"
     },
     {
       "path": "src/cept/__init__.py",
@@ -700,7 +702,7 @@
     {
       "path": "src/cept/public_cli.py",
       "source": "src/cept/public_cli.py",
-      "sha256": "3aab6f5c68f2ab524dce40ae7c9ea4d32e6a109cac08a8d2c3cced796670ad36"
+      "sha256": "578ef6b3381ba8a0b6efdbb6a4d06a782b51a904d228ccbf28c8c5b4c2067eda"
     },
     {
       "path": "src/cept/public_notebook.py",
@@ -710,7 +712,7 @@
     {
       "path": "src/cept/recipes/__init__.py",
       "source": "src/cept/recipes/__init__.py",
-      "sha256": "3a543eb2a4dcdf856301706fc63d31ac2ce881785599b3d439f8cd34fc1e34f0"
+      "sha256": "5b12d7f42282b9cfdedb32878abfdb25f5308d0825b8ab039c0667310a60190f"
     },
     {
       "path": "src/cept/recipes/__main__.py",
@@ -723,24 +725,34 @@
       "sha256": "648f32d60fb574f07782c45cf13632a9321c303b7db86bf16b2c6d8a474a2bc3"
     },
     {
+      "path": "src/cept/recipes/explain.py",
+      "source": "src/cept/recipes/explain.py",
+      "sha256": "c7613255a92e2bd1761c100c9ae5964a0c36ccabba1035f3e0d7179734b70900"
+    },
+    {
       "path": "src/cept/recipes/registry.py",
       "source": "src/cept/recipes/registry.py",
-      "sha256": "ecfb26d6b8b9326670a16e3326723a0e011a99eb3f11ba8e6a336210379ad81e"
+      "sha256": "87c56553bc15602031fd806cde2c06c7226cb68ccd7ca02c75b4937a4f62fc26"
     },
     {
       "path": "src/cept/recipes/run_result.py",
       "source": "src/cept/recipes/run_result.py",
-      "sha256": "ec89b5b1acbfab53191030ec2955865a0e27139beac80ba82d9e30fb8a6e4225"
+      "sha256": "89996ff09c4a9b69011339fbb80b7c3d8f7b8b73908771fea64b19e8769300de"
     },
     {
       "path": "src/cept/recipes/runner.py",
       "source": "src/cept/recipes/runner.py",
-      "sha256": "4b28165e31ffd13e593054608de7b43a39a30d634076a5e7f6a72d13402f3294"
+      "sha256": "6bbef8b9122c3fe71d51127182874ac676acfcfd2093b735bb5371498ca3b562"
     },
     {
       "path": "src/cept/recipes/schema.py",
       "source": "src/cept/recipes/schema.py",
-      "sha256": "0d1b55125ee55461b0f83f3ee0e4a5169322b1ec51abc766244d528b50052199"
+      "sha256": "b06932a9fefda43b6f510bcceab71e483a6dc8fd36c64668d57668a8ae9d5d29"
+    },
+    {
+      "path": "src/cept/recipes/v2.py",
+      "source": "src/cept/recipes/v2.py",
+      "sha256": "593600ef1b3bd71892df1ba0064b48c6d02eea08725362bde58c0bd68cdef1a0"
     },
     {
       "path": "src/cept/report_server.py",

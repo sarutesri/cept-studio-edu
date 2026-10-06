@@ -1,270 +1,59 @@
-# recipes/study-evidence.yaml
+# study-evidence -- from a typed Case to a verified run, report, notebook, receipt.
 #
-# First production-facing CEPT workflow recipe (plan 6.2). This file is DATA:
-# ordered operations, their declared inputs, the artifacts each one writes, and
-# the declared transition out of each one. It carries no executable text of any
-# kind, and it never changes a Case value, a model setting, a tolerance, or an
-# evidence setting.
+# This fragment verifies and prepares reports from an existing run.
 #
-# Every stage runs in process through the neutral application function in
-# cept.application.operations.*, which is the same function the matching
-# noun+verb CLI handler calls. The recipe therefore spawns no CLI subprocess
-# and can never describe a Case, a run, or a verdict differently from the CLI.
-# See recipes/README.md for the per-operation table and the artifact file:line
-# index.
+#     cept run --recipe study-evidence --explain
 #
-# Claim ceiling: WORKFLOW_VALIDATED. A completed workflow is not engineering
-# validation and not project validation.
-
-schema: workflow-recipe-v1
+schema: workflow-recipe-v2
 id: study-evidence
 version: 1.0.0
-title: Study evidence workflow, from typed Case to verified run, report, notebook, and receipt
+title: Study evidence, from typed Case to verified run, report, notebook and receipt
 
 description: >-
-  Takes one typed Case JSON produced by the intake owner, checks its readiness,
-  executes it through the single existing execution owner, verifies that exact
-  run directory, optionally compares two solver leaves, renders the HTML report,
-  assembles a notebook from the stored run artifacts, and writes the
-  deterministic workflow completion receipt. The recipe never edits the Case,
-  never widens a tolerance, and never promotes a claim.
+  Takes one typed Case, checks its readiness, executes it through the single
+  existing execution owner, verifies that exact run directory, optionally compares
+  two solver leaves, then runs the shared tail and writes the receipt. It never
+  edits the Case, never widens a tolerance and never promotes a claim.
 
-# The shared preparation tail executes as an explicit stage after comparison.
-includes:
-  - report-preparation.yaml
-
-inputs:
-  - name: case
+needs:
+  case:
     type: file
-    required: true
-    description: >-
-      Path to the typed Case JSON produced by the intake owner. The recipe
-      reads it and hands the same path to every operation that needs it; it
-      never rewrites it.
-
-  - name: run_dir
+  run_dir:
     type: string
-    required: true
-    description: >-
-      Exact output directory for the study execution, and the directory every
-      later stage reads. It is declared as a path string, not as a directory
-      input, because the execution owner creates it; stages that need it to
-      exist fail closed when it is absent. Nothing here is ever selected by
-      mtime, by "latest", or by a worker claim. Declared stage outputs and the
-      recipe's expected artifacts are resolved against this directory.
-
-  - name: lane
+  lane:
     type: string
-    required: false
     default: usermodel
-    description: >-
-      Comparison lane for the optional comparison stage: usermodel or native.
-      Both lanes require a completed PowerFactory solver leaf directory, so this
-      stage fails closed on a license-free host.
-
-  - name: powerfactory_run
+  powerfactory_run:
     type: string
-    required: false
-    description: >-
-      Path of a completed PowerFactory solver leaf directory used as one side of
-      the optional comparison. Declared as a path string so that a path which
-      does not exist fails at the operation, not silently at planning. A bad or
-      unavailable leaf makes this optional stage fail closed; the workflow then
-      continues without a comparison rather than inventing one.
-
-  - name: opendss_run
-    type: string
-    required: false
-    description: >-
-      Path of a completed OpenDSS solver leaf directory used as the other side of
-      the optional comparison. Declared as a path string for the same fail-closed
-      reason as the PowerFactory leaf.
-
-  - name: comparison_out
-    type: string
-    required: false
-    description: >-
-      Directory that receives the optional comparison packet. Declare the run
-      directory itself: the comparison worker writes its report files directly
-      into that directory and its full packet under the comparison subdirectory
-      beside them, which is where this recipe's declared outputs resolve.
-
-  - name: notebook_output
-    type: string
-    required: false
-    default: run-notebook.ipynb
-    description: >-
-      Path of the notebook to assemble, placed inside the run directory. The
-      notebook assembler takes an explicit destination from its caller and
-      defines no default filename of its own, so this recipe pins the default
-      and declares the artifact it produces at that default. Overriding this
-      value makes the declared notebook output name no longer resolve.
-
-  - name: receipt_path
-    type: string
-    required: false
-    default: recipe-run.json
-    description: >-
-      Name of the workflow completion receipt. The receipt records the exact
-      stage results, exit codes, stderr, command lines, artifact hashes, and
-      paths of this run. It is not part of the run's own hash-bound evidence set
-      and it is never a validation verdict.
-
-stages:
-  - id: check-case
-    operation: check.case
-    owner: python
-    inputs:
-      case: case
-    outputs: []
-    on_success:
-      next: run-study
-      reason: >-
-        The Case loads, its fingerprint resolves, and readiness is not BLOCKED,
-        so the execution owner may be handed this exact Case path. This operation
-        writes no artifact; it prints readiness and, when one exists, checks the
-        hash-bound build receipt beside the Case.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        Case readiness reported a blocking gap. The workflow stops here: a
-        blocked Case is not executed, and the recipe never supplies, defaults, or
-        infers a missing engineering input.
-
-  - id: run-study
-    operation: run.study
-    owner: python
-    inputs:
-      case: case
-      run_dir: run_dir
-    outputs:
-      - case.json
-      - results.json
-      - manifest.json
-      - execution-plan.json
-      - attempt.json
-      - identity-map.json
-      - validation_report.json
-      - validation_report.md
-      - validation-record.json
-      - report.html
-      - sld-layout.json
-      - sld-fidelity.json
-      - sld_collision.json
-      - source-identity.json
-      - result-cache-use.json
-      - command_log.txt
-    on_success:
-      next: verify-run
-      reason: >-
-        The execution owner wrote its full artifact set into the declared run
-        directory, so the created run can be verified by that exact path.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        Execution failed, or the solver verdict is BLOCKED, or a required
-        artifact is absent. The workflow stops and reports the failure; it never
-        re-executes to obtain a cleaner result and never edits the Case.
-
-  - id: verify-run
-    operation: verify.study
-    owner: python
-    inputs:
-      run_dir: run_dir
-    outputs:
-      - validation_report.json
-    on_success:
-      next: compare-runs
-      reason: >-
-        The created run verifies against its own stored artifacts, and its
-        stored validation report states a literal pass, so the workflow may
-        continue to optional comparison and the shared preparation tail.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        Verification did not produce a literal pass. Only a validation report
-        that explicitly states a pass counts, so no comparison, report,
-        notebook, or completion receipt follows an unverified run.
-
-  - id: compare-runs
-    operation: compare.runs
-    owner: python
     optional: true
-    inputs:
-      lane: lane
+  opendss_run:
+    type: string
+    optional: true
+  comparison_out:
+    type: string
+    optional: true
+
+steps:
+  - check.case case
+  - run.study case run_dir
+  - verify.study run_dir
+  - operation: compare.runs
+    needs:
       case: case
+      lane: lane
       powerfactory_run: powerfactory_run
       opendss_run: opendss_run
       out_dir: comparison_out
-      run_dir: run_dir
-    outputs:
-      - validation_report.json
-      - validation_report.html
-      - dynamic-cross-engine.html
-      - benchmark_comparison.json
-      - comparison/comparison.json
-      - comparison/error-index.json
-      - comparison/error-index.csv
-    on_success:
-      next: prepare-report
-      reason: >-
-        The comparison packet exists under the declared lane, so cross-engine
-        evidence sits beside the verified run.
-    on_failure:
-      blocked: prepare-report
-      next: prepare-report
-      reason: >-
-        Comparison is optional in this recipe. When the declared lane cannot
-        execute, when a licensed host is unavailable, or when the declared leaf
-        directories are not usable, the workflow continues without a comparison
-        and records the blocked state instead of inventing cross-engine
-        agreement.
+    on_failure: report-preparation
+    reason: >-
+      Comparison is optional. When the declared lane cannot execute, or the leaf
+      directories are not usable, the workflow continues without a comparison and
+      records the blocked state instead of inventing cross-engine agreement.
+  - include: report-preparation.yaml
+    needs: [run_dir]
+  - write.receipt
 
-  - id: prepare-report
-    include: report-preparation.yaml
-    inputs:
-      run_dir: run_dir
-      notebook_output: notebook_output
-    on_success:
-      next: write-receipt
-      reason: >-
-        The shared verification, report, and notebook tail completed for this
-        exact run, so the parent may write its completion receipt.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        The shared preparation tail failed. No completion receipt follows a
-        missing report, failed verification, or failed notebook assembly.
-
-  - id: write-receipt
-    operation: write.receipt
-    owner: python
-    inputs:
-      receipt_path: receipt_path
-    outputs:
-      - recipe-run.json
-    on_success:
-      next: null
-      reason: >-
-        The completion receipt is written from the recorded stage results. The
-        workflow stops here, at the WORKFLOW_VALIDATED ceiling.
-    on_failure:
-      blocked: null
-      next: null
-      reason: >-
-        The completion receipt could not be written, which means this workflow
-        produced no record of what actually happened. The workflow stops without
-        one.
-
-# Every name here must exist in the declared run directory for the workflow to
-# report a pass. Comparison artifacts are excluded because that stage is
-# optional; the child also requires its notebook artifact; the receipt is
-# excluded because it is written after this check.
-expected_artifacts:
+must_produce:
   - case.json
   - results.json
   - manifest.json
@@ -281,65 +70,36 @@ expected_artifacts:
   - source-identity.json
   - result-cache-use.json
   - command_log.txt
+  - run-notebook.ipynb
 
-blocked_conditions:
-  - >-
-    PowerFactory is a licensed host. Any stage that selects the powerfactory
-    engine, and the optional comparison stage in either lane, cannot complete
-    without an installed and licensed PowerFactory session; no license ships
-    with CEPT and this recipe cannot supply one. Live connection failures are
-    reported as license or session errors and point at the environment check,
-    where an unavailable license seat is the documented hint. See
-    src/cept/adapters/pf/connection.py:108-133 and src/cept/cli/doctor.py:160-167.
-  - >-
-    Dynamics and EMT studies cannot be completed from anything this repository
-    ships. The vendor controller models, initialization data, and event
-    definitions that such a study requires are absent, and the recipe refuses to
-    fill them from a default or an assumption, so the study stays unresolved
-    rather than solved. The pilot fixture states this requirement directly: add a
-    PowerFactory dynamics Case only after the vendor controller models,
-    initialization data, and event definitions are supplied. See
-    examples/data_center_interconnection/README.md:12-14.
-  - >-
-    The data-center interconnection fixture is a load-flow demonstrator whose
-    values are placeholders. Completing this workflow over it yields demonstrator
-    evidence only; it cannot support a research conclusion or an interconnection
-    application until a reviewer replaces every marked demonstrator value with
-    real utility and customer package data. See
-    examples/data_center_interconnection/README.md:1-6.
-  - >-
-    Every operation in this recipe runs in process through
-    cept.application.operations.*. The recipe therefore never depends on the
-    public CLI grammar, and a CLI grammar change cannot change what a recipe
-    does. Each registered operation is the same callable the matching
-    `cept` verb handler imports, so the two surfaces cannot disagree.
-    See src/cept/recipes/registry.py and
-    src/cept/recipes/runner.py PYTHON_OPERATIONS.
-  - >-
-    The HTML report render operation has no standalone public verb. The report is
-    written by the execution owner during the study run, and the registered
-    presentation routes over it are the local review bridge, so this stage calls
-    the reporting owner in process. See
-    src/cept/application/artifacts.py:65, src/cept/cli/registry.py:105-119, and
-    src/cept/application/operations/report.py.
-  - >-
-    Only the plain notebook target is implemented. A declared Colab target
-    raises instead of writing a notebook, because no Colab runtime, pinned
-    dependency set, kernel behaviour, or executed-notebook acceptance evidence
-    exists in this repository. See src/cept/reporting/notebook.py:20-27 and
-    src/cept/reporting/notebook.py:62.
-  - >-
-    Notebook assembly fails closed for any run whose stored engine is a licensed
-    host, because representing such a run honestly would require that host's
-    internals. A PowerFactory run therefore reaches report rendering and never
-    reaches notebook assembly. See src/cept/reporting/notebook.py:83 and
-    src/cept/reporting/notebook.py:325-329.
+limits:
   - >-
     A completed workflow is not engineering validation, not cross-engine
     agreement, and not project validation. It shows only that the declared
     operations ran in the declared order and produced their declared artifacts.
-    The claim ceiling is WORKFLOW_VALIDATED, the execution owner states that
-    project validation is not claimed, and the workflow receipt never carries a
-    validation verdict. See src/cept/public.py:34,
-    src/cept/application/execution.py:375, and
-    src/cept/recipes/run_result.py.
+    The claim ceiling is WORKFLOW_VALIDATED. See src/cept/public.py:34,
+    src/cept/application/execution.py:375 and src/cept/recipes/run_result.py.
+  - >-
+    PowerFactory is a licensed host. The comparison step cannot complete without
+    an installed and licensed PowerFactory session; no licence ships with CEPT and
+    this recipe cannot supply one. On a licence-free host that step records
+    blocked and the workflow continues without it. See
+    src/cept/adapters/pf/connection.py:108-133 and src/cept/cli/doctor.py:160-167.
+  - >-
+    Dynamics and EMT studies cannot be completed from anything this repository
+    ships. The vendor controller models, initialisation data and event definitions
+    such a study requires are absent, so the study stays unresolved rather than
+    solved. See examples/data_center_interconnection/README.md:12-14.
+  - >-
+    The data-centre interconnection fixture is a load-flow demonstrator whose values
+    are placeholders. Completing this workflow over it yields demonstrator evidence
+    only. See examples/data_center_interconnection/README.md:1-6.
+  - >-
+    Every operation runs in process through cept.application.operations.*. The
+    recipe therefore never depends on the public CLI grammar, and a grammar change
+    cannot change what a recipe does. See src/cept/recipes/registry.py and
+    src/cept/recipes/runner.py PYTHON_OPERATIONS.
+  - >-
+    The HTML report render operation has no standalone public verb. The report is
+    written by the execution owner during the study run. See
+    src/cept/application/artifacts.py:65 and src/cept/cli/registry.py:105-119.

@@ -106,6 +106,14 @@ def _parser() -> argparse.ArgumentParser:
         help="supply one declared recipe input; repeatable, e.g. case=case.json",
     )
     run.add_argument(
+        "--explain",
+        action="store_true",
+        help=(
+            "with --recipe: print what the workflow needs, does in order, must produce, "
+            "and cannot complete, then stop. Resolves no input and runs nothing."
+        ),
+    )
+    run.add_argument(
         "--dry-run",
         dest="dry_run",
         action="store_true",
@@ -624,6 +632,8 @@ def _run_recipe(args: argparse.Namespace) -> int:
         argv += ["--input", item]
     if args.out is not None:
         argv += ["--out", str(args.out)]
+    if getattr(args, "explain", False):
+        argv.append("--explain")
     if args.dry_run:
         argv.append("--dry-run")
     return recipe_main(argv)

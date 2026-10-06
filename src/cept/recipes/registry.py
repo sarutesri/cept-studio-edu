@@ -49,6 +49,10 @@ class Operation:
     summary: str
     required_inputs: tuple[str, ...]
     required_outputs: tuple[str, ...]
+    #: Value used when a recipe does not supply this input. The registry owns
+    #: these so a recipe stops repeating what the operation already decides; a
+    #: required input with no default and no supplied value fails closed.
+    defaults: tuple[tuple[str, str], ...] = ()
 
 
 _OPERATIONS: tuple[Operation, ...] = (
@@ -86,7 +90,9 @@ _OPERATIONS: tuple[Operation, ...] = (
             "cept.application.operations.verify."
         ),
         required_inputs=("run_dir",),
-        required_outputs=(),
+        # Every shipped v1 recipe declared this output itself, so the registry
+        # saying the operation writes nothing was only hidden by that repetition.
+        required_outputs=("validation_report.json",),
     ),
     Operation(
         id="compare.runs",
@@ -129,6 +135,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         ),
         required_inputs=("run_dir", "out_dir"),
         required_outputs=("run-notebook.ipynb",),
+        defaults=(("out_dir", "run-notebook.ipynb"),),
     ),
     Operation(
         id="write.receipt",
@@ -139,6 +146,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         ),
         required_inputs=("receipt_path",),
         required_outputs=("recipe-run.json",),
+        defaults=(("receipt_path", "recipe-run.json"),),
     ),
     Operation(
         id="audit.physics",
@@ -149,6 +157,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         ),
         required_inputs=("run_dir", "audit_out"),
         required_outputs=("physics-audit.json",),
+        defaults=(("audit_out", "physics-audit.json"),),
     ),
     Operation(
         id="audit.artifacts",
@@ -157,8 +166,9 @@ _OPERATIONS: tuple[Operation, ...] = (
             "Inventory run directories under an explicit root and hash their bound evidence "
             "files, through cept.application.operations.audit. Read-only."
         ),
-        required_inputs=("audit_root", "audit_out"),
+        required_inputs=("audit_root", "run_dir", "audit_out"),
         required_outputs=("artifacts-audit.json",),
+        defaults=(("audit_out", "artifacts-audit.json"),),
     ),
     Operation(
         id="audit.perunit",
@@ -167,8 +177,9 @@ _OPERATIONS: tuple[Operation, ...] = (
             "Check one typed Case's declared per-unit and kV bases for internal consistency, "
             "through cept.application.operations.audit."
         ),
-        required_inputs=("case", "audit_out"),
+        required_inputs=("case", "run_dir", "audit_out"),
         required_outputs=("per-unit-audit.json",),
+        defaults=(("audit_out", "per-unit-audit.json"),),
     ),
     Operation(
         id="audit.release",
@@ -180,6 +191,7 @@ _OPERATIONS: tuple[Operation, ...] = (
         ),
         required_inputs=("qualify_root", "run_dir", "audit_out"),
         required_outputs=("release-qualification.json",),
+        defaults=(("audit_out", "release-qualification.json"),),
     ),
 )
 

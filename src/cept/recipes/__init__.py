@@ -7,7 +7,8 @@ facade exposes the shared typed document and receipt contracts.
 
 Public surface:
 
-- :mod:`cept.recipes.schema` — the ``workflow-recipe-v1`` document schema.
+- :mod:`cept.recipes.v2` — the ``workflow-recipe-v2`` document a person writes.
+- :mod:`cept.recipes.schema` — the typed model it is translated into, and ``load_recipe``.
 - :mod:`cept.recipes.registry` — the closed set of recipe operations and the
   in-process application function each one calls.
 - :mod:`cept.recipes.run_result` — the ``workflow-recipe-run-v1`` result document.

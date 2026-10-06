@@ -140,10 +140,12 @@ export:
     - src/cept/recipes/__init__.py
     - src/cept/recipes/__main__.py
     - src/cept/recipes/composition.py
+    - src/cept/recipes/explain.py
     - src/cept/recipes/registry.py
     - src/cept/recipes/run_result.py
     - src/cept/recipes/runner.py
     - src/cept/recipes/schema.py
+    - src/cept/recipes/v2.py
     - src/cept/application/artifacts.py
     - src/cept/application/environment_identity.py
     - src/cept/application/execution.py

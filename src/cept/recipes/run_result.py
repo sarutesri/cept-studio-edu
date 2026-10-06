@@ -11,7 +11,7 @@ field stays in the document contract because a receipt reader asks whether the
 stage executed a command or an in-process operation, and ``None`` answers that
 positively rather than by omission.
 
-See :mod:`cept.recipes.schema` for the ``workflow-recipe-v1`` document that
+See :mod:`cept.recipes.v2` for the ``workflow-recipe-v2`` document that
 produced the run.
 """
 

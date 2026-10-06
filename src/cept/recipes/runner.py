@@ -1,4 +1,4 @@
-"""Single ordered runtime for ``workflow-recipe-v1``.
+"""Single ordered runtime for workflow recipes (``workflow-recipe-v2`` documents).
 
 Explicit include stages expand one level into bound, namespaced child stages.
 The runner executes registered operations synchronously and records declared
@@ -370,6 +370,13 @@ def plan_stages(recipe: Recipe, values: dict[str, str], base_dir: Path) -> list[
                         "which was neither supplied nor defaulted"
                     )
                 bound[name] = values[reference]
+            # An input the stage did not name comes from the registry, which owns
+            # it. Applying it here rather than in the document keeps the typed
+            # model's guarantee -- a stage's input values are declared input names
+            # -- and means the same code path binds a supplied and a defaulted
+            # value.
+            for name, default in operation.defaults:
+                bound.setdefault(name, default)
             # In-process: there is no argv to render and no CLI verb to spawn.
             # Binding still has to be complete, so every declared required
             # input must be bound to a non-empty value before the stage runs.
@@ -1331,6 +1338,16 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--explain",
+        action="store_true",
+        help=(
+            "Print the recipe as prose -- what it needs, what it does in order, what it "
+            "must produce, and what cannot complete -- then stop. Resolves no input, runs "
+            "no operation, writes no receipt and creates no directory, so it works before "
+            "you have the values the recipe wants."
+        ),
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help=(
@@ -1453,6 +1470,13 @@ def main(
         from cept.recipes.composition import expand_recipe
 
         recipe, included_hashes = expand_recipe(recipe, recipe_path)
+        if args.explain:
+            # Includes are expanded first so the printed list is the stages that
+            # would actually run, not the ones this file happens to name.
+            from cept.recipes.explain import explain
+
+            print(explain(recipe))
+            return 0
         values = resolve_recipe_inputs(recipe, parse_assignments(args.inputs), Path.cwd())
         planned = plan_stages(recipe, values, out_dir)
         if included_hashes:
